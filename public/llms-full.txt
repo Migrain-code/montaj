@@ -1,0 +1,395 @@
+# Trakya Mobilya Montaj — tam metin
+
+> Tekirdağ, Edirne ve Kırklareli'nde profesyonel mobilya montaj hizmeti. Gardırop, yatak, baza, TV ünitesi, IKEA ve ofis mobilyası montajı. WhatsApp'tan hemen teklif alın.
+
+## Mobilya Montajı
+
+URL: http://127.0.0.1:8000/mobilya-montaji
+
+Mağazadan veya internetten satın aldığınız paketli mobilyaların kurulumunu, üretici kılavuzuna uygun şekilde ve kendi ekipmanımızla yapıyoruz. Marka fark etmeksizin yatak odası takımı, oturma grubu, yemek odası, genç odası ve salon mobilyalarını monte ediyoruz.Tekirdağ, Edirne ve Kırklareli'nin tüm ilçelerine geliyoruz. Montaj öncesinde ürün fotoğrafına göre net fiyat veriyor, montaj sonrasında kapak ve çekmece ayarlarını yapıp ambalajları topluyoruz.
+
+- Paketli (demonte) mobilyaların kurulumu
+- Yatak odası, yemek odası ve genç odası takımlarının montajı
+- Taşınma öncesi sökme, yeni adreste yeniden kurma
+- Kapak, ray ve menteşe ayarlarının yapılması
+- Devrilme riski olan mobilyaların duvara sabitlenmesi
+- Montaj sonrası ambalaj toplama ve alan temizliği
+
+**Hangi markaların mobilyalarını kuruyorsunuz?** Marka ayrımı yapmıyoruz. Yerli ve yabancı tüm hazır mobilya markalarının ürünlerini, kutudan çıkan montaj kılavuzuna uygun şekilde kuruyoruz.
+**Montaj ne kadar sürer?** Süre ürüne göre değişir. Tek bir baza veya masa 30-60 dakika, komple yatak odası takımı 3-5 saat sürebilir. Fotoğrafa göre tahmini süreyi randevu öncesinde bildiririz.
+**Montaj kılavuzu kaybolduysa kurabilir misiniz?** Evet. Deneyimli ekibimiz parça yapısına göre kurulum yapabilir; ürün fotoğrafını gönderdiğinizde gerekirse üreticinin çevrim içi kılavuzunu buluruz.
+**Vida ve dübel getiriyor musunuz?** Ürün kutusundan çıkan bağlantı elemanları kullanılır; duvara sabitleme için gerekli dübel ve vidaları biz temin ederiz.
+
+## IKEA Mobilya Montajı
+
+URL: http://127.0.0.1:8000/ikea-mobilya-montaji
+
+IKEA ürünlerinin kendine özgü parça ve bağlantı sistemine hakim ekibimizle PAX gardırop, BESTÅ ve KALLAX üniteler, MALM ve HEMNES yatak odası ürünleri, BILLY kitaplık, LACK sehpa ve tüm diğer IKEA mobilyalarını kuruyoruz.Trakya'da IKEA mağazası bulunmadığından ürünler genellikle kargo veya nakliye ile geliyor. Kutuları açmadan önce bize fotoğrafını gönderin; parça sayısına göre net fiyat verelim ve size uygun günde montajı tamamlayalım.
+
+- PAX gardırop ve iç düzenleyici (KOMPLEMENT) kurulumu
+- BESTÅ, KALLAX ve EKET ünitelerinin montajı ve duvara sabitlenmesi
+- MALM, HEMNES, BRIMNES yatak ve şifonyer kurulumu
+- BILLY kitaplık ve raf sistemleri
+- Masa, sandalye, sehpa ve TV sehpası montajı
+- Sürgülü kapak, ray ve menteşe ayarları
+
+**PAX gardırop montajı ne kadar sürer?** İki kapaklı standart bir PAX yaklaşık 2 saat, sürgülü kapaklı ve iç düzenleyicili üçlü PAX 4-6 saat sürebilir.
+**IKEA'nın kendi montaj hizmeti yerine neden sizi seçmeliyim?** Trakya'da IKEA mağazası bulunmadığı için resmi montaj hizmeti her ilçeye ulaşmayabilir. Biz Tekirdağ, Edirne ve Kırklareli'nin tüm ilçelerine geliyoruz ve randevuyu sizin takviminize göre planlıyoruz.
+**Ürün kutuları açılmış olsa da kurulum yapıyor musunuz?** Evet. Parçaların tam olduğundan emin olmak için kutu içeriğini kılavuzdaki listeyle karşılaştırıp montaja başlıyoruz.
+
+## Gardırop Montajı
+
+URL: http://127.0.0.1:8000/gardirop-montaji
+
+İki kapaklıdan altı kapaklıya, sürgülü kapaklıdan köşe modellerine kadar her türlü gardırobu kuruyoruz. Gövde kurulumu, kapak ayarı, sürgü rayı montajı, iç raf ve askı düzeni ile duvara sabitleme işlemlerini aynı randevuda tamamlıyoruz.Gardıroplar yüksekliği nedeniyle devrilme riski taşır; bu yüzden özellikle çocuk odalarında duvara sabitlemeyi standart olarak yapıyoruz. Taşınma durumunda mevcut gardırobunuzu söküp yeni adreste yeniden kurabiliyoruz.
+
+- Kapaklı gardırop gövde ve kapak montajı
+- Sürgülü kapak ray sistemi kurulumu ve ayarı
+- Köşe gardırop ve giyinme odası (walk-in) sistemleri
+- İç raf, çekmece ve askı borusu düzenlemesi
+- Duvara sabitleme (devrilme önleyici)
+- Taşınma için sökme ve yeniden kurma
+
+**Gardırop montajı için odanın boş olması gerekir mi?** Gardırobun kurulacağı duvar önünün ve parçaları yayabileceğimiz yaklaşık 2 m²'lik bir alanın boş olması yeterlidir.
+**Tavan yüksekliği yeterli değilse ne olur?** Randevu öncesinde gardırop yüksekliği ile oda tavan yüksekliğini sorarız. Kurulum sırasında dik kaldırma için ürün yüksekliğine ek yaklaşık 5-10 cm boşluk gerekir; gerekirse gövdeyi yatay kurup dikiyo
+**Sürgülü kapaklar sonradan kaydırmaya başlarsa ayar yapıyor musunuz?** Evet. Mevcut gardıroplarınızda kapak, ray ve menteşe ayarı için de hizmet veriyoruz.
+
+## Yatak ve Baza Montajı
+
+URL: http://127.0.0.1:8000/yatak-baza-montaji
+
+Tek kişilik, çift kişilik, sandıklı ve çekmeceli bazaları; ayaklı, başlıklı ve karyola tipi yatak sistemlerini kuruyoruz. Sandıklı bazalarda pistonlu kaldırma mekanizmasının doğru ayarlanması ve başlığın bazaya sağlam bağlanması için kendi ekipmanımızı kullanıyoruz.Nakliye ile gelen yatak odası takımlarında baza ve başlıkla birlikte şifonyer, komodin ve gardırop montajını aynı randevuda tamamlayabiliyoruz.
+
+- Tek ve çift kişilik baza kurulumu
+- Sandıklı (pistonlu) baza mekanizması montajı ve ayarı
+- Yatak başlığı montajı ve bazaya bağlanması
+- Karyola, ranza ve genç odası yatakları
+- Komodin ve şifonyer kurulumu
+- Taşınma için baza sökme ve yeniden kurma
+
+**Baza montajı ne kadar sürer?** Standart bir çift kişilik sandıklı baza ve başlık montajı yaklaşık 45-90 dakika sürer.
+**Başlık duvara mı bazaya mı sabitleniyor?** Başlığın modeline göre bazaya bağlanır veya duvara monte edilir. Ürün fotoğrafına göre uygun yöntemi belirleyip gerekli malzemeyi getiririz.
+**Sadece baza sökme hizmeti alabilir miyim?** Evet. Taşınma veya tadilat için yalnızca sökme, yalnızca kurma ya da her ikisi için randevu oluşturabilirsiniz.
+
+## Masa ve Sandalye Montajı
+
+URL: http://127.0.0.1:8000/masa-sandalye-montaji
+
+Yemek masası, mutfak masası, açılır (uzayabilir) masa, çalışma masası ve sandalyelerin montajını yapıyoruz. Açılır masalarda mekanizmanın, döner sandalyelerde amortisör ve tekerleklerin doğru takılması için ürün kılavuzuna uygun çalışıyoruz.Kafe ve restoranlar için toplu masa-sandalye kurulumlarında ürün adedine göre paket fiyat veriyoruz.
+
+- Yemek ve mutfak masası montajı
+- Açılır / uzayabilir masa mekanizması kurulumu
+- Çalışma masası ve bilgisayar masası montajı
+- Sandalye, tabure ve bar sandalyesi kurulumu
+- Kafe ve restoran için toplu montaj
+- Masa ayağı ve gövde sabitleme kontrolü
+
+**Sadece sandalye montajı için geliyor musunuz?** Evet. Adet ve ilçeye göre fiyat verip randevu oluşturuyoruz; aynı bölgedeki işlerle birleştirerek uygun tarih sunuyoruz.
+**Açılır masa mekanizması ayarı yapıyor musunuz?** Evet, açılır masalarda ray ve kilit mekanizmasının ayarını kurulum sonunda test ederek teslim ediyoruz.
+
+## TV Ünitesi Montajı
+
+URL: http://127.0.0.1:8000/tv-unitesi-montaji
+
+Yerden ve duvara asılan TV ünitelerini, duvar raflarını, vitrin ve konsolları kuruyoruz. Duvara asılan modellerde duvar tipine uygun dübel seçimi ve terazi ayarı yaparak üniteyi güvenli şekilde sabitliyoruz.İsteğe bağlı olarak TV askı aparatı montajını da aynı randevuda yapıyoruz.
+
+- Yerden TV ünitesi ve TV sehpası montajı
+- Duvara asılan (asma) TV ünitesi ve raf kurulumu
+- Vitrin, konsol ve dresuar montajı
+- TV askı aparatı montajı (isteğe bağlı)
+- Kablo düzenleme için kablo kanalı montajı
+- Kapak ve çekmece ayarları
+
+**Alçıpan duvara asma TV ünitesi monte edilebilir mi?** Evet, alçıpan duvarlar için uygun ağırlık kapasitesine sahip özel dübeller kullanıyoruz. Ünitenin ve TV'nin ağırlığına göre profil aramaya gerek olup olmadığını randevu öncesinde değerlendiriyoruz.
+**TV'yi de duvara asıyor musunuz?** Evet, askı aparatınız varsa TV montajını da aynı randevuda yapıyoruz.
+
+## Kitaplık Montajı
+
+URL: http://127.0.0.1:8000/kitaplik-montaji
+
+Modüler kitaplıklar, duvar boyu raf sistemleri, açık raflı üniteler ve çalışma odası kitaplıklarını kuruyoruz. Yüksek kitaplıkların devrilmemesi için duvara sabitleme işlemini standart olarak yapıyoruz.Birden fazla modülün yan yana kurulduğu sistemlerde modüllerin birbirine bağlanması ve hizalanması için terazi ve mesafe ayarlarını dikkatle yapıyoruz.
+
+- Modüler kitaplık ve raf ünitesi montajı
+- Duvar rafı ve konsol raf kurulumu
+- Modüllerin birbirine bağlanması ve hizalanması
+- Duvara sabitleme (devrilme önleyici)
+- Çalışma odası ve kütüphane düzenleri
+- Ofis dosya dolabı ve raf sistemleri
+
+**Kitaplığın duvara sabitlenmesi zorunlu mu?** Zorunlu olmasa da 120 cm'den yüksek kitaplıkların, özellikle çocuklu evlerde, devrilme riskine karşı sabitlenmesini öneriyor ve ek ücret almadan yapıyoruz.
+**Duvar rafı montajında duvarı deliyor musunuz?** Evet, duvar rafları dübel ile sabitlenir. Delme öncesinde duvar içinde tesisat olup olmadığını kontrol ediyoruz.
+
+## Ofis Mobilyası Montajı
+
+URL: http://127.0.0.1:8000/ofis-mobilyasi-montaji
+
+Çalışma masaları, workstation (çoklu çalışma) sistemleri, toplantı masaları, dosya dolapları, keson ve ofis sandalyelerinin montajını yapıyoruz. Yeni ofis kurulumlarında ve ofis taşımalarında ürün adedine göre paket fiyat veriyor, mesai dışı saatlerde de çalışabiliyoruz.Çorlu, Çerkezköy, Kapaklı ve Lüleburgaz gibi sanayi bölgelerindeki fabrika ve ofislere düzenli hizmet veriyoruz.
+
+- Çalışma masası ve workstation kurulumu
+- Toplantı masası ve yönetici masası montajı
+- Dosya dolabı, keson ve arşiv rafları
+- Ofis sandalyesi kurulumu (adet bazlı)
+- Ofis taşımada sökme ve yeniden kurma
+- Seperatör ve bölme panel montajı
+
+**Hafta sonu veya mesai sonrası montaj yapıyor musunuz?** Evet. Ofisin çalışma düzenini bozmamak için hafta sonu ve mesai sonrası randevu planlayabiliyoruz.
+**Fatura kesiyor musunuz?** Evet, kurumsal müşterilerimiz için fatura düzenliyoruz.
+**Kaç kişilik ekiple geliyorsunuz?** İşin büyüklüğüne göre 1-3 kişilik ekiple geliyoruz; toplu kurulumlarda süreyi kısaltmak için ekip sayısını artırıyoruz.
+
+## Çorlu (Tekirdağ)
+
+URL: http://127.0.0.1:8000/tekirdag/corlu
+
+Çorlu, Tekirdağ'ın en kalabalık ilçesi ve Trakya'nın sanayi merkezi. Organize sanayi bölgelerinde çalışan nüfusun yoğunluğu, sürekli yeni siteler ve toplu konut projeleri Çorlu'yu taşınma hareketinin en yoğun olduğu ilçe yapıyor. Ekibimiz Çorlu merkezli olduğundan çoğu talebe aynı gün randevu verebiliyoruz.Reşadiye, Kemalettin, Hıdırağa, Kazımiye ve Şeyhsinan gibi merkez mahallelerin yanı sıra Alipaşa, Havuzlar ve Esentepe'deki site projelerine de düzenli olarak gidiyoruz. Yatak odası takımı, gardırop, TV ünitesi ve IKEA mobilyası montajı Çorlu'da en çok talep edilen hizmetlerimiz.
+
+Hizmet verilen mahalleler: Reşadiye, Kemalettin, Hıdırağa, Cemaliye, Nusratiye, Şeyhsinan, Hatip, Alipaşa, Zafer, Kazımiye, Silahtarağa, Muhittin, Hürriyet, Esentepe, Havuzlar, Rumeli, Yenice, Çobançeşme, Cumhuriyet
+
+## Çerkezköy (Tekirdağ)
+
+URL: http://127.0.0.1:8000/tekirdag/cerkezkoy
+
+Çerkezköy, Türkiye'nin en büyük organize sanayi bölgelerinden birine ev sahipliği yapıyor ve çalışan nüfusun büyük bölümü ilçedeki yeni konut projelerinde yaşıyor. Fabrika lojmanları, kiralık daireler ve site projeleri nedeniyle Çerkezköy'de taşınma ve yeni ev kurma talebi yıl boyu sürüyor.Cumhuriyet, Fevzipaşa, Gazi Mustafa Kemal Paşa ve Kızılpınar mahallelerindeki sitelere; Veliköy ve Bağlık'taki yeni konutlara mobilya montajı için sık sık gidiyoruz. Çerkezköy Kapaklı ile bitişik olduğu için iki ilçedeki talepleri aynı güne planlayıp hızlı randevu verebiliyoruz.
+
+Hizmet verilen mahalleler: Cumhuriyet, Fevzipaşa, Gazi Mustafa Kemal Paşa, Gazi Osman Paşa, Kızılpınar Atatürk, Kızılpınar Gültepe, Kızılpınar Namık Kemal, Veliköy, Bağlık, Yıldırım Beyazıt, Fatih, İstasyon
+
+## Kapaklı (Tekirdağ)
+
+URL: http://127.0.0.1:8000/tekirdag/kapakli
+
+Kapaklı, son yıllarda Türkiye'nin en hızlı büyüyen ilçelerinden biri. Çerkezköy OSB'ye yakınlığı sayesinde genç ve çalışan nüfus ilçedeki yeni yapılan sitelere yerleşiyor; bu da yeni ev kurma ve mobilya montajı talebini sürekli canlı tutuyor.Atatürk, Cumhuriyet, İnönü ve İsmetpaşa mahallelerindeki site projeleri ile Karaağaç ve Uzunhacı bölgelerindeki yeni konutlara düzenli hizmet veriyoruz. İnternetten sipariş edilen paketli mobilyaların ve IKEA ürünlerinin kurulumu Kapaklı'da en çok talep gören işlerimiz arasında.
+
+Hizmet verilen mahalleler: Atatürk, Cumhuriyet, İnönü, İsmetpaşa, Bahçelievler, Karaağaç, Uzunhacı, Pınarça, Bahçeağıl, Yanıkağıl, Karlıköy
+
+## Süleymanpaşa (Tekirdağ)
+
+URL: http://127.0.0.1:8000/tekirdag/suleymanpasa
+
+Süleymanpaşa, Tekirdağ'ın il merkezi ve sahil ilçesi. Namık Kemal Üniversitesi nedeniyle yoğun bir öğrenci nüfusu, Değirmenaltı ve Altınova'daki sahil siteleri ile Kumbağ ve Barbaros'taki yazlıklar farklı dönemlerde farklı montaj ihtiyaçları doğuruyor.Eylül-ekim aylarında öğrenci evleri için baza, çalışma masası ve kitaplık; yaz başında yazlık siteler için oturma grubu ve yatak odası montajı en sık talep ettiğimiz işler. Hürriyet, Aydoğdu, Yavuz ve 100. Yıl mahalleleri başta olmak üzere ilçenin tamamına geliyoruz.
+
+Hizmet verilen mahalleler: Hürriyet, Aydoğdu, Altınova, Değirmenaltı, Yavuz, Eskicami, Ertuğrul, Çınarlı, Karadeniz, Turgut, Zafer, Gündoğdu, Namık Kemal, 100. Yıl, Barbaros, Kumbağ, Banarlı, Karacakılavuz
+
+## Ergene (Tekirdağ)
+
+URL: http://127.0.0.1:8000/tekirdag/ergene
+
+Ergene, Çorlu'dan ayrılarak ilçe olan ve Velimeşe, Ulaş, Marmaracık gibi sanayi ağırlıklı yerleşimleri kapsayan bir ilçe. Çorlu ile iç içe olması nedeniyle Ergene'deki taleplere Çorlu ile aynı hızda, çoğunlukla aynı gün ulaşıyoruz.Velimeşe ve Ulaş'taki işçi lojmanları ve kiralık daireler ile Marmaracık ve Sağlık mahallelerindeki yeni konutlara yatak, baza, gardırop ve masa-sandalye montajı için düzenli gidiyoruz. Bölgedeki fabrikaların ofis ve yemekhane mobilyalarının kurulumunu da yapıyoruz.
+
+Hizmet verilen mahalleler: Velimeşe, Ulaş, Marmaracık, Sağlık, Misinli, Yeşiltepe, Karamehmet, Vakıflar, Ahimehmet, Pınarbaşı, İğneler, Bakırca
+
+## Marmaraereğlisi (Tekirdağ)
+
+URL: http://127.0.0.1:8000/tekirdag/marmaraereglisi
+
+Marmaraereğlisi, Marmara sahilinde yazlık siteleriyle bilinen bir ilçe. Sultanköy, Yeniçiftlik ve Çeşmeli'deki sitelerde özellikle mayıs-haziran aylarında oturma grubu, yatak odası ve balkon mobilyası montajı talebi artıyor; kış aylarında ise merkez mahallelerdeki kalıcı konutlara hizmet veriyoruz.Çorlu'ya yakınlığı sayesinde Marmaraereğlisi'ne 1-2 iş günü içinde randevu verebiliyoruz. Siteye giriş bilgilerini randevu öncesinde alarak ekibimizin zaman kaybetmeden montaja başlamasını sağlıyoruz.
+
+Hizmet verilen mahalleler: Cedit, Bahçelievler, Dereağzı, Sultanköy, Yeniçiftlik, Çeşmeli, Mustafa Kemal Paşa, Türkmenli
+
+## Şarköy (Tekirdağ)
+
+URL: http://127.0.0.1:8000/tekirdag/sarkoy
+
+Şarköy, bağcılığı ve sahil yazlıklarıyla tanınan, Tekirdağ merkeze yaklaşık 85 km uzaklıkta bir ilçe. Mürefte, Hoşköy ve Kızılcaterzi'deki yazlık siteler ile ilçe merkezindeki kalıcı konutlara mobilya montajı için geliyoruz.Mesafe nedeniyle Şarköy taleplerini aynı güne toplayarak planlıyor, böylece hem randevu tarihini hem de fiyatı uygun tutuyoruz. Yaz sezonu öncesinde yazlık siteler için toplu montaj taleplerinde paket fiyat veriyoruz.
+
+Hizmet verilen mahalleler: Cumhuriyet, İstiklal, Mürefte, Hoşköy, Kızılcaterzi, Eriklice, Gaziköy, Uçmakdere, Yeniköy, Sofuköy, İğdebağları
+
+## Malkara (Tekirdağ)
+
+URL: http://127.0.0.1:8000/tekirdag/malkara
+
+Malkara, Tekirdağ'ın batısında tarım ve hayvancılıkla öne çıkan, Edirne-Keşan yoluna yakın bir ilçe. İlçe merkezindeki Camiatik, Gazibey, Hacıevhat ve Yenimahalle'deki konutlara ve çevre köylere mobilya montajı için düzenli gidiyoruz.Malkara'da özellikle yatak odası takımı, gardırop ve mutfak masası montajı talep ediliyor. Hayrabolu ve Keşan yönündeki işlerle birleştirerek Malkara için uygun fiyatlı ve hızlı randevu sunuyoruz.
+
+Hizmet verilen mahalleler: Camiatik, Gazibey, Hacıevhat, Yenimahalle, Cumhuriyet, Kozyörük, Şahin, Ballı, Kalaycı, Sağlamtaş, Yenidibek
+
+## Hayrabolu (Tekirdağ)
+
+URL: http://127.0.0.1:8000/tekirdag/hayrabolu
+
+Hayrabolu, Tekirdağ'ın kuzeybatısında ayçiçeği tarımıyla bilinen bir ilçe. Cumhuriyet, Hisar ve İlyas mahallelerindeki konutlar ile Çerkezmüsellim, Lahna ve Dambaslar gibi köylere mobilya montajı için gidiyoruz.Hayrabolu'da gardırop, baza ve TV ünitesi montajı ile taşınma sonrası mobilya kurulumu en sık aldığımız talepler. Muratlı ve Malkara hattındaki işlerle birlikte planlayarak 1-3 iş günü içinde randevu veriyoruz.
+
+Hizmet verilen mahalleler: Cumhuriyet, Hisar, İlyas, Çerkezmüsellim, Lahna, Susuzmüsellim, Dambaslar
+
+## Muratlı (Tekirdağ)
+
+URL: http://127.0.0.1:8000/tekirdag/muratli
+
+Muratlı, Çorlu'ya yaklaşık 20 km uzaklıkta, demiryolu ve sanayi tesisleriyle gelişen bir ilçe. Çorlu'ya yakınlığı sayesinde Muratlı'daki taleplere çoğunlukla aynı gün veya ertesi gün ulaşıyoruz.Muradiye, Turan ve Yeni mahallelerindeki konutlar ile İnanlı, Ballıhoca ve Sevindikli köylerine gardırop, yatak-baza, masa-sandalye ve IKEA mobilyası montajı için geliyoruz.
+
+Hizmet verilen mahalleler: Muradiye, Turan, Yeni, İnanlı, Ballıhoca, Aşağısevindikli, Yukarısevindikli, Çevrimkaya
+
+## Saray (Tekirdağ)
+
+URL: http://127.0.0.1:8000/tekirdag/saray
+
+Saray, Tekirdağ'ın kuzeyinde Istranca Dağları eteklerinde yer alan, Çerkezköy ve Kapaklı'ya komşu bir ilçe. Ayaspaşa, Kemalpaşa ve Yeni mahallelerindeki konutlara ve Büyükyoncalı, Küçükyoncalı, Beyazköy gibi beldelere mobilya montajı için gidiyoruz.Çerkezköy-Kapaklı hattındaki işlerle birleştirerek Saray için 1-2 iş günü içinde randevu planlıyoruz. Yatak odası, gardırop ve mutfak masası montajı Saray'da en sık talep edilen hizmetler.
+
+Hizmet verilen mahalleler: Ayaspaşa, Kemalpaşa, Yeni, Büyükyoncalı, Küçükyoncalı, Beyazköy, Sofular, Edirköy
+
+## Edirne Merkez (Edirne)
+
+URL: http://127.0.0.1:8000/edirne/edirne-merkez
+
+Edirne merkez; Kaleiçi'nin tarihi sokaklarından Yıldırım, Şükrüpaşa ve Fatih mahallelerindeki modern sitelere kadar geniş bir konut çeşitliliğine sahip. Trakya Üniversitesi kampüsünün çevresindeki Karaağaç, Yeni İmaret ve Kirişhane bölgelerinde her eylül binlerce öğrenci evi kuruluyor.Öğrenci evleri için baza, çalışma masası ve kitaplık; yeni sitelerde yatak odası takımı ve gardırop; şehir merkezindeki ofis ve dükkanlar için ofis mobilyası montajı Edirne merkezde en sık aldığımız talepler.
+
+Hizmet verilen mahalleler: Çavuşbey, Dilaverbey, Sabuni, Yıldırım Beyazıt, Yıldırım Hacı Sarraf, Abdurrahman, Fatih, Şükrüpaşa, Yeni İmaret, Kirişhane, Barutluk, Karaağaç, Sarayiçi, İstasyon, Mithatpaşa, Umurbey, Talatpaşa, Koca Sinan, Meydan, 1. Murat, Nişancıpaşa, Menzilahır, Medrese Alibey
+
+## Keşan (Edirne)
+
+URL: http://127.0.0.1:8000/edirne/kesan
+
+Keşan, Edirne'nin en kalabalık ilçesi ve Güney Trakya'nın ticaret merkezi. İstanbul-Çanakkale yolu üzerindeki konumu ve Saros Körfezi'ndeki Erikli, Yayla ve Mecidiye yazlık bölgeleri nedeniyle hem kalıcı konut hem de yazlık montaj talebi yüksek.İspat Cami, Büyük Cami, Yukarı ve Aşağı Zaferiye mahallelerindeki konutlara; yaz sezonu öncesinde Erikli ve Mecidiye'deki yazlık sitelere mobilya montajı için gidiyoruz. Malkara ve İpsala hattındaki işlerle birlikte planladığımız için Keşan'a 1-3 iş günü içinde randevu veriyoruz.
+
+Hizmet verilen mahalleler: İspat Cami, Büyük Cami, Yukarı Zaferiye, Aşağı Zaferiye, İstasyon, Yeni Mescit, Mustafa Kemal Paşa, Paşayiğit, Beğendik, Mecidiye, Yenimuhacir, Erikli
+
+## Uzunköprü (Edirne)
+
+URL: http://127.0.0.1:8000/edirne/uzunkopru
+
+Uzunköprü, Ergene Nehri üzerindeki tarihi taş köprüsü ve tarım ticaretiyle bilinen, Edirne'nin güneyindeki büyük ilçelerden biri. Muradiye, Rızaefendi, Halise Hatun ve Cumhuriyet mahallelerindeki konutlar ile Kırcasalih ve Çöpköy beldelerine mobilya montajı için geliyoruz.Uzunköprü'de yatak odası takımı, gardırop, mutfak masası ve TV ünitesi montajı en çok talep edilen hizmetler. Keşan ve Edirne merkez yönündeki işlerle birleştirerek Uzunköprü için uygun fiyatlı randevu planlıyoruz.
+
+Hizmet verilen mahalleler: Muradiye, Rızaefendi, Halise Hatun, Mescit, Cumhuriyet, Kırcasalih, Çöpköy
+
+## İpsala (Edirne)
+
+URL: http://127.0.0.1:8000/edirne/ipsala
+
+İpsala, Yunanistan sınır kapısı ve pirinç tarımıyla tanınan, Keşan'a komşu bir ilçe. Fatih ve Cumhuriyet mahallelerindeki konutlar ile Esetçe, Yenikarpuzlu ve İbriktepe gibi köylere mobilya montajı için gidiyoruz.İpsala taleplerini Keşan ile aynı güne planlayarak hem hızlı randevu hem de uygun fiyat sunuyoruz. Yatak odası, gardırop ve yemek masası montajı İpsala'da en sık aldığımız işler.
+
+Hizmet verilen mahalleler: Fatih, Cumhuriyet, Esetçe, Yenikarpuzlu, İbriktepe, Sarıcaali, Turpçular, Hıdırköy
+
+## Havsa (Edirne)
+
+URL: http://127.0.0.1:8000/edirne/havsa
+
+Havsa, Edirne merkeze yaklaşık 25 km uzaklıkta, D-100 karayolu üzerinde yer alan bir ilçe. Edirne merkeze düzenli çıktığımız günlerde Havsa'ya da uğradığımız için ilçeye hızlı randevu verebiliyoruz.Hacı İsa, Hacı Gazi ve Yeni mahallelerindeki konutlar ile Hasköy, Osmanlı ve Necatiye köylerine gardırop, baza, TV ünitesi ve masa-sandalye montajı için geliyoruz.
+
+Hizmet verilen mahalleler: Hacı İsa, Hacı Gazi, Yeni, Hasköy, Osmanlı, Necatiye, Abalar, Söğütlüdere, Yolageldi
+
+## Enez (Edirne)
+
+URL: http://127.0.0.1:8000/edirne/enez
+
+Enez, Meriç Deltası ve Saros Körfezi sahiliyle bilinen, Edirne'nin en güneyindeki ilçe. Gazi Ömer Bey ve İstiklal mahallelerindeki konutlara ve Sultaniçe, Gülçavuş ile Yenice bölgelerindeki yazlık sitelere mobilya montajı için gidiyoruz.Enez taleplerini Keşan ve İpsala ile aynı güne planlıyor, yaz sezonu öncesinde yazlık siteler için toplu montajda paket fiyat veriyoruz.
+
+Hizmet verilen mahalleler: Gazi Ömer Bey, İstiklal, Yeni, Yenice, Sultaniçe, Gülçavuş, Vakıf, Karaincirli, Çavuşköy, Hisarlı, Büyükevren, Küçükevren, Umurbey
+
+## Meriç (Edirne)
+
+URL: http://127.0.0.1:8000/edirne/meric
+
+Meriç, Yunanistan sınırındaki Meriç Nehri kıyısında tarımla geçinen, Uzunköprü'ye komşu küçük bir ilçe. İlçe merkezi ile Küplü, Subaşı ve Yenicegörüce beldelerine ve köylerine mobilya montajı için geliyoruz.Meriç taleplerini Uzunköprü ve İpsala hattındaki işlerle birleştirerek planlıyoruz. Yatak odası, gardırop ve mutfak masası montajı ilçede en sık talep edilen hizmetler.
+
+Hizmet verilen mahalleler: Merkez, Küplü, Subaşı, Yenicegörüce, Adasarhanlı, Akçadam, Alibey, Büyükaltıağaç, Kadıdondurma, Olacak, Saatağacı, Serem, Umurca, Yakupbey
+
+## Lalapaşa (Edirne)
+
+URL: http://127.0.0.1:8000/edirne/lalapasa
+
+Lalapaşa, Bulgaristan sınırında, Edirne merkeze yaklaşık 25 km uzaklıkta kırsal karakterli bir ilçe. Merkez mahalle ile Büyünlü, Hacıdanişment, Sinanköy ve diğer köylere mobilya montajı için gidiyoruz.Edirne merkez randevularıyla aynı güne planlayarak Lalapaşa'ya uygun fiyatlı hizmet veriyoruz. Yatak odası, gardırop, baza ve mutfak masası montajı ilçede en çok talep edilen işler.
+
+Hizmet verilen mahalleler: Merkez, Büyünlü, Çömlekpınar, Hacıdanişment, Sinanköy, Çallıdere, Ömeroba, Vaysal, Hamzabeyli, Doğanköy, Kalkansöğüt, Hanlıyenice, Süleymandanişment, Taşlımüsellim, Uzunbayır, Yünlüce
+
+## Süloğlu (Edirne)
+
+URL: http://127.0.0.1:8000/edirne/suloglu
+
+Süloğlu, Edirne merkeze yaklaşık 30 km uzaklıkta, barajı ve tarım arazileriyle bilinen küçük bir ilçe. İlçe merkezi ile Akardere, Büyükgerdelli, Tatarlar ve diğer köylere mobilya montajı için geliyoruz.Süloğlu taleplerini Edirne merkez ve Lalapaşa ile aynı güne planlıyoruz. Yatak odası takımı, gardırop ve mutfak masası montajı ilçede en sık aldığımız işler.
+
+Hizmet verilen mahalleler: Merkez, Akardere, Büyükgerdelli, Küküler, Domurcalı, Geçkinli, Keramettin, Sülecik, Tatarlar, Taşlısekban, Yağcılı, Habiller
+
+## Kırklareli Merkez (Kırklareli)
+
+URL: http://127.0.0.1:8000/kirklareli/kirklareli-merkez
+
+Kırklareli merkez, il yönetiminin ve Kırklareli Üniversitesi'nin bulunduğu, Istranca eteklerindeki sakin bir şehir. Karakaş, Karacaibrahim, Cumhuriyet ve Demirtaş mahallelerindeki konutlar, üniversite çevresindeki öğrenci evleri ile Kavaklı, Üsküp ve İnece beldelerine mobilya montajı için geliyoruz.Eylül-ekim aylarında öğrenci evleri için baza ve çalışma masası, yıl boyunca yeni sitelerde yatak odası ve gardırop montajı en sık talep ettiğimiz işler. Lüleburgaz hattındaki işlerle birleştirerek 1-2 iş günü içinde randevu veriyoruz.
+
+Hizmet verilen mahalleler: Karakaş, Karacaibrahim, Cumhuriyet, Hacızekeriya, Doğu, Yayla, Demirtaş, Bademlik, Karahıdır, Kavaklı, Üsküp, İnece, Kızılcıkdere, Kaynarca
+
+## Lüleburgaz (Kırklareli)
+
+URL: http://127.0.0.1:8000/kirklareli/luleburgaz
+
+Lüleburgaz, Kırklareli'nin en kalabalık ilçesi ve D-100 üzerindeki konumuyla Trakya'nın önemli sanayi ve ticaret merkezlerinden biri. Kocasinan, Durak, Yıldırım ve Siteler mahallelerindeki yeni konut projeleri ile Hamitabat ve Büyükkarıştıran bölgesindeki tesislere düzenli hizmet veriyoruz.Çorlu'ya yaklaşık 40 dakika uzaklıkta olduğu için Lüleburgaz'a çoğunlukla aynı gün veya ertesi gün randevu verebiliyoruz. Yatak odası, gardırop, TV ünitesi ve IKEA mobilyası montajı ile ofis kurulumları Lüleburgaz'da en sık aldığımız işler.
+
+Hizmet verilen mahalleler: Kocasinan, Durak, Yıldırım, Kurtuluş, Gençlik, Yeni, Siteler, 8 Kasım, Dere, Barış, Atatürk, İstiklal, Ahmetbey, Büyükkarıştıran, Evrensekiz, Kırıkköy, Sakızköy, Karaağaç, Hamitabat, Çeşmekolu
+
+## Babaeski (Kırklareli)
+
+URL: http://127.0.0.1:8000/kirklareli/babaeski
+
+Babaeski, D-100 karayolu üzerinde Lüleburgaz ile Edirne arasında yer alan, tarım ve tarıma dayalı sanayiyle bilinen bir ilçe. Dindoğru, Hamidiye, Gazi Kemal ve Fatih mahallelerindeki konutlar ile Alpullu, Büyükmandıra, Karahalil ve Sinanlı beldelerine mobilya montajı için geliyoruz.Lüleburgaz ve Edirne hattındaki işlerle birleştirerek Babaeski'ye 1-2 iş günü içinde randevu veriyoruz. Yatak odası takımı, gardırop ve mutfak masası montajı ilçede en çok talep edilen hizmetler.
+
+Hizmet verilen mahalleler: Dindoğru, Hamidiye, Gazi Kemal, Yeni, Fatih, Karahalil, Büyükmandıra, Alpullu, Sinanlı, Ağayeri, Çengelli, Düğüncübaşı, Ertuğrul, Kadıköy, Karacaoğlan, Mutlu, Nadırlı, Pancarköy, Taşağıl
+
+## Vize (Kırklareli)
+
+URL: http://127.0.0.1:8000/kirklareli/vize
+
+Vize, antik kalıntıları ve Karadeniz sahilindeki Kıyıköy beldesiyle bilinen, Istranca eteklerinde tarihi bir ilçe. Gazi, Namazgah ve Evrenos mahallelerindeki konutlar ile Kıyıköy'deki pansiyon ve yazlıklara, Çakıllı ve Sergen beldelerine mobilya montajı için gidiyoruz.Saray ve Pınarhisar hattındaki işlerle birleştirerek Vize'ye 1-3 iş günü içinde randevu veriyoruz. Kıyıköy'deki pansiyonlar için sezon öncesi toplu yatak, baza ve gardırop montajında paket fiyat uyguluyoruz.
+
+Hizmet verilen mahalleler: Gazi, Namazgah, Evrenos, Kıyıköy, Çakıllı, Sergen, Pazarlı, Balkaya, Soğucak, Evrencik, Düzova, Kışlacık, Hasbuğa, Çavuşköy, Aksicim, Akıncılar
+
+## Pınarhisar (Kırklareli)
+
+URL: http://127.0.0.1:8000/kirklareli/pinarhisar
+
+Pınarhisar, Istranca Dağları eteklerinde, Kırklareli merkez ile Vize arasında yer alan bir ilçe. İlçe merkezindeki mahalleler ile Kaynarca ve Yenice beldelerine, Poyralı, Erenler ve Sütlüce gibi köylere mobilya montajı için geliyoruz.Kırklareli merkez ve Vize randevularıyla aynı güne planlayarak Pınarhisar'a uygun fiyatlı hizmet veriyoruz. Yatak odası, gardırop ve TV ünitesi montajı ilçede en sık talep edilen hizmetler.
+
+Hizmet verilen mahalleler: Cumhuriyet, Hacı İsmail, Yeni, Kaynarca, Yenice, Poyralı, Erenler, Sütlüce, Çayırdere, Evciler, Tozaklı, İslambeyli, Akören, Cevizköy, Kurudere
+
+## Demirköy (Kırklareli)
+
+URL: http://127.0.0.1:8000/kirklareli/demirkoy
+
+Demirköy, Istranca ormanlarının içinde, Karadeniz sahilindeki İğneada beldesi ve longoz ormanlarıyla tanınan bir ilçe. İlçe merkezindeki konutlar ile İğneada'daki pansiyon, otel ve yazlıklara, Beğendik ve Sarpdere gibi köylere mobilya montajı için gidiyoruz.Demirköy, ekibimizin merkezine en uzak ilçelerden biri olduğu için talepleri aynı güne toplayarak planlıyoruz; İğneada'daki pansiyonlar için sezon öncesi toplu montajda paket fiyat veriyoruz.
+
+Hizmet verilen mahalleler: Hamdibey, Cumhuriyet, İğneada, Beğendik, Sarpdere, Sivriler, Avcılar, Karacadağ, Yeşilce, Balaban, Boztaş, Armutveren, İncesırt, Yiğitbaşı
+
+## Kofçaz (Kırklareli)
+
+URL: http://127.0.0.1:8000/kirklareli/kofcaz
+
+Kofçaz, Bulgaristan sınırında Istranca ormanlarının içinde yer alan, Kırklareli'nin en az nüfuslu ilçesi. İlçe merkezi ile Ahlatlı, Beyci, Devletliağaç ve diğer orman köylerine mobilya montajı için geliyoruz.Kofçaz taleplerini Kırklareli merkez randevularıyla aynı güne planlıyoruz. Yatak odası, gardırop, baza ve mutfak masası montajı ilçede en sık aldığımız işler.
+
+Hizmet verilen mahalleler: Merkez, Ahlatlı, Ahmetler, Aşağıkanara, Beyci, Devletliağaç, Elmacık, Karaabalar, Kocayazı, Kula, Malkoçlar, Taştepe, Terzidere, Topçular, Yukarıkanara
+
+## Pehlivanköy (Kırklareli)
+
+URL: http://127.0.0.1:8000/kirklareli/pehlivankoy
+
+Pehlivanköy, Ergene Nehri kıyısında, Babaeski ile Uzunköprü arasında yer alan küçük bir ilçe. İlçe merkezi ile Doğanca, Hıdırca, İmampazarı, Kumköy ve diğer köylere mobilya montajı için geliyoruz.Babaeski ve Uzunköprü hattındaki işlerle birleştirerek Pehlivanköy'e uygun fiyatlı randevu planlıyoruz. Yatak odası takımı, gardırop ve mutfak masası montajı ilçede en çok talep edilen hizmetler.
+
+Hizmet verilen mahalleler: Merkez, Doğanca, Hıdırca, İmampazarı, Kumköy, Kuştepe, Yeşilova
+
+## Sık sorulan sorular
+
+**Mobilya montaj fiyatı nasıl belirleniyor?**
+
+Fiyat; mobilyanın türüne (gardırop, baza, TV ünitesi vb.), parça sayısına, kapak/çekmece adedine ve adresinizin bulunduğu ilçeye göre belirlenir. WhatsApp'tan gönderdiğiniz ürün fotoğrafı ve konum bil
+
+**Hangi bölgelere hizmet veriyorsunuz?**
+
+Tekirdağ, Edirne ve Kırklareli'nin tüm ilçelerine hizmet veriyoruz. Çorlu, Çerkezköy, Kapaklı, Süleymanpaşa, Lüleburgaz, Edirne merkez ve Keşan başta olmak üzere Trakya'nın tamamına ulaşıyoruz.
+
+**Randevu ne kadar sürede oluşuyor?**
+
+Yoğunluğa göre çoğu talebe aynı gün veya ertesi gün randevu verebiliyoruz. Uzak ilçeler için aynı bölgedeki işleri aynı güne planlayarak en kısa tarihi sunuyoruz.
+
+**Montaj için ne hazırlamam gerekiyor?**
+
+Mobilyanın kurulacağı alanın boş ve ulaşılabilir olması yeterlidir. Aletler, vida ve dübeller ekibimizde bulunur. Ürün kutusundaki parça listesini ve montaj kılavuzunu saklamanız işi hızlandırır.
+
+**Taşınma sırasında mobilya sökme ve yeniden kurma yapıyor musunuz?**
+
+Evet. Gardırop, yatak odası takımı, kitaplık ve ofis mobilyalarını eski adreste söküyor, yeni adreste yeniden kuruyoruz. Sökme ve kurma işlemleri ayrı ayrı veya birlikte planlanabilir.
+
+**IKEA mobilyalarını da monte ediyor musunuz?**
+
+Evet. PAX gardırop, BESTÅ ve KALLAX üniteler, MALM yatak odası ürünleri dahil tüm IKEA mobilyalarının kurulumunu yapıyoruz.
+
+**Ödeme nasıl yapılıyor?**
+
+Ödeme montaj tamamlandıktan sonra yapılır. Nakit veya havale/EFT ile ödeme kabul ediyoruz. İşe başlamadan önce bildirilen fiyat dışında ek ücret talep edilmez.
+
+**Montajda bir parça eksik veya hasarlı çıkarsa ne oluyor?**
+
+Kurulum sırasında fark edilen eksik ya da hasarlı parçaları size hemen bildiririz. Parça temin edildikten sonra kalan montajı tamamlamak için tekrar randevu oluştururuz.

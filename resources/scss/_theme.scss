@@ -1,0 +1,490 @@
+// =====================================================================
+// Trakya Mobilya Montaj — tema stilleri
+// Yapı: Mr. Handy temasına benzer (üst bar, beyaz sticky header + CTA,
+// büyük hero, üst üste binen güven kartları, bölümler, koyu footer)
+// =====================================================================
+
+:root {
+    --tm-navy: #{$navy};
+    --tm-orange: #{$orange};
+    --tm-whatsapp: #{$whatsapp};
+    --tm-ink: #{$ink};
+    --tm-mist: #{$mist};
+    --tm-header-h: 84px;
+}
+
+html { scroll-behavior: smooth; }
+body { -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img { max-width: 100%; }
+h1, h2, h3, h4, h5 { letter-spacing: -.01em; }
+p:last-child { margin-bottom: 0; }
+
+.text-accent { color: $orange !important; }
+.bg-mist { background: $mist; }
+.bg-navy { background: $navy; }
+.shadow-soft { box-shadow: 0 10px 40px rgba($ink, .08); }
+.fw-500 { font-weight: 500; }
+.ls-1 { letter-spacing: .08em; }
+
+.section { padding: 5.5rem 0; }
+.section-sm { padding: 3.5rem 0; }
+@include media-breakpoint-down(md) {
+    .section { padding: 3.5rem 0; }
+}
+
+// ---------------------------------------------------------------
+// Butonlar
+// ---------------------------------------------------------------
+.btn { text-transform: uppercase; letter-spacing: .04em; transition: all .25s ease; }
+.btn-lg { padding: 1rem 2rem; font-size: 1rem; }
+.btn-sm { padding: .55rem 1.1rem; font-size: .85rem; }
+.btn i { margin-right: .5rem; }
+
+.btn-orange {
+    @include button-variant($orange, $orange, #fff, $orange-dark, $orange-dark, #fff);
+    box-shadow: 0 6px 20px rgba($orange, .35);
+}
+.btn-whatsapp {
+    @include button-variant($whatsapp, $whatsapp, #fff, $whatsapp-dark, $whatsapp-dark, #fff);
+    box-shadow: 0 6px 20px rgba($whatsapp, .35);
+}
+.btn-navy { @include button-variant($navy, $navy, #fff, $navy-dark, $navy-dark, #fff); }
+.btn-outline-navy { @include button-outline-variant($navy, #fff, $navy, $navy); }
+.btn-outline-white {
+    color: #fff; border-color: rgba(#fff, .6);
+    &:hover { background: #fff; color: $navy; border-color: #fff; }
+}
+.btn-link-arrow {
+    color: $navy; font-weight: 600; text-transform: uppercase; font-size: .85rem; letter-spacing: .06em;
+    i { transition: transform .2s; margin-left: .35rem; }
+    &:hover { color: $orange; i { transform: translateX(4px); } }
+}
+
+// ---------------------------------------------------------------
+// Bölüm başlıkları
+// ---------------------------------------------------------------
+.section-title {
+    margin-bottom: 2.75rem;
+    .subtitle {
+        display: inline-flex; align-items: center; gap: .6rem;
+        color: $orange; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; font-size: .85rem;
+        margin-bottom: .75rem;
+        &::before { content: ''; width: 28px; height: 3px; background: $orange; border-radius: 2px; }
+    }
+    h2 { margin-bottom: .75rem; font-size: clamp(1.75rem, 3.2vw, 2.4rem); }
+    p { color: $slate; font-size: 1.05rem; max-width: 640px; }
+    &.text-center { .subtitle::before { display: none; } p { margin-inline: auto; } }
+    &.light { h2 { color: #fff; } p { color: rgba(#fff, .8); } }
+}
+
+// ---------------------------------------------------------------
+// Üst bar
+// ---------------------------------------------------------------
+.topbar {
+    background: $ink; color: rgba(#fff, .85); font-size: .875rem;
+    .topbar-list { display: flex; gap: 1.75rem; margin: 0; padding: 0; list-style: none; align-items: center;
+        li { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem 0; }
+        i { color: $orange; }
+        a { color: inherit; &:hover { color: $orange; } }
+    }
+    .topbar-social { display: flex; gap: .25rem; margin: 0; padding: 0; list-style: none; align-items: center;
+        a { display: inline-flex; width: 36px; height: 36px; align-items: center; justify-content: center; color: rgba(#fff, .85); &:hover { color: $orange; } }
+        .wa-link { display: inline-flex; align-items: center; gap: .5rem; padding: 0 .9rem; width: auto; white-space: nowrap; height: 36px; color: #fff; background: $whatsapp; border-radius: 3px; font-weight: 600; margin-left: .5rem; &:hover { background: $whatsapp-dark; color: #fff; } }
+    }
+}
+
+// ---------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------
+.site-header {
+    position: sticky; top: 0; z-index: 1030; background: #fff;
+    border-bottom: 1px solid $line;
+    transition: box-shadow .25s ease;
+    &.is-sticky { box-shadow: 0 6px 24px rgba($ink, .08); }
+    .navbar { padding: .75rem 0; min-height: var(--tm-header-h); }
+}
+.brand {
+    display: inline-flex; align-items: center; gap: .7rem; color: $ink;
+    .brand-mark { width: 46px; height: 46px; border-radius: 10px; background: $navy; color: #fff; display: grid; place-items: center; font-size: 1.35rem; position: relative;
+        &::after { content: ''; position: absolute; right: -4px; bottom: -4px; width: 16px; height: 16px; background: $orange; border-radius: 4px; border: 3px solid #fff; }
+    }
+    .brand-text { line-height: 1.05; font-family: $headings-font-family; font-weight: 700; font-size: 1.2rem; color: $ink; white-space: nowrap;
+        small { display: block; font-family: $font-family-sans-serif; font-weight: 600; font-size: .66rem; color: $orange; letter-spacing: .1em; text-transform: uppercase; margin-top: .2rem; }
+    }
+    img { height: 48px; width: auto; }
+    &:hover { color: $ink; }
+}
+.main-nav {
+    gap: .25rem;
+    > .nav-item > .nav-link {
+        font-weight: 600; text-transform: uppercase; font-size: .84rem; letter-spacing: .04em; color: $ink; padding: 1.2rem .7rem; white-space: nowrap;
+        &:hover, &.active { color: $orange; }
+    }
+    .dropdown-toggle::after { margin-left: .35rem; vertical-align: .15em; }
+    .dropdown-menu { margin-top: 0; border-top: 3px solid $orange; box-shadow: 0 16px 40px rgba($ink, .12); min-width: 250px; border-radius: 0 0 $border-radius $border-radius; }
+    .dropdown-item { font-weight: 500; }
+    .dropdown-mega { min-width: 640px; padding: 1.25rem 1.5rem;
+        .mega-col h6 { font-family: $font-family-sans-serif; font-weight: 700; text-transform: uppercase; font-size: .8rem; letter-spacing: .08em; color: $navy; margin-bottom: .6rem; a { color: inherit; &:hover { color: $orange; } } }
+        .mega-col a.district { display: block; padding: .2rem 0; font-size: .9rem; color: $slate; &:hover { color: $orange; } }
+    }
+    @include media-breakpoint-up(lg) {
+        .dropdown:hover > .dropdown-menu,
+        .dropdown:focus-within > .dropdown-menu { display: block; animation: fadeUp .2s ease; }
+    }
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.header-cta {
+    white-space: nowrap;
+    .btn { white-space: nowrap; }
+    .header-phone { display: inline-flex; align-items: center; gap: .6rem; color: $ink; font-weight: 600;
+        .icon { width: 40px; height: 40px; border-radius: 50%; background: rgba($orange, .12); color: $orange; display: grid; place-items: center; }
+        small { display: block; font-size: .7rem; font-weight: 500; color: $slate; text-transform: uppercase; letter-spacing: .08em; }
+        &:hover { color: $orange; }
+    }
+}
+.navbar-toggler { border: 0; font-size: 1.5rem; color: $navy; padding: .25rem .5rem; &:focus { box-shadow: none; } }
+
+// Mobil menü
+.mobile-nav {
+    .offcanvas-header { border-bottom: 1px solid $line; }
+    .mnav { list-style: none; margin: 0; padding: 0;
+        > li { border-bottom: 1px solid $line; }
+        a.mnav-link { display: flex; align-items: center; justify-content: space-between; padding: .9rem 0; font-weight: 600; color: $ink; text-transform: uppercase; font-size: .9rem; letter-spacing: .04em; &:hover { color: $orange; } }
+        .mnav-sub { list-style: none; padding: 0 0 .75rem .75rem; margin: 0;
+            a { display: block; padding: .4rem 0; color: $slate; font-size: .95rem; &:hover { color: $orange; } }
+            .sub-title { font-weight: 700; color: $navy; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; margin: .5rem 0 .2rem; }
+        }
+        .toggle-icon { transition: transform .2s; }
+        [aria-expanded="true"] .toggle-icon { transform: rotate(180deg); }
+    }
+}
+
+// ---------------------------------------------------------------
+// Hero
+// ---------------------------------------------------------------
+.hero {
+    position: relative; min-height: 680px; display: flex; align-items: center; color: #fff;
+    background: $navy center/cover no-repeat;
+    &::before { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, rgba($navy-dark, .94) 0%, rgba($navy-dark, .78) 45%, rgba($navy-dark, .25) 100%); }
+    .container { position: relative; z-index: 1; }
+    .hero-badge { display: inline-flex; align-items: center; gap: .6rem; background: rgba(#fff, .12); border: 1px solid rgba(#fff, .25); border-radius: 100px; padding: .4rem 1rem; font-size: .85rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 1.5rem; backdrop-filter: blur(4px);
+        i { color: $orange; } }
+    h1 { color: #fff; font-size: clamp(2.25rem, 5vw, 3.75rem); margin-bottom: 1.25rem; max-width: 720px;
+        span { color: $orange; } }
+    .lead { font-size: 1.2rem; color: rgba(#fff, .88); max-width: 600px; margin-bottom: 1.75rem; }
+    .hero-list { list-style: none; padding: 0; margin: 0 0 2.25rem; display: grid; gap: .5rem;
+        li { display: flex; align-items: center; gap: .7rem; font-weight: 500;
+            i { color: $orange; font-size: 1.15rem; } } }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: .85rem; }
+    @include media-breakpoint-down(md) {
+        min-height: 560px; padding: 4rem 0 6rem;
+        &::before { background: linear-gradient(180deg, rgba($navy-dark, .92) 0%, rgba($navy-dark, .82) 100%); }
+        .hero-actions .btn { flex: 1 1 100%; justify-content: center; }
+    }
+}
+
+// ---------------------------------------------------------------
+// Güven şeridi (hero altında, üste binen kart)
+// ---------------------------------------------------------------
+.trust-strip {
+    position: relative; z-index: 2; margin-top: -70px;
+    .trust-card { background: #fff; border-radius: $border-radius-lg; box-shadow: 0 18px 50px rgba($ink, .12); padding: 1.5rem;
+        display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; }
+    .trust-item { text-align: center; padding: .75rem .5rem;
+        .icon { width: 58px; height: 58px; margin: 0 auto .75rem; border-radius: 50%; background: rgba($orange, .12); color: $orange; display: grid; place-items: center; font-size: 1.4rem; transition: all .25s; }
+        h3 { font-family: $font-family-sans-serif; font-size: .95rem; font-weight: 700; margin-bottom: .25rem; }
+        p { font-size: .82rem; color: $slate; line-height: 1.5; }
+        &:hover .icon { background: $orange; color: #fff; transform: translateY(-3px); }
+    }
+    @include media-breakpoint-down(xl) { .trust-card { grid-template-columns: repeat(3, 1fr); } }
+    @include media-breakpoint-down(md) { margin-top: -50px; .trust-card { grid-template-columns: repeat(2, 1fr); padding: 1rem; } .trust-item p { display: none; } }
+}
+
+// ---------------------------------------------------------------
+// Hizmet kartları
+// ---------------------------------------------------------------
+.service-card {
+    background: #fff; border-radius: $border-radius-lg; overflow: hidden; height: 100%; display: flex; flex-direction: column;
+    box-shadow: 0 4px 18px rgba($ink, .06); transition: transform .3s ease, box-shadow .3s ease; position: relative;
+    .media { position: relative; }
+    .thumb { display: block; aspect-ratio: 4 / 3; overflow: hidden; background: $mist;
+        img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; } }
+    .icon-badge { position: absolute; left: 1.5rem; bottom: -30px; z-index: 1; width: 60px; height: 60px; border-radius: 12px; background: $orange; color: #fff; display: grid; place-items: center; font-size: 1.4rem; box-shadow: 0 8px 20px rgba($orange, .4); }
+    .body { padding: 2.9rem 1.5rem 1.5rem; display: flex; flex-direction: column; flex: 1; }
+    h3 { font-size: 1.25rem; margin-bottom: .5rem; a { color: $ink; &:hover { color: $orange; } } }
+    p { color: $slate; font-size: .95rem; flex: 1; margin-bottom: 1rem; }
+    &:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba($ink, .12); .thumb img { transform: scale(1.06); } }
+    &.compact { .thumb { aspect-ratio: 16 / 9; } }
+}
+.service-list-item {
+    display: flex; align-items: center; gap: .8rem; padding: .8rem 1rem; background: #fff; border: 1px solid $line; border-radius: $border-radius; color: $ink; font-weight: 500; transition: all .2s;
+    i { color: $orange; width: 22px; text-align: center; }
+    &:hover, &.active { border-color: $orange; color: $orange; background: rgba($orange, .04); }
+}
+
+// ---------------------------------------------------------------
+// Hakkımızda
+// ---------------------------------------------------------------
+.about-images {
+    position: relative; padding-bottom: 3.5rem; padding-right: 3rem;
+    .img-main { border-radius: $border-radius-lg; box-shadow: 0 20px 50px rgba($ink, .15); width: 100%; aspect-ratio: 4 / 4.4; object-fit: cover; }
+    .img-secondary { position: absolute; right: 0; bottom: 0; width: 48%; aspect-ratio: 1; object-fit: cover; border-radius: $border-radius-lg; border: 8px solid #fff; box-shadow: 0 20px 40px rgba($ink, .18); }
+    .badge-exp { position: absolute; left: -1rem; bottom: 4.5rem; background: $orange; color: #fff; padding: 1rem 1.25rem; border-radius: $border-radius-lg; box-shadow: 0 12px 30px rgba($orange, .4); max-width: 200px;
+        strong { display: block; font-family: $headings-font-family; font-size: 1.9rem; line-height: 1; margin-bottom: .2rem; }
+        span { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; line-height: 1.3; display: block; } }
+    @include media-breakpoint-down(lg) { margin-bottom: 2.5rem; .badge-exp { left: 0; } }
+}
+.check-list {
+    list-style: none; padding: 0; margin: 0; display: grid; gap: .75rem;
+    li { display: flex; gap: .8rem; align-items: flex-start;
+        i { color: $orange; font-size: 1.15rem; margin-top: .2rem; flex: 0 0 auto; }
+        strong { display: block; color: $ink; font-weight: 600; }
+        span { color: $slate; font-size: .95rem; } }
+    &.two-col { @include media-breakpoint-up(md) { grid-template-columns: 1fr 1fr; } }
+}
+.content-prose {
+    color: $slate; font-size: 1.05rem;
+    h2, h3 { margin-top: 2rem; margin-bottom: .8rem; }
+    h2 { font-size: 1.6rem; } h3 { font-size: 1.3rem; }
+    ul { padding-left: 1.2rem; li { margin-bottom: .35rem; } }
+    p { margin-bottom: 1.1rem; }
+    img { border-radius: $border-radius-lg; }
+}
+
+// ---------------------------------------------------------------
+// Sayaç bandı
+// ---------------------------------------------------------------
+.stats-band {
+    position: relative; color: #fff; background: $navy-dark center/cover no-repeat; padding: 4.5rem 0;
+    &::before { content: ''; position: absolute; inset: 0; background: rgba($navy-dark, .88); }
+    .container { position: relative; }
+    .stat { text-align: center; padding: 1rem;
+        i { font-size: 2rem; color: $orange; margin: 0 auto .9rem; display: block; }
+        .num { font-family: $headings-font-family; font-size: 2.75rem; font-weight: 700; line-height: 1; margin-bottom: .5rem; }
+        .label { text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; font-weight: 600; color: rgba(#fff, .8); } }
+    .col-6 + .col-6 .stat, .col-md-3 + .col-md-3 .stat { @include media-breakpoint-up(md) { border-left: 1px solid rgba(#fff, .12); } }
+}
+
+// ---------------------------------------------------------------
+// Süreç
+// ---------------------------------------------------------------
+.process-steps {
+    counter-reset: step; display: grid; gap: 1.5rem;
+    .step { display: flex; gap: 1.25rem; align-items: flex-start; position: relative;
+        .num { flex: 0 0 auto; width: 56px; height: 56px; border-radius: 50%; background: #fff; border: 2px solid $orange; color: $orange; font-family: $headings-font-family; font-weight: 700; font-size: 1.35rem; display: grid; place-items: center; box-shadow: 0 8px 20px rgba($orange, .18); position: relative; z-index: 1; }
+        h3 { font-size: 1.15rem; margin-bottom: .3rem; }
+        p { color: $slate; font-size: .95rem; }
+        &:not(:last-child)::before { content: ''; position: absolute; left: 27px; top: 56px; bottom: -1.5rem; border-left: 2px dashed rgba($orange, .4); }
+    }
+}
+.process-image { position: relative;
+    img { border-radius: $border-radius-lg; width: 100%; object-fit: cover; aspect-ratio: 4 / 4.2; box-shadow: 0 20px 50px rgba($ink, .15); }
+    .card-float { position: absolute; left: -1.5rem; bottom: 2rem; background: #fff; border-radius: $border-radius-lg; padding: 1rem 1.25rem; box-shadow: 0 16px 40px rgba($ink, .15); display: flex; align-items: center; gap: .9rem; max-width: 280px;
+        .icon { width: 48px; height: 48px; border-radius: 50%; background: $whatsapp; color: #fff; display: grid; place-items: center; font-size: 1.4rem; flex: 0 0 auto; }
+        strong { display: block; color: $ink; font-size: .95rem; } span { font-size: .82rem; color: $slate; } }
+    @include media-breakpoint-down(lg) { margin-top: 2.5rem; .card-float { left: 1rem; } }
+}
+
+// ---------------------------------------------------------------
+// Galeri
+// ---------------------------------------------------------------
+.gallery-filters { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-bottom: 2rem;
+    .filter-btn { border: 1px solid $line; background: #fff; color: $ink; padding: .5rem 1.1rem; border-radius: 100px; font-size: .85rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; transition: all .2s;
+        &:hover, &.active { background: $navy; border-color: $navy; color: #fff; } } }
+.gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+    @include media-breakpoint-down(lg) { grid-template-columns: repeat(3, 1fr); }
+    @include media-breakpoint-down(md) { grid-template-columns: repeat(2, 1fr); gap: .6rem; }
+    .gallery-item { position: relative; border-radius: $border-radius-lg; overflow: hidden; aspect-ratio: 1; background: $mist; display: block; cursor: zoom-in;
+        img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+        .overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba($navy-dark, .9) 100%); opacity: 0; transition: opacity .3s; display: flex; flex-direction: column; justify-content: flex-end; padding: 1rem; color: #fff;
+            .cat { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: $orange; font-weight: 700; }
+            .title { font-weight: 600; font-size: .95rem; line-height: 1.3; }
+            .zoom { position: absolute; top: 1rem; right: 1rem; width: 38px; height: 38px; border-radius: 50%; background: $orange; display: grid; place-items: center; } }
+        &:hover { img { transform: scale(1.08); } .overlay { opacity: 1; } }
+        &.is-hidden { display: none; } }
+}
+.lightbox { position: fixed; inset: 0; z-index: 2000; background: rgba($ink, .94); display: none; align-items: center; justify-content: center; padding: 2rem;
+    &.open { display: flex; }
+    img { max-width: 100%; max-height: 85vh; border-radius: $border-radius; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+    .lb-caption { position: absolute; left: 0; right: 0; bottom: 1.5rem; text-align: center; color: #fff; font-weight: 500; padding: 0 1rem; }
+    .lb-btn { position: absolute; background: rgba(#fff, .12); color: #fff; border: 0; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-size: 1.25rem; cursor: pointer; transition: background .2s; &:hover { background: $orange; } }
+    .lb-close { top: 1.25rem; right: 1.25rem; }
+    .lb-prev { left: 1rem; top: 50%; transform: translateY(-50%); }
+    .lb-next { right: 1rem; top: 50%; transform: translateY(-50%); }
+}
+
+// ---------------------------------------------------------------
+// Yorumlar (koyu bölünmüş bölüm)
+// ---------------------------------------------------------------
+.testimonial-split {
+    .split-img { min-height: 420px; background: center/cover no-repeat; border-radius: $border-radius-lg 0 0 $border-radius-lg; }
+    .split-body { background: $navy; color: #fff; padding: 3.5rem; border-radius: 0 $border-radius-lg $border-radius-lg 0; position: relative; overflow: hidden;
+        &::after { content: '\201C'; position: absolute; right: 2rem; top: -1rem; font-family: Georgia, serif; font-size: 12rem; color: rgba(#fff, .06); line-height: 1; } }
+    .testimonial { position: relative; z-index: 1;
+        .stars { color: #ffc107; margin-bottom: 1rem; letter-spacing: 2px; }
+        p { font-size: 1.15rem; line-height: 1.75; color: rgba(#fff, .92); margin-bottom: 1.5rem; }
+        .who { display: flex; align-items: center; gap: .9rem;
+            .avatar { width: 50px; height: 50px; border-radius: 50%; background: $orange; color: #fff; display: grid; place-items: center; font-weight: 700; font-family: $headings-font-family; font-size: 1.2rem; }
+            strong { display: block; color: #fff; } span { color: rgba(#fff, .7); font-size: .9rem; } } }
+    .carousel-indicators { position: static; margin: 2rem 0 0; justify-content: flex-start; gap: .4rem;
+        [data-bs-target] { width: 10px; height: 10px; border-radius: 50%; border: 0; background: rgba(#fff, .35); opacity: 1; margin: 0; &.active { background: $orange; } } }
+    @include media-breakpoint-down(lg) { .split-img { min-height: 260px; border-radius: $border-radius-lg $border-radius-lg 0 0; } .split-body { border-radius: 0 0 $border-radius-lg $border-radius-lg; padding: 2rem; } }
+}
+.testimonial-card {
+    background: #fff; border-radius: $border-radius-lg; padding: 1.75rem; height: 100%; box-shadow: 0 4px 18px rgba($ink, .06);
+    .stars { color: #ffc107; letter-spacing: 2px; margin-bottom: .75rem; }
+    p { color: $slate; margin-bottom: 1.25rem; }
+    strong { display: block; color: $ink; } span { font-size: .9rem; color: $slate; }
+}
+
+// ---------------------------------------------------------------
+// Bölge kartları
+// ---------------------------------------------------------------
+.region-card {
+    background: #fff; border: 1px solid $line; border-radius: $border-radius-lg; padding: 1.75rem; height: 100%; transition: all .25s;
+    .head { display: flex; align-items: center; gap: .9rem; margin-bottom: 1rem;
+        .icon { width: 50px; height: 50px; border-radius: 12px; background: rgba($navy, .08); color: $navy; display: grid; place-items: center; font-size: 1.3rem; }
+        h3 { margin: 0; font-size: 1.35rem; a { color: $ink; &:hover { color: $orange; } } }
+        small { display: block; color: $slate; font-size: .85rem; } }
+    .chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem;
+        a { display: inline-block; padding: .3rem .75rem; border-radius: 100px; background: $mist; color: $ink; font-size: .85rem; font-weight: 500; transition: all .2s; &:hover { background: $orange; color: #fff; } } }
+    &:hover { border-color: rgba($orange, .5); box-shadow: 0 14px 34px rgba($ink, .08); }
+}
+.neighborhood-chips { display: flex; flex-wrap: wrap; gap: .45rem;
+    span { display: inline-flex; align-items: center; gap: .35rem; padding: .35rem .8rem; border-radius: 100px; background: #fff; border: 1px solid $line; font-size: .88rem; color: $ink; i { color: $orange; font-size: .7rem; } } }
+
+// ---------------------------------------------------------------
+// SSS
+// ---------------------------------------------------------------
+.faq-accordion {
+    .accordion-item { border: 1px solid $line; border-radius: $border-radius-lg !important; margin-bottom: .75rem; overflow: hidden; background: #fff; }
+    .accordion-button { font-weight: 600; color: $ink; font-size: 1.05rem; font-family: $font-family-sans-serif;
+        &:not(.collapsed) { color: $navy; box-shadow: none; }
+        &::after { background-image: none; content: '\f078'; font-family: 'Font Awesome 6 Free', 'Font Awesome 7 Free'; font-weight: 900; font-size: .75rem; width: auto; height: auto; color: $orange; transition: transform .2s; }
+        &:not(.collapsed)::after { transform: rotate(180deg); } }
+    .accordion-body { color: $slate; padding-top: 0; }
+}
+
+// ---------------------------------------------------------------
+// CTA bandı
+// ---------------------------------------------------------------
+.cta-band {
+    position: relative; color: #fff; background: $navy-dark center/cover no-repeat; padding: 4.5rem 0;
+    &::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba($navy-dark, .95), rgba($navy-dark, .82)); }
+    .container { position: relative; }
+    h2 { color: #fff; font-size: clamp(1.75rem, 3vw, 2.4rem); margin-bottom: .6rem; }
+    p { color: rgba(#fff, .85); font-size: 1.1rem; margin-bottom: 0; }
+    .cta-actions { display: flex; flex-wrap: wrap; gap: .85rem; justify-content: flex-end;
+        @include media-breakpoint-down(lg) { justify-content: flex-start; margin-top: 1.5rem; } }
+}
+.cta-card {
+    background: $navy; color: #fff; border-radius: $border-radius-lg; padding: 2rem; position: relative; overflow: hidden;
+    &::after { content: ''; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba($orange, .18); }
+    h3 { color: #fff; font-size: 1.35rem; margin-bottom: .5rem; }
+    p { color: rgba(#fff, .8); font-size: .95rem; }
+    .btn { width: 100%; justify-content: center; display: inline-flex; align-items: center; }
+    .cta-phone { display: flex; align-items: center; gap: .8rem; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid rgba(#fff, .15); color: #fff;
+        .icon { width: 44px; height: 44px; border-radius: 50%; background: rgba(#fff, .12); display: grid; place-items: center; color: $orange; }
+        strong { display: block; font-size: 1.1rem; } small { color: rgba(#fff, .7); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+        &:hover { color: $orange; } }
+    &.light { background: #fff; color: $ink; border: 1px solid $line; h3 { color: $ink; } p { color: $slate; } .cta-phone { color: $ink; border-color: $line; .icon { background: rgba($orange, .12); } small { color: $slate; } } }
+}
+
+// ---------------------------------------------------------------
+// Sayfa başlığı (iç sayfalar)
+// ---------------------------------------------------------------
+.page-banner {
+    position: relative; color: #fff; background: $navy-dark center/cover no-repeat; padding: 4.5rem 0 4rem;
+    &::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba($navy-dark, .94), rgba($navy-dark, .7)); }
+    .container { position: relative; }
+    h1 { color: #fff; font-size: clamp(1.9rem, 4vw, 2.9rem); margin-bottom: .75rem; }
+    .lead { color: rgba(#fff, .85); font-size: 1.1rem; max-width: 720px; margin-bottom: 0; }
+    .breadcrumb { margin: 0 0 1rem; font-size: .9rem;
+        a { color: rgba(#fff, .75); &:hover { color: $orange; } }
+        .breadcrumb-item + .breadcrumb-item::before { color: rgba(#fff, .5); }
+        .breadcrumb-item.active { color: $orange; } }
+    @include media-breakpoint-down(md) { padding: 3rem 0 2.5rem; }
+}
+
+// ---------------------------------------------------------------
+// Sidebar
+// ---------------------------------------------------------------
+.sidebar { position: sticky; top: calc(var(--tm-header-h) + 1rem); display: grid; gap: 1.5rem; }
+.sidebar-widget { background: #fff; border: 1px solid $line; border-radius: $border-radius-lg; padding: 1.5rem;
+    h3 { font-size: 1.1rem; margin-bottom: 1rem; padding-bottom: .75rem; border-bottom: 2px solid $orange; display: inline-block; }
+    .widget-list { list-style: none; padding: 0; margin: 0; display: grid; gap: .4rem; } }
+
+// ---------------------------------------------------------------
+// Form
+// ---------------------------------------------------------------
+.quote-form-card { background: #fff; border-radius: $border-radius-lg; box-shadow: 0 18px 50px rgba($ink, .1); padding: 2rem;
+    @include media-breakpoint-down(md) { padding: 1.35rem; }
+    .form-label { font-weight: 600; color: $ink; font-size: .92rem; }
+    .form-text { font-size: .82rem; }
+    .required::after { content: ' *'; color: $danger; }
+    .photo-drop { border: 2px dashed $input-border-color; border-radius: $border-radius-lg; padding: 1.25rem; text-align: center; color: $slate; cursor: pointer; transition: all .2s; position: relative;
+        i { font-size: 1.75rem; color: $orange; display: block; margin: 0 auto .4rem; }
+        input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+        &:hover, &.dragover { border-color: $orange; background: rgba($orange, .04); } }
+    .photo-previews { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem;
+        img { width: 72px; height: 72px; object-fit: cover; border-radius: $border-radius; border: 1px solid $line; } }
+}
+.contact-box { display: flex; gap: 1rem; align-items: flex-start; padding: 1.5rem; background: #fff; border: 1px solid $line; border-radius: $border-radius-lg; height: 100%;
+    .icon { width: 52px; height: 52px; border-radius: 12px; background: rgba($orange, .12); color: $orange; display: grid; place-items: center; font-size: 1.3rem; flex: 0 0 auto; }
+    h3 { font-size: 1.05rem; margin-bottom: .3rem; }
+    p, a { color: $slate; font-size: .95rem; margin: 0; } a:hover { color: $orange; }
+    &.wa .icon { background: rgba($whatsapp, .14); color: $whatsapp; } }
+.map-embed { border-radius: $border-radius-lg; overflow: hidden; border: 1px solid $line; iframe { width: 100%; height: 380px; border: 0; display: block; } }
+
+// ---------------------------------------------------------------
+// Footer
+// ---------------------------------------------------------------
+.footer { background: $ink; color: rgba(#fff, .75); font-size: .95rem;
+    a { color: rgba(#fff, .75); &:hover { color: $orange; } }
+    .footer-contact { border-bottom: 1px solid rgba(#fff, .08); padding: 2.5rem 0;
+        .box { display: flex; gap: 1rem; align-items: center;
+            .icon { width: 54px; height: 54px; border-radius: 50%; border: 1px solid rgba(#fff, .2); color: $orange; display: grid; place-items: center; font-size: 1.25rem; flex: 0 0 auto; }
+            strong { display: block; color: #fff; font-size: 1rem; } span, a { display: block; font-size: .9rem; } } }
+    .footer-widgets { padding: 3.5rem 0 2.5rem;
+        h3 { color: #fff; font-size: 1.05rem; margin-bottom: 1.25rem; font-family: $font-family-sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; position: relative; padding-bottom: .6rem;
+            &::after { content: ''; position: absolute; left: 0; bottom: 0; width: 34px; height: 2px; background: $orange; } }
+        ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .45rem;
+            a { display: inline-flex; align-items: center; gap: .5rem; &::before { content: '\f105'; font-family: 'Font Awesome 6 Free', 'Font Awesome 7 Free'; font-weight: 900; font-size: .7rem; color: $orange; } } }
+        .footer-social { display: flex; gap: .5rem; margin-top: 1.25rem;
+            a { width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(#fff, .2); display: grid; place-items: center; &:hover { background: $orange; border-color: $orange; color: #fff; } } } }
+    .footer-bottom { border-top: 1px solid rgba(#fff, .08); padding: 1.25rem 0; font-size: .875rem; display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; justify-content: space-between; align-items: center;
+        ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1.25rem; } }
+}
+
+// ---------------------------------------------------------------
+// Sabit WhatsApp butonu + mobil alt bar
+// ---------------------------------------------------------------
+.wa-float {
+    position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 1040;
+    display: inline-flex; align-items: center; gap: .6rem; background: $whatsapp; color: #fff; padding: .8rem 1.2rem .8rem .9rem; border-radius: 100px; font-weight: 600; box-shadow: 0 10px 30px rgba($whatsapp, .45);
+    i { font-size: 1.6rem; }
+    &::before { content: ''; position: absolute; inset: -6px; border-radius: 100px; border: 2px solid rgba($whatsapp, .5); animation: pulse 2s infinite; }
+    &:hover { background: $whatsapp-dark; color: #fff; }
+    @include media-breakpoint-down(lg) { bottom: 5.25rem; padding: .85rem; span { display: none; } }
+}
+@keyframes pulse { 0% { transform: scale(.9); opacity: 1; } 100% { transform: scale(1.25); opacity: 0; } }
+.mobile-cta-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 1039; display: none; gap: 0; background: #fff; box-shadow: 0 -6px 24px rgba($ink, .12);
+    a { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: .55rem; padding: .95rem .5rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: .85rem; color: #fff;
+        i { font-size: 1.15rem; } }
+    .call { background: $navy; } .wa { background: $whatsapp; }
+    @include media-breakpoint-down(lg) { display: flex; }
+}
+@include media-breakpoint-down(lg) { body { padding-bottom: 60px; } }
+.back-to-top { position: fixed; left: 1.25rem; bottom: 1.25rem; z-index: 1040; width: 44px; height: 44px; border-radius: 50%; background: $navy; color: #fff; display: grid; place-items: center; opacity: 0; visibility: hidden; transition: all .3s; border: 0;
+    &.show { opacity: 1; visibility: visible; } &:hover { background: $orange; color: #fff; }
+    @include media-breakpoint-down(lg) { bottom: 5.25rem; } }
+
+// ---------------------------------------------------------------
+// Diğer
+// ---------------------------------------------------------------
+.alert-success { border-left: 4px solid $whatsapp; }
+.thanks-icon { width: 96px; height: 96px; border-radius: 50%; background: rgba($whatsapp, .14); color: $whatsapp; display: grid; place-items: center; font-size: 2.75rem; margin: 0 auto 1.5rem; }
+.error-code { font-family: $headings-font-family; font-size: 7rem; line-height: 1; color: $orange; font-weight: 700; }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; &.in { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }

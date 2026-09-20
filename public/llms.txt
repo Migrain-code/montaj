@@ -1,0 +1,41 @@
+# Trakya Mobilya Montaj
+
+> Tekirdağ, Edirne ve Kırklareli'nde profesyonel mobilya montaj hizmeti. Gardırop, yatak, baza, TV ünitesi, IKEA ve ofis mobilyası montajı. WhatsApp'tan hemen teklif alın.
+
+Bu dosya yapay zeka ajanları içindir. Tüm bilgiler sitenin veritabanından üretilir.
+Son güncelleme: 2026-09-20
+
+## İletişim
+
+- Telefon: 05522336052
+- WhatsApp: +905522336052
+- E-posta: info@example.com
+- Çalışma saatleri: Pazartesi - Cumartesi: 08:30 - 19:00
+
+## Hizmetler
+
+- [Mobilya Montajı](http://127.0.0.1:8000/mobilya-montaji): Her türlü hazır (demonte) mobilyanın profesyonel kurulumu.
+- [IKEA Mobilya Montajı](http://127.0.0.1:8000/ikea-mobilya-montaji): IKEA mobilyalarının kurulum ve montaj hizmeti.
+- [Gardırop Montajı](http://127.0.0.1:8000/gardirop-montaji): Sürgülü, kapaklı ve farklı modellerde gardırop montajı.
+- [Yatak ve Baza Montajı](http://127.0.0.1:8000/yatak-baza-montaji): Yatak, baza ve başlık kurulum hizmeti.
+- [Masa ve Sandalye Montajı](http://127.0.0.1:8000/masa-sandalye-montaji): Masa, sandalye ve çalışma masası kurulumu.
+- [TV Ünitesi Montajı](http://127.0.0.1:8000/tv-unitesi-montaji): TV ünitesi ve benzeri salon mobilyalarının kurulumu.
+- [Kitaplık Montajı](http://127.0.0.1:8000/kitaplik-montaji): Kitaplık ve raf sistemlerinin kurulumu.
+- [Ofis Mobilyası Montajı](http://127.0.0.1:8000/ofis-mobilyasi-montaji): Ofis masası, dolap, sandalye ve diğer ofis mobilyalarının kurulumu.
+
+## Hizmet bölgeleri
+
+- [Tekirdağ](http://127.0.0.1:8000/tekirdag): Tekirdağ'ın 11 ilçesinde gardırop, yatak-baza, TV ünitesi, IKEA ve ofis mobilyası montajı.
+  - [Çorlu](http://127.0.0.1:8000/tekirdag/corlu): Tekirdağ'ın en kalabalık ilçesi Çorlu'da mobilya montajı: merkez mahalleler, siteler ve yeni konut projeleri.
+  - [Çerkezköy](http://127.0.0.1:8000/tekirdag/cerkezkoy): Çerkezköy OSB çevresindeki yeni siteler ve merkez mahallelerde hızlı mobilya montaj hizmeti.
+  - [Kapaklı](http://127.0.0.1:8000/tekirdag/kapakli): Hızla büyüyen Kapaklı'nın yeni konut projelerinde yatak odası, gardırop ve IKEA mobilyası montajı.
+  - [Saray](http://127.0.0.1:8000/tekirdag/saray): Tekirdağ Saray, Büyükyoncalı ve Küçükyoncalı'da mobilya montaj hizmeti.
+
+## Diğer sayfalar
+
+- [KVKK Aydınlatma Metni](http://127.0.0.1:8000/kvkk-aydinlatma-metni)
+
+## Optional
+
+- [Tam metin sürüm](http://127.0.0.1:8000/llms-full.txt)
+- [Site haritası](http://127.0.0.1:8000/sitemap.xml)
