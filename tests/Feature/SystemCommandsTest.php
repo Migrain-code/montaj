@@ -374,4 +374,99 @@ class SystemCommandsTest extends TestCase
 
         app(CommandRunner::class)->start('score', $this->admin());
     }
+
+    // ---------- Görsel bağlantısı (storage:link) ----------
+
+    /** Hosting kısıtlarını taklit eden sahte bağlantı durumu. */
+    private function fakeStorageLink(bool $exists, bool $php): void
+    {
+        $this->app->instance(\App\Support\StorageLink::class, new class($exists, $php) extends \App\Support\StorageLink
+        {
+            public function __construct(private bool $fakeExists, private bool $fakePhp) {}
+
+            public function exists(): bool
+            {
+                return $this->fakeExists;
+            }
+
+            public function canCreateFromPhp(): bool
+            {
+                return $this->fakePhp;
+            }
+        });
+    }
+
+    public function test_storage_link_explains_the_cron_fix_when_the_host_blocks_symlinks(): void
+    {
+        // Canlıdaki durum: symlink() ve exec() kapalı. Laravel'in kendi komutu
+        // "Call to undefined function exec()" ile düşüyordu; artık çalıştırılmıyor bile.
+        $this->fakeStorageLink(exists: false, php: false);
+        Artisan::shouldReceive('call')->never();
+
+        $run = app(CommandRunner::class)->start('storage-link', $this->admin());
+
+        $this->assertSame(CommandRun::FAILED, $run->status);
+        $this->assertStringContainsString('cron', (string) $run->output);
+        $this->assertStringContainsString('ln -s', (string) $run->output);
+        $this->assertStringNotContainsString('undefined function', (string) $run->output);
+    }
+
+    public function test_storage_link_reports_success_when_the_link_already_exists(): void
+    {
+        $this->fakeStorageLink(exists: true, php: false);
+        Artisan::shouldReceive('call')->never();
+
+        $run = app(CommandRunner::class)->start('storage-link', $this->admin());
+
+        $this->assertSame(CommandRun::SUCCEEDED, $run->status);
+        $this->assertStringContainsString('zaten kurulu', (string) $run->output);
+    }
+
+    public function test_storage_link_runs_normally_where_php_may_create_links(): void
+    {
+        $this->fakeStorageLink(exists: false, php: true);
+        Artisan::shouldReceive('call')->once()->with('storage:link', [], \Mockery::any())->andReturn(0);
+
+        $run = app(CommandRunner::class)->start('storage-link', $this->admin());
+
+        $this->assertSame(CommandRun::SUCCEEDED, $run->status);
+    }
+
+    public function test_storage_link_cron_command_is_idempotent_and_uses_real_paths(): void
+    {
+        $command = app(\App\Support\StorageLink::class)->cronCommand();
+
+        $this->assertSame(
+            "[ -e '".public_path('storage')."' ] || ln -s '".storage_path('app/public')."' '".public_path('storage')."'",
+            $command,
+        );
+    }
+
+    public function test_page_shows_the_link_cron_only_when_it_is_needed(): void
+    {
+        $this->fakeStorageLink(exists: false, php: false);
+
+        $this->actingAs($this->admin())->get(SystemCommands::getUrl())
+            ->assertOk()
+            ->assertSee('Kurulu değil', false)
+            ->assertSee('ln -s', false);
+    }
+
+    public function test_page_shows_the_link_as_installed(): void
+    {
+        $this->fakeStorageLink(exists: true, php: false);
+
+        $this->actingAs($this->admin())->get(SystemCommands::getUrl())
+            ->assertOk()
+            ->assertDontSee('Kurulu değil', false)
+            ->assertDontSee('ln -s', false);
+    }
+
+    public function test_private_disk_is_not_served_over_http(): void
+    {
+        // Özel diskte Google kimlik dosyası ve teklif fotoğrafları duruyor.
+        $this->assertFalse(config('filesystems.disks.local.serve'));
+        $this->assertFalse(\Illuminate\Support\Facades\Route::has('storage.local'));
+        $this->assertFalse(\Illuminate\Support\Facades\Route::has('storage.local.upload'));
+    }
 }

@@ -34,16 +34,66 @@ class SharedHostingCompatibilityTest extends TestCase
         $out = [];
 
         foreach ((new Finder)->files()->in([app_path(), base_path('routes'), resource_path('views')])->name(['*.php']) as $file) {
-            $out[$file->getRelativePathname()] = $file->getContents();
+            $code = $file->getContents();
+
+            // Blade şablonları önce PHP'ye derlenir; {{ }} içindeki çağrılar da yakalansın.
+            if (str_ends_with($file->getFilename(), '.blade.php')) {
+                $code = app('blade.compiler')->compileString($code);
+            }
+
+            $out[$file->getRelativePathname()] = $code;
         }
 
         return $out;
     }
 
+    /**
+     * PHP ayrıştırıcısıyla GERÇEK bir fonksiyon çağrısı arar.
+     *
+     * Yorumlar, metinler, "->exec(" gibi metot çağrıları ve "function exec(" gibi
+     * tanımlar sayılmaz; metin araması bunları yanlışlıkla yakalıyordu.
+     */
     private function calls(string $code, string $function): bool
     {
-        // "->exec(" veya "::system(" gibi metot çağrıları ve "$exec(" gibi değişkenler sayılmaz.
-        return preg_match('/(?<![\w$>:\\\\])'.preg_quote($function, '/').'\s*\(/', $code) === 1;
+        $tokens = token_get_all($code);
+        $count = count($tokens);
+        $skip = [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT];
+
+        for ($i = 0; $i < $count; $i++) {
+            $token = $tokens[$i];
+
+            if (! is_array($token) || ! in_array($token[0], [T_STRING, T_NAME_FULLY_QUALIFIED], true)) {
+                continue;
+            }
+
+            if (strtolower(ltrim($token[1], '\\')) !== $function) {
+                continue;
+            }
+
+            $next = $i + 1;
+            while ($next < $count && is_array($tokens[$next]) && in_array($tokens[$next][0], $skip, true)) {
+                $next++;
+            }
+
+            if (($tokens[$next] ?? null) !== '(') {
+                continue;
+            }
+
+            $prev = $i - 1;
+            while ($prev >= 0 && is_array($tokens[$prev]) && in_array($tokens[$prev][0], $skip, true)) {
+                $prev--;
+            }
+
+            $before = $tokens[$prev] ?? null;
+
+            if (is_array($before) && in_array($before[0], [T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION, T_NEW], true)) {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public function test_commonly_disabled_functions_are_not_called(): void

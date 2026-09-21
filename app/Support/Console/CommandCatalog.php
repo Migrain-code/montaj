@@ -54,7 +54,7 @@ final class CommandCatalog
                 'Yeni kod gelen tablo ve sütunları ekler. Kodu güncelledikten sonra çalıştırın. Mevcut verilere dokunmaz.',
                 'setup', danger: true),
             'storage-link' => self::entry('storage:link', [], 'Görsel bağlantısını kur',
-                'Yüklenen görsellerin sitede görünmesi için public/storage bağlantısını oluşturur. Kurulumda bir kez yeterli.',
+                'Yüklenen görsellerin sitede görünmesi için public/storage bağlantısını oluşturur. Kurulumda bir kez yeterli. Hosting buna izin vermiyorsa sayfa size tek seferlik bir cron komutu verir.',
                 'setup'),
             'filament-assets' => self::entry('filament:assets', [], 'Panel dosyalarını yayınla',
                 'Yönetim panelinin stil ve betik dosyalarını public klasörüne kopyalar. Panel bozuk görünüyorsa çalıştırın.',

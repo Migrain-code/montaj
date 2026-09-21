@@ -134,6 +134,34 @@
                                 </div>
                                 <p class="mt-0.5 text-sm text-gray-600 dark:text-gray-400">{{ $command['description'] }}</p>
                                 <code class="mt-1 inline-block font-mono text-xs text-gray-400">php artisan {{ \App\Support\Console\CommandCatalog::commandLine($command) }}</code>
+
+                                @if ($key === 'storage-link')
+                                    <div class="mt-2">
+                                        @if ($storageLink['exists'])
+                                            <x-filament::badge color="success" size="sm" icon="heroicon-m-check-circle">Kurulu</x-filament::badge>
+                                        @else
+                                            <x-filament::badge color="danger" size="sm" icon="heroicon-m-x-circle">Kurulu değil: yüklenen görseller sitede görünmüyor</x-filament::badge>
+
+                                            @unless ($storageLink['php'])
+                                                <div x-data="{ copied: false }" class="mt-2 space-y-1">
+                                                    <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                        Hosting bu bağlantıyı PHP'den kurmaya izin vermiyor. Hosting panelinizde
+                                                        <strong>her dakika</strong> çalışan yeni bir cron görevi olarak aşağıdaki satırı ekleyin.
+                                                        Bir-iki dakika sonra bu sayfayı yenileyin; "Kurulu" görününce cron görevini silin.
+                                                    </p>
+                                                    <div class="flex items-start gap-2">
+                                                        <pre class="min-w-0 flex-1 overflow-x-auto whitespace-pre-wrap break-all rounded-lg bg-gray-950 p-2 font-mono text-xs text-gray-100">{{ $storageLink['cron'] }}</pre>
+                                                        <x-filament::button size="xs" color="gray" icon="heroicon-m-clipboard"
+                                                            x-on:click="navigator.clipboard.writeText({{ \Illuminate\Support\Js::from($storageLink['cron']) }}); copied = true; setTimeout(() => copied = false, 1500)">
+                                                            <span x-show="! copied">Kopyala</span>
+                                                            <span x-show="copied" x-cloak>Kopyalandı</span>
+                                                        </x-filament::button>
+                                                    </div>
+                                                </div>
+                                            @endunless
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                             <div class="shrink-0">
                                 {{ ($this->runAction)(['key' => $key]) }}

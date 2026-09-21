@@ -7,6 +7,7 @@ use App\Models\CommandRun;
 use App\Models\User;
 use App\Support\AutomationLog;
 use App\Support\Console\CommandCatalog;
+use App\Support\StorageLink;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use InvalidArgumentException;
@@ -117,6 +118,11 @@ class CommandRunner
         }
 
         $started = microtime(true);
+
+        if ($precheck = $this->precheck($run->command_key)) {
+            return $this->finish($run, $precheck[0], $precheck[1], $started);
+        }
+
         $output = new BufferedOutput;
 
         try {
@@ -130,6 +136,41 @@ class CommandRunner
         }
 
         return $this->finish($run, $exitCode, $text, $started);
+    }
+
+    /**
+     * Komutu çalıştırmadan önce sonucu belli olan durumları yakalar.
+     *
+     * storage:link, symlink() ve exec() kapalı bir hostingde "Call to undefined
+     * function exec()" gibi anlaşılmaz bir hatayla düşer. Onun yerine ne yapılacağını
+     * söyleyen bir mesaj verilir.
+     *
+     * @return array{0: int, 1: string}|null [çıkış kodu, mesaj] ya da null (normal çalıştır)
+     */
+    private function precheck(string $key): ?array
+    {
+        if ($key !== 'storage-link') {
+            return null;
+        }
+
+        $link = app(StorageLink::class);
+
+        if ($link->exists()) {
+            return [0, 'Görsel bağlantısı zaten kurulu. Yapılacak bir şey yok.'];
+        }
+
+        if (! $link->canCreateFromPhp()) {
+            return [1, implode("\n", [
+                'Hosting, PHP\'den bağlantı oluşturmayı kapatmış (symlink ve exec fonksiyonları devre dışı).',
+                'Bağlantıyı tek seferlik bir cron göreviyle kurun. Hosting panelinizde her dakika çalışan yeni bir cron görevi ekleyin:',
+                '',
+                $link->cronCommand(),
+                '',
+                'Bir-iki dakika sonra bu sayfayı yenileyin; "Kurulu" görününce cron görevini silin.',
+            ])];
+        }
+
+        return null;
     }
 
     /**

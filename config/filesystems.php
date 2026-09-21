@@ -33,7 +33,11 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // KAPALI: açıkken Laravel /storage/{path} adresine bu ÖZEL disk için imzalı
+            // indirme ve yükleme rotaları kaydeder. Uygulama kullanmıyor; bu diskte Google
+            // kimlik dosyası ve teklif fotoğrafları duruyor. Ayrıca public/storage bağlantısı
+            // yokken herkese açık görsellerin 403 almasına yol açıyordu.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

@@ -6,6 +6,8 @@ use App\Models\CommandRun;
 use App\Services\Admin\CommandRunner;
 use App\Support\Console\CommandCatalog;
 use App\Support\Heartbeat;
+use App\Support\Shell;
+use App\Support\StorageLink;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -73,6 +75,7 @@ class SystemCommands extends Page
             'hasActive' => $activeKeys !== [],
             'health' => $this->health(),
             'cron' => $this->cronLines(),
+            'storageLink' => $this->storageLinkStatus(),
         ];
     }
 
@@ -169,7 +172,7 @@ class SystemCommands extends Page
         // komut satırı sürümüdür (cPanel: /opt/cpanel/ea-php82/root/usr/bin/php).
         // Düz "php" yazmak hostingde çoğu zaman ESKİ bir sürümü çalıştırır.
         $php = PHP_BINDIR.DIRECTORY_SEPARATOR.'php';
-        $base = self::shellQuote(base_path());
+        $base = Shell::quote(base_path());
 
         return [
             'php' => $php,
@@ -178,16 +181,16 @@ class SystemCommands extends Page
         ];
     }
 
-    /**
-     * Yolu kabuk için tek tırnakla sarar (escapeshellarg ile aynı sonuç).
-     *
-     * escapeshellarg paylaşımlı hostinglerde sıkça kapatılır (disable_functions) ve
-     * PHP 8'de kapalı fonksiyon çağrısı sayfayı çökertir. Bu satır yalnız ekranda
-     * gösterilir, hiçbir zaman çalıştırılmaz.
-     */
-    private static function shellQuote(string $value): string
+    /** @return array{exists: bool, php: bool, cron: string} */
+    private function storageLinkStatus(): array
     {
-        return "'".str_replace("'", "'\\''", $value)."'";
+        $link = app(StorageLink::class);
+
+        return [
+            'exists' => $link->exists(),
+            'php' => $link->canCreateFromPhp(),
+            'cron' => $link->cronCommand(),
+        ];
     }
 
     private function countTable(?string $table): ?int
