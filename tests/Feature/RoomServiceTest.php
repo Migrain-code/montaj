@@ -12,6 +12,7 @@ use App\Services\Seo\ContentScorer;
 use App\Services\Seo\LocationKeywordBuilder;
 use App\Services\Seo\TargetSynchroniser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
@@ -41,7 +42,7 @@ class RoomServiceTest extends TestCase
         return array_map(fn (string $slug) => [$slug], self::SLUGS);
     }
 
-    /** @dataProvider roomServices */
+    #[DataProvider('roomServices')]
     public function test_room_service_page_renders(string $slug): void
     {
         $service = Service::query()->where('slug', $slug)->firstOrFail();
@@ -54,7 +55,7 @@ class RoomServiceTest extends TestCase
         $response->assertSee('Sık sorulan sorular', false);
     }
 
-    /** @dataProvider roomServices */
+    #[DataProvider('roomServices')]
     public function test_room_service_has_the_content_a_service_page_needs(string $slug): void
     {
         $service = Service::query()->where('slug', $slug)->firstOrFail();
@@ -68,7 +69,7 @@ class RoomServiceTest extends TestCase
         $this->assertNotEmpty($service->image, $slug.': görsel yok.');
     }
 
-    /** @dataProvider roomServices */
+    #[DataProvider('roomServices')]
     public function test_room_service_reaches_the_score_target(string $slug): void
     {
         $service = Service::query()->where('slug', $slug)->firstOrFail();

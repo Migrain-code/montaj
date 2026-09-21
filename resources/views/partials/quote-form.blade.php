@@ -24,7 +24,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('quote.store') }}" enctype="multipart/form-data" data-quote-form id="{{ $formId }}" novalidate>
+    <form method="POST" action="{{ route('quote.store') }}" enctype="multipart/form-data" data-quote-form data-recaptcha id="{{ $formId }}" novalidate>
         @csrf
         <input type="hidden" name="source" value="{{ $source ?? 'form' }}">
         <input type="hidden" name="page_url" value="{{ url()->current() }}">
@@ -102,6 +102,9 @@
                         @endif
                     </label>
                 </div>
+            </div>
+            <div class="col-12">
+                @include('partials.recaptcha')
             </div>
             <div class="col-12 d-grid d-md-flex gap-2 pt-2">
                 <button type="submit" class="btn btn-orange btn-lg"><i class="fa-solid fa-paper-plane"></i>Teklif İste</button>

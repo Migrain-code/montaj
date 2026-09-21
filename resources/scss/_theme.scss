@@ -591,3 +591,14 @@ p:last-child { margin-bottom: 0; }
     hr.dropdown-divider { display: none; }
     @include media-breakpoint-down(xl) { min-width: 340px; }
 }
+
+// ---------------------------------------------------------------
+// reCAPTCHA
+// v3 rozeti sağ alta sabitleniyor ve WhatsApp butonuyla çakışıyor.
+// Gizlendiğinde Google, form altındaki bilgilendirme metnini zorunlu tutuyor.
+// ---------------------------------------------------------------
+.grecaptcha-badge { visibility: hidden; }
+.recaptcha-notice {
+    font-size: .78rem; color: $slate;
+    a { color: $slate; text-decoration: underline; &:hover { color: $orange; } }
+}

@@ -30,6 +30,8 @@ class PageSeeder extends Seeder
 <p>Kişisel verileriniz, yalnızca hizmetin sunulması için gerekli olduğu ölçüde montaj ekibimizle paylaşılır; yasal zorunluluklar dışında üçüncü kişilere aktarılmaz.</p>
 <h2>Saklama Süresi</h2>
 <p>Verileriniz, talebinizin sonuçlanmasından itibaren makul bir süre boyunca ve yasal saklama süreleri kadar muhafaza edilir; sonrasında silinir veya anonim hale getirilir.</p>
+<h2>Google reCAPTCHA</h2>
+<p>Sitemizdeki teklif formu, otomatik ve kötü amaçlı gönderimleri engellemek amacıyla Google reCAPTCHA hizmetiyle korunmaktadır. Bu hizmet çalışırken IP adresiniz ve sayfa üzerindeki etkileşim bilgileriniz Google LLC\'ye iletilir ve yurt dışında işlenir. Bu işleme, formun ve sistemlerimizin güvenliğini sağlamaya yönelik meşru menfaatimize dayanır. Google\'ın veri işleme uygulamaları için <a href="https://policies.google.com/privacy" target="_blank" rel="noopener nofollow">Gizlilik Politikası</a> ve <a href="https://policies.google.com/terms" target="_blank" rel="noopener nofollow">Kullanım Şartları</a> geçerlidir.</p>
 <h2>Haklarınız</h2>
 <p>KVKK\'nın 11. maddesi kapsamında; kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse bilgi talep etme, düzeltilmesini veya silinmesini isteme haklarına sahipsiniz. Taleplerinizi iletişim sayfamızdaki kanallar üzerinden bize iletebilirsiniz.</p>',
             ]

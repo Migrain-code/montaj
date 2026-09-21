@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     galleryFilter();
     lightbox();
     quoteForm();
+    recaptchaV3();
     backToTop();
 });
 
@@ -184,6 +185,44 @@ function quoteForm() {
                 ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, () => drop.classList.remove('dragover')));
             }
         }
+    });
+}
+
+/*
+ * reCAPTCHA v3: jetonu GÖNDERIM ANINDA alır.
+ *
+ * Jeton iki dakikada geçersizleşir. Sayfa açılışında alınsaydı, fotoğraf seçip
+ * formu dolduran kullanıcının jetonu gönderim sırasında çoktan ölmüş olurdu.
+ *
+ * Google'ın betiği yüklenemezse form OLDUĞU GİBİ gönderilir; kullanıcıyı
+ * üçüncü taraf bir betiğin yüklenmesine rehin bırakmayız. Sunucu tarafı bu
+ * durumu kendi politikasına göre değerlendirir.
+ */
+function recaptchaV3() {
+    const cfg = window.__recaptcha;
+    if (!cfg || !cfg.siteKey) return;
+
+    document.querySelectorAll('form[data-recaptcha]').forEach((form) => {
+        const field = form.querySelector('input[name="g-recaptcha-response"]');
+        if (!field) return;
+
+        let tokenReady = false;
+
+        form.addEventListener('submit', (event) => {
+            if (tokenReady) return;                       // ikinci tur: gerçekten gönder
+            if (!window.grecaptcha || !window.grecaptcha.execute) return;
+
+            event.preventDefault();
+
+            const send = () => { tokenReady = true; form.requestSubmit(); };
+
+            window.grecaptcha.ready(() => {
+                window.grecaptcha
+                    .execute(cfg.siteKey, { action: cfg.action })
+                    .then((token) => { field.value = token; send(); })
+                    .catch(send);
+            });
+        });
     });
 }
 

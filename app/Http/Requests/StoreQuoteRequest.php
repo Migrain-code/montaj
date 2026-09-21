@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Models\District;
+use App\Rules\Recaptcha;
+use App\Services\Security\Recaptcha as RecaptchaVerifier;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -31,6 +33,11 @@ class StoreQuoteRequest extends FormRequest
             'photos.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'kvkk' => ['accepted'],
             'website' => ['nullable', 'max:0'], // honeypot: gerçek kullanıcılar boş bırakır
+            // reCAPTCHA anahtarları girilmemişse kural listesi boş kalır ve form
+            // aynen çalışmaya devam eder.
+            RecaptchaVerifier::FIELD => app(RecaptchaVerifier::class)->enabled()
+                ? ['required', new Recaptcha]
+                : ['nullable'],
         ];
     }
 
@@ -48,6 +55,7 @@ class StoreQuoteRequest extends FormRequest
             'photos.*.image' => 'Yüklenen dosya bir görsel olmalıdır.',
             'preferred_date.after_or_equal' => 'Tercih edilen tarih bugünden önce olamaz.',
             'website.max' => 'Form doğrulanamadı.',
+            RecaptchaVerifier::FIELD.'.required' => 'Güvenlik doğrulaması tamamlanamadı. Sayfayı yenileyip tekrar deneyin.',
         ];
     }
 
