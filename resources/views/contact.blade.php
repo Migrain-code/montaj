@@ -28,7 +28,7 @@
                     <div class="col-lg-3 col-md-6">
                         <div class="contact-box">
                             <span class="icon"><i class="fa-regular fa-envelope"></i></span>
-                            <div><h3>E-posta</h3><a href="mailto:{{ setting('email') }}">{{ setting('email') }}</a></div>
+                            <div><h3>E-posta</h3><!--email_off--><a href="mailto:{{ setting('email') }}">{{ setting('email') }}</a><!--/email_off--></div>
                         </div>
                     </div>
                 @endif

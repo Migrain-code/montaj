@@ -12,6 +12,33 @@
             </div>
         @endunless
 
+        {{-- ================= Sürüm ================= --}}
+        <x-filament::section>
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <span>
+                    Sunucudaki kod:
+                    <code class="rounded bg-gray-100 px-1.5 py-0.5 font-mono dark:bg-gray-800">{{ $deployment['commit'] ?? 'bilinmiyor' }}</code>
+                    @if ($deployment['code_at'])
+                        · {{ $deployment['code_at']->timezone('Europe/Istanbul')->format('d.m.Y H:i') }}'de güncellendi
+                    @endif
+                </span>
+                @if ($deployment['build_at'])
+                    <span>Derlenmiş dosyalar (public/build): {{ $deployment['build_at']->timezone('Europe/Istanbul')->format('d.m.Y H:i') }}'de yüklendi</span>
+                @endif
+            </div>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Bu kod GitHub'daki son commit'in kısa koduyla aynı olmalı. Kod güncellendikten sonra public/build klasörü de yeniden yüklenmeli.
+            </p>
+
+            @if ($deployment['mismatch'])
+                <div class="mt-3 rounded-lg border border-danger-300 bg-danger-50 p-3 text-sm text-danger-800 dark:border-danger-800 dark:bg-danger-950/40 dark:text-danger-300">
+                    <strong>Derlenmiş dosyalar koddan daha yeni.</strong>
+                    public/build yüklenmiş ama kod güncellenmemiş görünüyor. Bu durumda ikonlar kaybolabilir ve teklif formu çalışmayabilir.
+                    cPanel → Git Version Control → Manage → Pull or Deploy → "Update from Remote" ile kodu güncelleyin.
+                </div>
+            @endif
+        </x-filament::section>
+
         {{-- ================= Otomatik görevler ================= --}}
         <x-filament::section>
             <x-slot name="heading">Otomatik görevler</x-slot>
@@ -35,7 +62,7 @@
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $what }}</p>
                         <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
                             @if ($last)
-                                Son sinyal: {{ $last->diffForHumans() }} ({{ $last->timezone(config('app.timezone'))->format('d.m.Y H:i') }})
+                                Son sinyal: {{ $last->diffForHumans() }} ({{ $last->timezone('Europe/Istanbul')->format('d.m.Y H:i') }})
                             @elseif ($name === 'Kuyruk işçisi' && $health['queue_connection'] === 'sync')
                                 Kuyruk "sync" modunda: işler beklemeden hemen çalışır, işçi gerekmez.
                             @else
@@ -193,7 +220,7 @@
                                 <code class="font-mono text-xs text-gray-400">{{ $run->command_line }}</code>
                                 <span class="ms-auto text-xs text-gray-500">
                                     {{ $run->user?->name ?? 'Sistem' }} ·
-                                    {{ $run->created_at->timezone(config('app.timezone'))->format('d.m.Y H:i') }}
+                                    {{ $run->created_at->timezone('Europe/Istanbul')->format('d.m.Y H:i') }}
                                     @if ($run->durationLabel()) · {{ $run->durationLabel() }} @endif
                                 </span>
                             </summary>

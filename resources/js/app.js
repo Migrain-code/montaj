@@ -16,18 +16,35 @@ document.addEventListener('DOMContentLoaded', () => {
     backToTop();
 });
 
+/*
+ * Sayfa belli bir noktanın altına kaydırıldı mı?
+ *
+ * window.scrollY OKUNMAZ: Chrome bunu okurken düzeni yeniden hesaplamak zorunda kalıyor
+ * (PageSpeed "zorunlu yeniden düzenleme"). Onun yerine sayfanın başından "offset" piksel
+ * aşağıya görünmez bir işaret konur; tarayıcı işaretin ekrandan çıktığını kendisi bildirir.
+ * Kaydırma dinleyicisi de gerekmez.
+ */
+function onScrolledPast(offset, callback) {
+    if (!('IntersectionObserver' in window)) return;
+
+    const marker = document.createElement('div');
+    marker.setAttribute('aria-hidden', 'true');
+    marker.style.cssText = `position:absolute;top:${offset}px;left:0;width:1px;height:1px;pointer-events:none;`;
+    document.body.prepend(marker);
+
+    new IntersectionObserver(([entry]) => {
+        // İşaret ekranın ÜSTÜNDEN çıktıysa kaydırılmış demektir (altından değil).
+        callback(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+    }).observe(marker);
+}
+
 /* Sticky header gölgesi */
 function stickyHeader() {
     const header = document.getElementById('siteHeader');
     if (!header) return;
-    const toggle = () => header.classList.toggle('is-sticky', window.scrollY > 10);
-    // İlk okuma bir sonraki kareye: diğer başlatıcılar DOM'u değiştirdikten hemen sonra
-    // scrollY okumak tarayıcıyı düzeni yeniden hesaplamaya zorluyordu (PageSpeed).
-    requestAnimationFrame(toggle);
-    window.addEventListener('scroll', toggle, { passive: true });
+    onScrolledPast(10, (past) => header.classList.toggle('is-sticky', past));
 }
 
-/* Görünür olunca yumuşak giriş */
 function revealOnScroll() {
     const items = document.querySelectorAll('.reveal');
     if (!items.length || !('IntersectionObserver' in window)) {
@@ -204,15 +221,27 @@ function quoteForm() {
  */
 function recaptcha() {
     const cfg = window.__recaptcha;
-    if (!cfg || !cfg.src) return;
+    if (!cfg || !cfg.siteKey) return;
+
+    // Eski sayfa şablonları "src" göndermiyordu. Yalnız derlenmiş dosyalar yüklenip
+    // şablonlar eski kaldığında form jetonsuz gidip reddediliyordu; adres anahtardan üretilir.
+    const version = cfg.version || 'v3';
+    const src = cfg.src || (version === 'v2'
+        ? 'https://www.google.com/recaptcha/api.js'
+        : `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(cfg.siteKey)}`);
 
     const forms = document.querySelectorAll('form[data-recaptcha]');
     if (!forms.length) return;
 
     let loading = null;
     const load = () => loading || (loading = new Promise((resolve, reject) => {
+        // Betik sayfada zaten yüklüyse (eski şablon) ikinci kez yükleme.
+        if (window.grecaptcha && window.grecaptcha.execute) {
+            resolve();
+            return;
+        }
         const script = document.createElement('script');
-        script.src = cfg.src;
+        script.src = src;
         script.async = true;
         script.onload = resolve;
         script.onerror = reject;
@@ -223,7 +252,7 @@ function recaptcha() {
     forms.forEach((form) => {
         ['focusin', 'pointerdown', 'touchstart'].forEach((ev) => form.addEventListener(ev, warmUp, { once: true, passive: true }));
 
-        if (cfg.version === 'v2') {
+        if (version === 'v2') {
             if ('IntersectionObserver' in window) {
                 const observer = new IntersectionObserver((entries) => {
                     if (entries.some((entry) => entry.isIntersecting)) {
@@ -263,8 +292,6 @@ function recaptcha() {
 function backToTop() {
     const btn = document.querySelector('.back-to-top');
     if (!btn) return;
-    const toggle = () => btn.classList.toggle('show', window.scrollY > 500);
-    requestAnimationFrame(toggle);
-    window.addEventListener('scroll', toggle, { passive: true });
+    onScrolledPast(500, (past) => btn.classList.toggle('show', past));
     btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }

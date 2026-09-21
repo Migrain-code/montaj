@@ -61,6 +61,11 @@
             })();
         </script>
     @endif
+    {{--
+        E-postalar <!--email_off--> ile sarılır: Cloudflare aksi hâlde onları gizleyip
+        sayfaya kritik yolda duran ek bir betik (email-decode.min.js) ekliyordu. Adres
+        JSON-LD'de zaten düz metin olduğu için gizleme bir koruma da sağlamıyordu.
+    --}}
     @stack('head')
 </head>
 <body class="{{ $bodyClass ?? '' }}">

@@ -169,6 +169,47 @@ class PerformanceTest extends TestCase
         $this->assertStringEndsWith('/images/yok.webp', versioned_asset('images/yok.webp'));
     }
 
+    // ---------- Cloudflare ve JS ----------
+
+    public function test_visible_emails_are_excluded_from_cloudflare_obfuscation(): void
+    {
+        // Cloudflare gizlediği her e-posta için kritik yola email-decode.min.js ekliyordu.
+        Setting::set('email', 'info@ornek.test');
+
+        foreach (['/', '/iletisim'] as $url) {
+            $html = $this->get($url)->assertOk()->getContent();
+
+            preg_match_all('/<a href="mailto:[^"]*">/', $html, $links);
+            $this->assertNotEmpty($links[0], "{$url} sayfasında e-posta bağlantısı bulunamadı.");
+            $this->assertSame(
+                count($links[0]),
+                preg_match_all('/<!--email_off--><a href="mailto:/', $html),
+                "{$url} sayfasında email_off ile sarılmamış bir e-posta var."
+            );
+        }
+    }
+
+    public function test_site_js_does_not_read_the_scroll_position(): void
+    {
+        // window.scrollY okumak Chrome'u düzeni yeniden hesaplamaya zorluyordu
+        // (PageSpeed "zorunlu yeniden düzenleme"). Kaydırma IntersectionObserver ile izlenir.
+        $js = file_get_contents(resource_path('js/app.js'));
+        $code = preg_replace('#/\*.*?\*/|//[^\n]*#s', '', $js);
+
+        $this->assertStringNotContainsString('window.scrollY', $code);
+        $this->assertStringNotContainsString('pageYOffset', $code);
+    }
+
+    public function test_recaptcha_loader_works_with_an_older_page_config(): void
+    {
+        // Yalnız derlenmiş dosyalar yüklenip şablonlar eski kaldığında yapılandırmada "src"
+        // yoktu; form jetonsuz gidip reddediliyordu. Yükleyici adresi anahtardan üretmeli.
+        $js = file_get_contents(resource_path('js/app.js'));
+
+        $this->assertStringContainsString('cfg.src ||', $js);
+        $this->assertStringContainsString('api.js?render=${encodeURIComponent(cfg.siteKey)}', $js);
+    }
+
     private function fakeWebp(int $width, int $height): string
     {
         $file = UploadedFile::fake()->image('x.webp', $width, $height);

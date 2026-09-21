@@ -43,7 +43,7 @@
                     </a>
                     <p>{{ setting('footer_text') }}</p>
                     @if ($email)
-                        <p class="mt-2"><i class="fa-regular fa-envelope text-accent me-2"></i><a href="mailto:{{ $email }}">{{ $email }}</a></p>
+                        <p class="mt-2"><i class="fa-regular fa-envelope text-accent me-2"></i><!--email_off--><a href="mailto:{{ $email }}">{{ $email }}</a><!--/email_off--></p>
                     @endif
                     @if (setting('working_hours'))
                         <p class="mt-1"><i class="fa-regular fa-clock text-accent me-2"></i>{{ setting('working_hours') }}</p>

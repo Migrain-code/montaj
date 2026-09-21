@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\CommandRun;
 use App\Services\Admin\CommandRunner;
 use App\Support\Console\CommandCatalog;
+use App\Support\DeploymentInfo;
 use App\Support\Heartbeat;
 use App\Support\Shell;
 use App\Support\StorageLink;
@@ -76,6 +77,7 @@ class SystemCommands extends Page
             'health' => $this->health(),
             'cron' => $this->cronLines(),
             'storageLink' => $this->storageLinkStatus(),
+            'deployment' => $this->deployment(),
         ];
     }
 
@@ -178,6 +180,28 @@ class SystemCommands extends Page
             'php' => $php,
             'schedule' => "cd {$base} && {$php} artisan schedule:run >> /dev/null 2>&1",
             'queue' => "cd {$base} && {$php} artisan queue:work --stop-when-empty --max-time=55 --tries=3 >> /dev/null 2>&1",
+        ];
+    }
+
+    /**
+     * Sunucudaki kod ve derlenmiş dosyalar.
+     *
+     * Derlenmiş dosyalar koddan belirgin şekilde yeniyse kod güncellenmemiş demektir:
+     * yeni JS/CSS eski sayfa şablonlarıyla çalışır, ikonlar kaybolur ve form bozulabilir.
+     *
+     * @return array{commit: ?string, code_at: ?\Illuminate\Support\Carbon, build_at: ?\Illuminate\Support\Carbon, mismatch: bool}
+     */
+    private function deployment(): array
+    {
+        $info = app(DeploymentInfo::class);
+        $codeAt = $info->codeUpdatedAt();
+        $buildAt = $info->buildUploadedAt();
+
+        return [
+            'commit' => $info->shortCommit(),
+            'code_at' => $codeAt,
+            'build_at' => $buildAt,
+            'mismatch' => $codeAt && $buildAt && $buildAt->greaterThan($codeAt->copy()->addMinutes(30)),
         ];
     }
 

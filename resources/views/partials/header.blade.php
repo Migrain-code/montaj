@@ -18,7 +18,7 @@
                 <li><i class="fa-regular fa-clock"></i><span>{{ $hours }}</span></li>
             @endif
             @if ($email)
-                <li><i class="fa-regular fa-envelope"></i><a href="mailto:{{ $email }}">{{ $email }}</a></li>
+                <li><i class="fa-regular fa-envelope"></i><!--email_off--><a href="mailto:{{ $email }}">{{ $email }}</a><!--/email_off--></li>
             @endif
         </ul>
         <ul class="topbar-social ms-auto">
