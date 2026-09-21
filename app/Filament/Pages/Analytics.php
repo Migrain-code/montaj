@@ -36,6 +36,13 @@ class Analytics extends Page
 
     protected string $view = 'filament.pages.analytics';
 
+    public static function canAccess(): bool
+    {
+        $u = auth()->user();
+
+        return (bool) ($u?->isSuperAdmin() || $u?->isStaff() || $u?->isRepresentative());
+    }
+
     protected function getHeaderWidgets(): array
     {
         return [

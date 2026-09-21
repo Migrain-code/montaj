@@ -34,12 +34,9 @@
     <div class="container">
         <nav class="navbar navbar-expand-lg p-0">
             <a class="brand" href="{{ route('home') }}" aria-label="{{ site_name() }} ana sayfa">
-                @if (setting('logo'))
-                    <img src="{{ media_url(setting('logo')) }}" alt="{{ site_name() }}">
-                @else
-                    <span class="brand-mark"><i class="fa-solid fa-screwdriver-wrench"></i></span>
-                    <span class="brand-text">{{ site_name() }}<small>{{ $navProvinces->pluck('name')->implode(' · ') }}</small></span>
-                @endif
+                {{-- Panelden logo yüklenmişse o kullanılır; yoksa marka dosyası. --}}
+                <img src="{{ setting('logo') ? media_url(setting('logo')) : asset('images/brand/logo-horizontal.webp') }}"
+                     alt="{{ site_name() }} — mobilya montaj, Tekirdağ" width="260" height="94">
             </a>
 
             <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav" aria-label="Menüyü aç">
@@ -57,6 +54,16 @@
                             @endforeach
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item fw-bold" href="{{ route('services.index') }}">Tüm Hizmetler</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('brands.*') ? 'active' : '' }}" href="{{ route('brands.index') }}">Markalar</a>
+                        <ul class="dropdown-menu dropdown-columns">
+                            @foreach ($navBrands as $brand)
+                                <li><a class="dropdown-item" href="{{ $brand->url }}">{{ $brand->name }}</a></li>
+                            @endforeach
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item fw-bold" href="{{ route('brands.index') }}">Tüm Markalar</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">

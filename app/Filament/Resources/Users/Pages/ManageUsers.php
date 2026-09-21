@@ -10,6 +10,12 @@ class ManageUsers extends ManageRecords
 {
     protected static string $resource = UserResource::class;
 
+    public function getSubheading(): ?string
+    {
+        return 'Roller yetkiyi belirler. "Web sitesinde göster" açık olan personelin '
+            .'iletişim bilgileri sitenin iletişim sayfasında yayınlanır.';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

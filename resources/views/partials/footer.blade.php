@@ -38,8 +38,8 @@
             <div class="row g-4 g-lg-5">
                 <div class="col-lg-4 col-md-6">
                     <a class="brand mb-3" href="{{ route('home') }}">
-                        <span class="brand-mark"><i class="fa-solid fa-screwdriver-wrench"></i></span>
-                        <span class="brand-text text-white">{{ site_name() }}<small>{{ $navProvinces->pluck('name')->implode(' · ') }}</small></span>
+                        <img src="{{ asset('images/brand/logo-horizontal-light.webp') }}"
+                             alt="{{ site_name() }}" width="240" height="87">
                     </a>
                     <p>{{ setting('footer_text') }}</p>
                     @if ($email)
@@ -62,6 +62,7 @@
                         @foreach ($navServices as $service)
                             <li><a href="{{ $service->url }}">{{ $service->title }}</a></li>
                         @endforeach
+                        <li><a href="{{ route('brands.index') }}">Montajını yaptığımız markalar</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-3 col-md-6">

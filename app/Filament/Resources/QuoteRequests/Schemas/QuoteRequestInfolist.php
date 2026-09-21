@@ -29,6 +29,14 @@ class QuoteRequestInfolist
                     ViewEntry::make('photos')->label('Fotoğraflar')->view('filament.infolists.quote-photos')->columnSpanFull(),
                 ])->columnSpanFull(),
 
+                Section::make('Atama')->schema([
+                    TextEntry::make('assignee.name')->label('Montajcı')->placeholder('Henüz atanmadı')
+                        ->badge()->color(fn (?string $state) => $state ? 'success' : 'gray'),
+                    TextEntry::make('assigner.name')->label('Atayan')->placeholder('-'),
+                    TextEntry::make('assigned_at')->label('Atama zamanı')->dateTime('d.m.Y H:i')->placeholder('-'),
+                    TextEntry::make('assignment_note')->label('Montajcıya not')->placeholder('-')->columnSpanFull(),
+                ])->columns(3)->columnSpanFull(),
+
                 Section::make('Takip')->schema([
                     TextEntry::make('status')
                         ->label('Durum')

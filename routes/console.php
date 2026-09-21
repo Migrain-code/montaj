@@ -26,6 +26,12 @@ Schedule::command('seo:sync-targets')->dailyAt('01:50')->withoutOverlapping();
  */
 Schedule::command('seo:location-keywords')->dailyAt('01:55')->withoutOverlapping();
 
+/*
+ * Marka kelimeleri de hedeflere atandığı için hedef senkronundan SONRA koşar.
+ * Panelden bir marka kapatıldığında kelimeleri kendiliğinden pasifleşir.
+ */
+Schedule::command('seo:brand-keywords')->dailyAt('01:57')->withoutOverlapping();
+
 Schedule::command('seo:score')->dailyAt('02:00')->withoutOverlapping();
 
 /*
@@ -48,6 +54,8 @@ Schedule::command('seo:sync-rankings')->dailyAt('05:10')->withoutOverlapping();
 Schedule::command('seo:discover-keywords')->weeklyOn(1, '05:20')->withoutOverlapping();
 Schedule::command('seo:refresh-meta')->weeklyOn(1, '05:30')->withoutOverlapping();
 Schedule::command('seo:suggest-redirects')->dailyAt('05:40')->withoutOverlapping();
+// Kurallar önce üretilir; yeni açılan sayfa aynı gün link almaya başlasın.
+Schedule::command('links:build-rules')->dailyAt('05:45')->withoutOverlapping();
 Schedule::command('links:apply')->dailyAt('05:50')->withoutOverlapping();
 
 // İç linkler basıldıktan sonra skorlar tazelensin.

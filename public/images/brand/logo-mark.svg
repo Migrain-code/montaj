@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 330" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">Dost Montaj</title>
+  <desc id="dsc">Tekirdağ mobilya montaj hizmeti — ev, vida ve el sıkışma simgesi</desc>
+  <style>
+    .navy{fill:#0F2B47}.orange{fill:#D86C30}
+    .ln{fill:none;stroke-width:26;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+
+  <!-- ===== EV ===== -->
+  <path class="ln" stroke="#0F2B47" d="M 44 162 L 150 62"/>
+  <path class="ln" stroke="#D86C30" d="M 150 62 L 256 162"/>
+  <path class="ln" stroke="#0F2B47" d="M 56 154 L 56 224"/>
+  <path class="ln" stroke="#D86C30" d="M 244 154 L 244 224"/>
+  <g class="navy">
+    <rect x="86"  y="140" width="23" height="23" rx="3"/>
+    <rect x="117" y="140" width="23" height="23" rx="3"/>
+    <rect x="86"  y="171" width="23" height="23" rx="3"/>
+    <rect x="117" y="171" width="23" height="23" rx="3"/>
+  </g>
+
+  <!-- ===== EL SIKIŞMA ===== -->
+  <path fill="none" stroke="#D86C30" stroke-width="50" stroke-linecap="round" stroke-linejoin="round"
+        d="M 292 298 L 198 262 L 154 282"/>
+  <path fill="none" stroke="#0F2B47" stroke-width="50" stroke-linecap="round" stroke-linejoin="round"
+        d="M 12 294 L 110 258 L 172 288"/>
+  <path class="navy" d="M 96 250 Q 132 234 172 254 L 198 268 Q 214 278 205 295 Q 196 313 178 303 L 128 276 Q 92 262 96 250 Z"/>
+  <g stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".92">
+    <path d="M 126 252 L 138 282"/>
+    <path d="M 148 252 L 160 284"/>
+    <path d="M 170 258 L 181 289"/>
+  </g>
+  <path class="orange" d="M 166 240 Q 202 230 222 248 Q 236 261 221 272 Q 206 283 195 268 Q 185 254 166 255 Z"/>
+
+  <!-- ===== VİDA ===== -->
+  <g class="navy">
+    <rect x="182" y="26" width="50" height="27" rx="7"/>
+    <path d="M 192 53 h 30 l -6 116 -9 26 -9 -26 z"/>
+  </g>
+  <rect x="191" y="35" width="32" height="9" rx="4.5" fill="#fff"/>
+  <g stroke="#fff" stroke-width="5.5" stroke-linecap="round">
+    <path d="M 192 70 L 221 78"/><path d="M 193 94 L 220 102"/>
+    <path d="M 195 118 L 218 126"/><path d="M 197 142 L 216 150"/>
+  </g>
+
+  </svg>

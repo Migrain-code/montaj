@@ -1,8 +1,8 @@
 <div class="offcanvas offcanvas-end mobile-nav" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
     <div class="offcanvas-header">
         <span class="brand" id="mobileNavLabel">
-            <span class="brand-mark"><i class="fa-solid fa-screwdriver-wrench"></i></span>
-            <span class="brand-text">{{ site_name() }}<small>{{ $navProvinces->pluck('name')->implode(' · ') }}</small></span>
+            <img src="{{ setting('logo') ? media_url(setting('logo')) : asset('images/brand/logo-horizontal.webp') }}"
+                 alt="{{ site_name() }}" width="220" height="80">
         </span>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Kapat"></button>
     </div>
@@ -16,6 +16,15 @@
                         <li><a href="{{ $service->url }}">{{ $service->title }}</a></li>
                     @endforeach
                     <li><a href="{{ route('services.index') }}" class="fw-semibold">Tüm Hizmetler</a></li>
+                </ul>
+            </li>
+            <li>
+                <a class="mnav-link" data-bs-toggle="collapse" href="#mnavBrands" role="button" aria-expanded="false" aria-controls="mnavBrands">Markalar <i class="fa-solid fa-chevron-down toggle-icon"></i></a>
+                <ul class="collapse mnav-sub" id="mnavBrands">
+                    @foreach ($navBrands as $brand)
+                        <li><a href="{{ $brand->url }}">{{ $brand->name }}</a></li>
+                    @endforeach
+                    <li><a href="{{ route('brands.index') }}" class="fw-semibold">Tüm Markalar</a></li>
                 </ul>
             </li>
             <li>

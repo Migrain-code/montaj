@@ -17,10 +17,16 @@ class LatestQuoteRequestsWidget extends TableWidget
 
     protected static ?string $heading = 'Son Teklif Talepleri';
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->seesQuotes() ?? false;
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->query(QuoteRequest::query()->with(['province', 'district', 'service'])->latest())
+            // Montajcı yalnız kendi işlerini görür.
+            ->query(QuoteRequest::query()->visibleTo(auth()->user())->with(['province', 'district', 'service', 'assignee'])->latest())
             ->paginated([5, 10])
             ->defaultPaginationPageOption(5)
             ->columns([
@@ -29,6 +35,9 @@ class LatestQuoteRequestsWidget extends TableWidget
                 TextColumn::make('phone')->label('Telefon')->copyable(),
                 TextColumn::make('location_label')->label('Bölge'),
                 TextColumn::make('service.title')->label('Hizmet')->placeholder('-'),
+                TextColumn::make('assignee.name')->label('Montajcı')->placeholder('atanmadı')
+                    ->badge()->color(fn (?string $state) => $state ? 'success' : 'gray')
+                    ->visible(fn () => ! auth()->user()?->isInstaller()),
                 TextColumn::make('status')
                     ->label('Durum')
                     ->badge()

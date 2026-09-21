@@ -36,6 +36,12 @@ class SiteSettings extends Page implements HasSchemas
 
     protected string $view = 'filament.pages.site-settings';
 
+    /** Site ayarları yalnız süper yöneticide: telefon ve WhatsApp buradan yönetilir. */
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
     /** @var array<string, mixed>|null */
     public ?array $data = [];
 

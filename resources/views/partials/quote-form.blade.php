@@ -73,13 +73,21 @@
                 <textarea class="form-control @error('message') is-invalid @enderror" id="{{ $formId }}-message" name="message" rows="3" placeholder="Örn: 3 kapaklı sürgülü gardırop, paketli halde; 4. kat, asansör var.">{{ old('message') }}</textarea>
             </div>
             <div class="col-12">
-                <label class="form-label" for="{{ $formId }}-photos">Fotoğraf ekleyin <span class="text-muted fw-normal">(isteğe bağlı, en fazla 5)</span></label>
-                <div class="photo-drop">
+                <label class="form-label required" for="{{ $formId }}-photos">
+                    Fotoğraf ekleyin <span class="text-muted fw-normal">(1–5 adet)</span>
+                </label>
+                <div class="photo-drop @error('photos') is-invalid @enderror">
                     <i class="fa-solid fa-camera"></i>
                     <strong>Mobilyanın, kutunun veya kurulacak alanın fotoğrafını ekleyin</strong>
-                    <div class="form-text">JPG, PNG veya WebP · her biri en fazla 5 MB · fotoğraf net fiyat vermemizi kolaylaştırır</div>
-                    <input type="file" id="{{ $formId }}-photos" name="photos[]" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple>
+                    <div class="form-text">
+                        Fiyatı fotoğrafa bakarak veriyoruz: parça sayısı, kapak/çekmece adedi ve
+                        kurulacak alan fiyatı belirler. En az bir fotoğraf gerekli.
+                    </div>
+                    <div class="form-text">JPG, PNG veya WebP · her biri en fazla 5 MB</div>
+                    <input type="file" id="{{ $formId }}-photos" name="photos[]"
+                           accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple required>
                 </div>
+                @error('photos')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 <div class="form-text" data-photo-count></div>
                 <div class="photo-previews" data-photo-previews></div>
             </div>
@@ -98,6 +106,11 @@
             <div class="col-12 d-grid d-md-flex gap-2 pt-2">
                 <button type="submit" class="btn btn-orange btn-lg"><i class="fa-solid fa-paper-plane"></i>Teklif İste</button>
                 <a class="btn btn-whatsapp btn-lg" href="{{ $whatsappUrl ?? whatsapp_url() }}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i>WhatsApp'tan Yazın</a>
+            </div>
+            <div class="col-12">
+                <p class="form-text mb-0">
+                    Fotoğraf çekemiyorsanız WhatsApp'tan yazın, birlikte halledelim.
+                </p>
             </div>
         </div>
     </form>

@@ -14,7 +14,7 @@
                     @include('partials.quote-form', [
                         'formId' => 'quotePageForm',
                         'formTitle' => 'Teklif / Randevu Formu',
-                        'formText' => 'Yalnızca ad ve telefon zorunludur; diğer bilgiler daha hızlı ve net fiyat vermemizi sağlar.',
+                        'formText' => 'Ad, telefon ve en az bir fotoğraf gerekli. Diğer alanlar daha hızlı ve net fiyat vermemizi sağlar.',
                         'selectedService' => request('hizmet'),
                     ])
                 </div>

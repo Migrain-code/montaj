@@ -44,6 +44,12 @@ class SeoAiSettings extends Page implements HasSchemas
 
     protected string $view = 'filament.pages.seo-ai-settings';
 
+    /** AI anahtarı ve Google kimliği buradan yönetilir: yalnız süper yönetici. */
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
     /** @var array<string, mixed>|null */
     public ?array $data = [];
 

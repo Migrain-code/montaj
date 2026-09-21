@@ -24,7 +24,9 @@ class QuoteRequestTest extends TestCase
     {
         $province = Province::where('slug', 'tekirdag')->first();
 
+        // Fotoğraf artık ZORUNLU: geçerli bir gönderim en az bir tane içerir.
         return array_merge([
+            'photos' => [UploadedFile::fake()->image('gardirop.jpg', 800, 600)],
             'name' => 'Test Müşteri',
             'phone' => '0532 111 22 33',
             'province_id' => $province->id,
@@ -39,9 +41,44 @@ class QuoteRequestTest extends TestCase
     public function test_required_fields_are_validated(): void
     {
         $this->post('/teklif-al', [])
-            ->assertSessionHasErrors(['name', 'phone', 'kvkk']);
+            ->assertSessionHasErrors(['name', 'phone', 'kvkk', 'photos']);
 
         $this->assertDatabaseCount('quote_requests', 0);
+    }
+
+    public function test_at_least_one_photo_is_required(): void
+    {
+        Storage::fake('local');
+
+        // Fiyat fotoğrafa bakılarak veriliyor; fotoğrafsız talep kabul edilmez.
+        $this->post('/teklif-al', ['name' => 'Ali', 'phone' => '05321112233', 'kvkk' => '1'])
+            ->assertSessionHasErrors('photos');
+
+        $this->post('/teklif-al', ['name' => 'Ali', 'phone' => '05321112233', 'kvkk' => '1', 'photos' => []])
+            ->assertSessionHasErrors('photos');
+
+        $this->assertDatabaseCount('quote_requests', 0);
+    }
+
+    public function test_photo_error_message_explains_why(): void
+    {
+        $this->post('/teklif-al', ['name' => 'Ali', 'phone' => '05321112233', 'kvkk' => '1'])
+            ->assertSessionHasErrors(['photos' => 'Fiyat verebilmemiz için en az bir fotoğraf ekleyin.']);
+    }
+
+    public function test_multiple_photos_are_accepted(): void
+    {
+        Storage::fake('local');
+
+        $this->post('/teklif-al', $this->validPayload([
+            'photos' => [
+                UploadedFile::fake()->image('a.jpg'),
+                UploadedFile::fake()->image('b.png'),
+                UploadedFile::fake()->image('c.webp'),
+            ],
+        ]))->assertRedirect(route('quote.thanks'));
+
+        $this->assertCount(3, QuoteRequest::firstOrFail()->photos);
     }
 
     public function test_valid_request_is_stored_with_photos_and_notification_mail(): void
@@ -75,10 +112,17 @@ class QuoteRequestTest extends TestCase
         Mail::assertSent(QuoteRequestReceived::class, fn ($mail) => $mail->hasTo('bildirim@example.com'));
     }
 
-    public function test_request_without_optional_fields_is_accepted(): void
+    public function test_request_with_only_the_required_fields_is_accepted(): void
     {
-        $this->post('/teklif-al', ['name' => 'Ali', 'phone' => '+90 532 111 22 33', 'kvkk' => '1'])
-            ->assertRedirect(route('quote.thanks'));
+        Storage::fake('local');
+
+        // Zorunlu alanlar: ad, telefon, KVKK onayı ve en az bir fotoğraf.
+        $this->post('/teklif-al', [
+            'name' => 'Ali',
+            'phone' => '+90 532 111 22 33',
+            'kvkk' => '1',
+            'photos' => [UploadedFile::fake()->image('baza.jpg')],
+        ])->assertRedirect(route('quote.thanks'));
 
         $this->assertDatabaseCount('quote_requests', 1);
     }

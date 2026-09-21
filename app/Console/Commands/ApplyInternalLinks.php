@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Blog;
+use App\Models\Brand;
 use App\Models\District;
 use App\Models\InternalLinkRule;
 use App\Models\Province;
@@ -25,7 +26,7 @@ class ApplyInternalLinks extends Command
 {
     protected $signature = 'links:apply
                             {--force : Otomatik uygulama kapalı olsa da uygula}
-                            {--type=* : blog|service|district|province (boş bırakılırsa hepsi)}';
+                            {--type=* : blog|service|brand|district|province (boş bırakılırsa hepsi)}';
 
     protected $description = 'İç link kurallarını yayındaki içeriklerin gövdesine işler';
 
@@ -55,7 +56,7 @@ class ApplyInternalLinks extends Command
         }
 
         $batch = SeoConfig::int('internal_links_batch_size', (int) config('seo.internal_links.batch_size', 25), 1, 500);
-        $types = (array) $this->option('type') ?: ['blog', 'service', 'district', 'province'];
+        $types = (array) $this->option('type') ?: ['blog', 'service', 'brand', 'district', 'province'];
 
         $scanned = 0;
         $changed = 0;
@@ -110,6 +111,12 @@ class ApplyInternalLinks extends Command
         if (in_array('service', $types, true)) {
             $out['service'] = Service::query()->where('is_active', true)->limit($batch)->get()
                 ->map(fn (Service $s) => [$s, 'description', '/'.$s->slug])->all();
+        }
+
+        if (in_array('brand', $types, true)) {
+            // Kendi hizmet sayfasına bağlı markanın gövdesi yayınlanmaz; atlanır.
+            $out['brand'] = Brand::query()->where('is_active', true)->whereNull('service_id')->limit($batch)->get()
+                ->map(fn (Brand $b) => [$b, 'content', $b->path()])->all();
         }
 
         if (in_array('district', $types, true)) {

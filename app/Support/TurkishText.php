@@ -35,6 +35,28 @@ class TurkishText
     }
 
     /**
+     * ARAMA kelimesi için küçük harf.
+     *
+     * lower() Türkçe kuralını uygular ve "I" harfini "ı" yapar — Türkçe kelimelerde
+     * doğrudur. Ama yabancı bir marka adında yanlıştır: "IKEA" → "ıkea" olur, oysa
+     * kimse öyle aramaz. Salt ASCII harflerden oluşan bir ad Türkçe'ye özgü bir
+     * harf içermediği için yabancı sayılır ve ASCII kuralıyla küçültülür.
+     *
+     * Ödün: "ILGI" gibi ASCII yazılmış Türkçe bir kelime "ilgi" olur, "ılgı" değil.
+     * Marka ve bölge adlarında bu durum pratikte görülmez; IKEA görülür.
+     */
+    public static function searchLower(?string $value): string
+    {
+        $value = (string) $value;
+
+        if (preg_match('/^[\x20-\x7E]*$/', $value) === 1) {
+            return mb_strtolower($value, 'UTF-8');
+        }
+
+        return self::lower($value);
+    }
+
+    /**
      * Başlığı karşılaştırılabilir token kümesine indirger (spec §3.4).
      *
      * @return array<int, string> benzersiz, sıralı token listesi

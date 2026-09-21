@@ -2,6 +2,7 @@
 
 namespace App\Services\Discovery;
 
+use App\Models\Brand;
 use App\Models\District;
 use App\Models\Faq;
 use App\Models\Page;
@@ -81,6 +82,22 @@ class LlmsTxtGenerator
             $lines[] = '';
         }
 
+        // Kendi hizmet sayfasına bağlı marka LİSTELENMEZ: adresi 301 döner.
+        $brands = Brand::query()->where('is_active', true)->whereNull('service_id')->orderBy('sort_order')->get();
+
+        if ($brands->isNotEmpty()) {
+            $lines[] = '## Montajını yaptığımız markalar';
+            $lines[] = '';
+            $lines[] = 'Marka adları sahiplerine aittir; '.$name.' bağımsız montaj hizmeti verir, yetkili servis değildir.';
+            $lines[] = '';
+
+            foreach ($brands as $brand) {
+                $lines[] = '- ['.$brand->heading.']('.url($brand->path()).'): '.$this->clean($brand->description);
+            }
+
+            $lines[] = '';
+        }
+
         $provinces = Province::query()->where('is_active', true)->orderBy('sort_order')
             ->with(['districts' => fn ($q) => $q->where('is_active', true)])->get();
 
@@ -155,6 +172,29 @@ class LlmsTxtGenerator
             $lines[] = '';
 
             foreach ((array) $service->faqs as $faq) {
+                if (filled($faq['question'] ?? null)) {
+                    $lines[] = '**'.$faq['question'].'** '.$this->clean($faq['answer'] ?? '');
+                }
+            }
+
+            $lines[] = '';
+        }
+
+        foreach (Brand::query()->where('is_active', true)->whereNull('service_id')->orderBy('sort_order')->get() as $brand) {
+            $lines[] = '## '.$brand->heading;
+            $lines[] = '';
+            $lines[] = 'URL: '.url($brand->path());
+            $lines[] = '';
+            $lines[] = $this->clean($brand->content, 3000);
+            $lines[] = '';
+
+            foreach ((array) $brand->products as $item) {
+                $lines[] = '- '.$this->clean($item);
+            }
+
+            $lines[] = '';
+
+            foreach ((array) $brand->faqs as $faq) {
                 if (filled($faq['question'] ?? null)) {
                     $lines[] = '**'.$faq['question'].'** '.$this->clean($faq['answer'] ?? '');
                 }

@@ -14,6 +14,7 @@ class SeoTarget extends Model
 {
     public const TYPES = [
         'service' => 'Hizmet sayfası',
+        'brand' => 'Marka sayfası',
         'province' => 'İl sayfası',
         'district' => 'İlçe sayfası',
         'page' => 'Statik sayfa',

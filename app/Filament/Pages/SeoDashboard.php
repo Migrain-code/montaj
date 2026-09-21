@@ -30,6 +30,13 @@ class SeoDashboard extends Page
 
     protected string $view = 'filament.pages.seo-dashboard';
 
+    public static function canAccess(): bool
+    {
+        $u = auth()->user();
+
+        return (bool) ($u?->isSuperAdmin() || $u?->isStaff());
+    }
+
     public function getViewData(): array
     {
         $target = SeoConfig::int('score_target', 80, 1, 100);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Faq;
 use App\Models\Feature;
 use App\Models\GalleryCategory;
@@ -31,6 +32,10 @@ class HomeController extends Controller
 
         return view('home', [
             'services' => Service::query()->active()->where('is_featured', true)->ordered()->get(),
+            'brands' => Brand::query()->active()->ordered()->get(['id', 'name', 'slug']),
+            // Öne çıkmayan hizmetler kart ızgarasını 13'e çıkarıp bozmasın diye
+            // ayrı bir şerit olarak gösterilir; ana sayfa linkini yine de alırlar.
+            'otherServices' => Service::query()->active()->where('is_featured', false)->ordered()->get(['id', 'title', 'slug']),
             'trustItems' => Feature::query()->active()->ofType(Feature::TYPE_TRUST)->ordered()->get(),
             'whyUs' => Feature::query()->active()->ofType(Feature::TYPE_WHY_US)->ordered()->get(),
             'processSteps' => Feature::query()->active()->ofType(Feature::TYPE_PROCESS)->ordered()->get(),

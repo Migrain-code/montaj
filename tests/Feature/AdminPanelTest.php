@@ -49,6 +49,7 @@ class AdminPanelTest extends TestCase
             '/admin',
             '/admin/site-settings',
             '/admin/services', '/admin/services/create', '/admin/services/'.Service::first()->id.'/edit',
+            '/admin/brands', '/admin/brands/create', '/admin/brands/'.\App\Models\Brand::first()->id.'/edit',
             '/admin/provinces', '/admin/provinces/create', '/admin/provinces/'.Province::first()->id.'/edit',
             '/admin/districts', '/admin/districts/create', '/admin/districts/'.District::first()->id.'/edit',
             '/admin/gallery-items', '/admin/gallery-items/create', '/admin/gallery-items/'.GalleryItem::first()->id.'/edit',

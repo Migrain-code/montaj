@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminFileController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
@@ -15,6 +16,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)->name('home');
 
 Route::get('/hizmetler', [ServiceController::class, 'index'])->name('services.index');
+Route::get('/markalar', [BrandController::class, 'index'])->name('brands.index');
+Route::get('/markalar/{brand:slug}', [BrandController::class, 'show'])
+    ->where('brand', '[a-z0-9\-]+')
+    ->name('brands.show');
 Route::get('/bolgeler', [RegionController::class, 'index'])->name('regions.index');
 Route::get('/galeri', [GalleryController::class, 'index'])->name('gallery.index');
 Route::get('/hakkimizda', [PageController::class, 'about'])->name('about');

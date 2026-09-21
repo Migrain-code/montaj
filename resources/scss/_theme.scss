@@ -111,7 +111,11 @@ p:last-child { margin-bottom: 0; }
     .brand-text { line-height: 1.05; font-family: $headings-font-family; font-weight: 700; font-size: 1.2rem; color: $ink; white-space: nowrap;
         small { display: block; font-family: $font-family-sans-serif; font-weight: 600; font-size: .66rem; color: $orange; letter-spacing: .1em; text-transform: uppercase; margin-top: .2rem; }
     }
-    img { height: 48px; width: auto; }
+    // Menü uzayınca logonun ezilip kaybolmaması için: küçülür ama yok olmaz.
+    flex: 0 0 auto;
+    img { height: 52px; width: auto; display: block; max-width: 100%; }
+    @include media-breakpoint-only(lg) { img { height: 44px; } }
+    @include media-breakpoint-down(md) { img { height: 42px; } }
     &:hover { color: $ink; }
 }
 .main-nav {
@@ -119,6 +123,18 @@ p:last-child { margin-bottom: 0; }
     > .nav-item > .nav-link {
         font-weight: 600; text-transform: uppercase; font-size: .84rem; letter-spacing: .04em; color: $ink; padding: 1.2rem .7rem; white-space: nowrap;
         &:hover, &.active { color: $orange; }
+    }
+
+    /*
+     * lg-xl arasında sekiz menü başlığı + CTA, logoyu sıfır genişliğe iter.
+     * Bu aralıkta harf aralığı ve yatay boşluk kısılır; başlıklar okunur kalır.
+     */
+    @include media-breakpoint-only(lg) {
+        gap: 0;
+        > .nav-item > .nav-link { font-size: .76rem; letter-spacing: .01em; padding: 1.2rem .38rem; }
+    }
+    @include media-breakpoint-only(xl) {
+        > .nav-item > .nav-link { padding: 1.2rem .5rem; }
     }
     .dropdown-toggle::after { margin-left: .35rem; vertical-align: .15em; }
     .dropdown-menu { margin-top: 0; border-top: 3px solid $orange; box-shadow: 0 16px 40px rgba($ink, .12); min-width: 250px; border-radius: 0 0 $border-radius $border-radius; }
@@ -425,7 +441,10 @@ p:last-child { margin-bottom: 0; }
     .photo-drop { border: 2px dashed $input-border-color; border-radius: $border-radius-lg; padding: 1.25rem; text-align: center; color: $slate; cursor: pointer; transition: all .2s; position: relative;
         i { font-size: 1.75rem; color: $orange; display: block; margin: 0 auto .4rem; }
         input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
-        &:hover, &.dragover { border-color: $orange; background: rgba($orange, .04); } }
+        &:hover, &.dragover { border-color: $orange; background: rgba($orange, .04); }
+        // Zorunlu alan hatası: kırmızı çerçeve, boş bırakıldığı hemen görülsün.
+        &.is-invalid { border-color: $danger; background: rgba($danger, .04); i { color: $danger; } }
+        &.is-filled { border-color: $whatsapp; background: rgba($whatsapp, .05); i { color: $whatsapp; } } }
     .photo-previews { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem;
         img { width: 72px; height: 72px; object-fit: cover; border-radius: $border-radius; border: 1px solid $line; } }
 }
@@ -488,3 +507,87 @@ p:last-child { margin-bottom: 0; }
 .error-code { font-family: $headings-font-family; font-size: 7rem; line-height: 1; color: $orange; font-weight: 700; }
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; &.in { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+// ---------------------------------------------------------------
+// Personel kartları (ön yüz)
+// ---------------------------------------------------------------
+.staff-card {
+    background: #fff; border: 1px solid $line; border-radius: $border-radius-lg; padding: 1.5rem;
+    display: flex; flex-direction: column; transition: all .25s;
+    &:hover { border-color: rgba($orange, .5); box-shadow: 0 14px 34px rgba($ink, .08); }
+
+    .staff-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+
+    .staff-photo {
+        width: 72px; height: 72px; border-radius: 50%; object-fit: cover; flex: 0 0 auto;
+        border: 3px solid $mist;
+    }
+    .staff-initials {
+        display: grid; place-items: center; background: $navy; color: #fff;
+        font-family: $headings-font-family; font-weight: 700; font-size: 1.5rem; border-color: rgba($navy, .12);
+    }
+
+    h3 { font-size: 1.15rem; margin: 0 0 .15rem; }
+    .staff-title { display: block; font-size: .88rem; color: $orange; font-weight: 600; }
+    .staff-bio { color: $slate; font-size: .92rem; margin-bottom: 1rem; flex: 1; }
+
+    .staff-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: auto;
+        .btn { flex: 1 1 auto; justify-content: center; display: inline-flex; align-items: center; } }
+}
+
+// ---------------------------------------------------------------
+// Marka kartları
+// Logo YOKSA marka adı bir "wordmark" olarak yazılır; böylece hiçbir
+// markanın logosu izinsiz kullanılmadan kart dolu görünür.
+// ---------------------------------------------------------------
+.brand-card {
+    display: flex; flex-direction: column; height: 100%;
+    background: #fff; border: 1px solid $line; border-radius: $border-radius-lg;
+    overflow: hidden; transition: all .25s; color: inherit;
+
+    .mark {
+        display: grid; place-items: center; padding: 1.5rem 1.25rem; min-height: 104px;
+        background: $mist; border-bottom: 1px solid $line;
+        img { max-width: 100%; max-height: 56px; width: auto; height: auto; object-fit: contain; }
+    }
+    .wordmark {
+        font-family: $headings-font-family; font-weight: 700; font-size: 1.4rem;
+        letter-spacing: .02em; color: $navy; text-align: center; line-height: 1.2;
+    }
+    .body { display: block; padding: 1.25rem; }
+    .title { display: block; font-family: $headings-font-family; font-weight: 700; font-size: 1.05rem; color: $ink; margin-bottom: .4rem; }
+    .text { display: block; color: $slate; font-size: .9rem; line-height: 1.55; }
+
+    &:hover {
+        border-color: rgba($orange, .5); box-shadow: 0 14px 34px rgba($ink, .08);
+        .mark { background: rgba($orange, .08); }
+        .wordmark, .title { color: $orange; }
+    }
+}
+
+// Sidebar ve serbest kullanım için chip listesi (region-card dışında da gerekiyor)
+.sidebar-widget .chips,
+.chips-standalone {
+    display: flex; flex-wrap: wrap; gap: .4rem;
+    a { display: inline-block; padding: .3rem .75rem; border-radius: 100px; background: $mist; color: $ink; font-size: .85rem; font-weight: 500; transition: all .2s;
+        &:hover { background: $orange; color: #fff; } }
+}
+
+// Ana sayfa marka şeridi
+.brand-strip {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem;
+    a {
+        display: inline-flex; align-items: center; padding: .55rem 1.1rem;
+        border: 1px solid $line; border-radius: 100px; background: #fff;
+        font-weight: 600; font-size: .95rem; color: $ink; transition: all .2s;
+        &:hover { border-color: rgba($orange, .6); background: rgba($orange, .08); color: $orange; }
+    }
+}
+
+// Çok sayıda marka tek sütunda çok uzun olur; menü iki sütuna bölünür.
+.dropdown-menu.dropdown-columns {
+    min-width: 420px; columns: 2; column-gap: 0; padding: .6rem;
+    li { break-inside: avoid; }
+    hr.dropdown-divider { display: none; }
+    @include media-breakpoint-down(xl) { min-width: 340px; }
+}

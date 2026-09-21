@@ -58,11 +58,36 @@
                     </div>
                 @endforeach
             </div>
+            @if ($otherServices->isNotEmpty())
+                <div class="text-center mt-5">
+                    <p class="text-muted mb-3">Odanın tamamını kurduruyorsanız:</p>
+                    <div class="brand-strip">
+                        @foreach ($otherServices as $other)
+                            <a href="{{ $other->url }}">{{ $other->title }}</a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             <div class="text-center mt-5">
                 <a class="btn btn-navy" href="{{ route('services.index') }}">Tüm Hizmetler <i class="fa-solid fa-arrow-right ms-2 me-0"></i></a>
             </div>
         </div>
     </section>
+
+    {{-- Montajını yaptığımız markalar --}}
+    @if ($brands->isNotEmpty())
+        <section class="section pt-0" id="markalar">
+            <div class="container">
+                <x-section-title subtitle="Markalar" title="Hangi Markaların Montajını Yapıyoruz?" text="Marka ayrımı yapmıyoruz. En sık kurduğumuz markalar aşağıda; listede olmayan bir markanın ürününü de monte ediyoruz." :center="true" />
+                <div class="brand-strip reveal">
+                    @foreach ($brands as $brand)
+                        <a href="{{ $brand->url }}">{{ $brand->name }}</a>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
 
     {{-- Hakkımızda / Neden biz --}}
     <section class="section bg-mist">
@@ -246,6 +271,17 @@
             </div>
         </div>
     </section>
+
+    {{-- Ekip: yalnız sitede gösterilmesi işaretlenmiş personel --}}
+    @if ($staff->isNotEmpty())
+        <section class="section">
+            <div class="container">
+                <x-section-title subtitle="Ekibimiz" title="Montajı Kim Yapacak?"
+                    text="İşinizi yapacak ekibe doğrudan ulaşabilirsiniz." :center="true" />
+                @include('partials.staff-cards', ['compact' => true])
+            </div>
+        </section>
+    @endif
 
     @include('partials.cta-band')
 @endsection

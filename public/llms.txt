@@ -22,6 +22,30 @@ Son güncelleme: 2026-09-20
 - [TV Ünitesi Montajı](http://127.0.0.1:8000/tv-unitesi-montaji): TV ünitesi ve benzeri salon mobilyalarının kurulumu.
 - [Kitaplık Montajı](http://127.0.0.1:8000/kitaplik-montaji): Kitaplık ve raf sistemlerinin kurulumu.
 - [Ofis Mobilyası Montajı](http://127.0.0.1:8000/ofis-mobilyasi-montaji): Ofis masası, dolap, sandalye ve diğer ofis mobilyalarının kurulumu.
+- [Yatak Odası Montajı](http://127.0.0.1:8000/yatak-odasi-montaji): Gardırop, baza, başlık, şifonyer ve komodinden oluşan komple yatak odası takımının kurulumu.
+- [Yemek Odası Montajı](http://127.0.0.1:8000/yemek-odasi-montaji): Masa, sandalye, vitrin ve konsoldan oluşan yemek odası takımının kurulumu.
+- [Koltuk Takımı Montajı](http://127.0.0.1:8000/koltuk-takimi-montaji): Üçlü-ikili-tekli ve köşe koltuk takımlarının kurulumu, modül birleştirme ve ayak montajı.
+- [Genç Odası Montajı](http://127.0.0.1:8000/genc-odasi-montaji): Çalışma masası, gardırop, yatak ve raf sisteminden oluşan genç odası takımının kurulumu.
+- [Çocuk Odası Montajı](http://127.0.0.1:8000/cocuk-odasi-montaji): Ranza, karyola, bebek beşiği ve dolaptan oluşan çocuk odası takımının güvenli kurulumu.
+
+## Montajını yaptığımız markalar
+
+Marka adları sahiplerine aittir; Trakya Mobilya Montaj bağımsız montaj hizmeti verir, yetkili servis değildir.
+
+- [İstikbal Mobilya Montajı](http://127.0.0.1:8000/markalar/istikbal): İstikbal yatak odası, koltuk takımı ve genç odası ürünlerinin kurulumu.
+- [Bellona Mobilya Montajı](http://127.0.0.1:8000/markalar/bellona): Bellona yatak odası, yemek odası ve oturma grubu montajı.
+- [Mondi Home Mobilya Montajı](http://127.0.0.1:8000/markalar/mondi-home): Mondi Home mobilyalarının kurulum ve montaj hizmeti.
+- [Doğtaş Mobilya Montajı](http://127.0.0.1:8000/markalar/dogtas): Doğtaş yemek odası, yatak odası ve oturma grubu montajı.
+- [Yataş Mobilya Montajı](http://127.0.0.1:8000/markalar/yatas): Yataş baza, başlık ve yatak odası montajı.
+- [Enza Home Mobilya Montajı](http://127.0.0.1:8000/markalar/enza-home): Enza Home yatak odası, yemek odası ve oturma grubu kurulumu.
+- [Kelebek Mobilya Mobilya Montajı](http://127.0.0.1:8000/markalar/kelebek-mobilya): Kelebek Mobilya yatak odası, genç odası ve gardırop montajı.
+- [İnegöl Mobilya Mobilya Montajı](http://127.0.0.1:8000/markalar/inegol-mobilya): İnegöl üretimi yatak odası ve yemek odası takımlarının montajı.
+- [Almila Mobilya Montajı](http://127.0.0.1:8000/markalar/almila): Almila mobilyalarının kurulum hizmeti.
+- [Çilek Mobilya Montajı](http://127.0.0.1:8000/markalar/cilek): Çilek çocuk ve genç odası mobilyalarının montajı.
+- [Alfemo Mobilya Montajı](http://127.0.0.1:8000/markalar/alfemo): Alfemo yatak odası, oturma grubu ve yemek odası montajı.
+- [Veltev Mobilya Montajı](http://127.0.0.1:8000/markalar/veltev): Veltev mobilyalarının kurulum ve montaj hizmeti.
+- [Teksen Mobilya Mobilya Montajı](http://127.0.0.1:8000/markalar/teksen-mobilya): Teksen mobilyalarının kurulum hizmeti.
+- [Koçtaş Mobilya Montajı](http://127.0.0.1:8000/markalar/koctas): Koçtaş'tan alınan hazır mobilya ve raf sistemlerinin montajı.
 
 ## Hizmet bölgeleri
 

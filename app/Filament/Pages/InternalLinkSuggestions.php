@@ -34,6 +34,11 @@ class InternalLinkSuggestions extends Page
 
     protected string $view = 'filament.pages.internal-link-suggestions';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
     public function getViewData(): array
     {
         $applier = app(LinkApplier::class);

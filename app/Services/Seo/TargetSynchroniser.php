@@ -2,6 +2,7 @@
 
 namespace App\Services\Seo;
 
+use App\Models\Brand;
 use App\Models\District;
 use App\Models\Page;
 use App\Models\Province;
@@ -25,10 +26,16 @@ class TargetSynchroniser
 
         $rows = [
             ['home', 'Ana Sayfa', '/', null, null, true],
+            ['brand', 'Markalar (liste)', '/markalar', null, null, true],
         ];
 
         foreach (Service::all() as $service) {
             $rows[] = ['service', $service->title, '/'.$service->slug, 'service', $service->getKey(), (bool) $service->is_active];
+        }
+
+        // Hizmet sayfasına bağlı markanın kendi adresi yok; hedefi de olmaz.
+        foreach (Brand::query()->whereNull('service_id')->get() as $brand) {
+            $rows[] = ['brand', $brand->heading, $brand->path(), 'brand', $brand->getKey(), (bool) $brand->is_active];
         }
 
         foreach (Province::all() as $province) {

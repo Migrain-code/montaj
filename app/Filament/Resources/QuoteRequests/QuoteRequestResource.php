@@ -32,13 +32,6 @@ class QuoteRequestResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    public static function getNavigationBadge(): ?string
-    {
-        $count = QuoteRequest::query()->where('status', QuoteRequest::STATUS_NEW)->count();
-
-        return $count > 0 ? (string) $count : null;
-    }
-
     public static function getNavigationBadgeColor(): ?string
     {
         return 'warning';
@@ -62,6 +55,35 @@ class QuoteRequestResource extends Resource
     public static function table(Table $table): Table
     {
         return QuoteRequestsTable::configure($table);
+    }
+
+    /**
+     * Montajcı yalnız kendisine atanan talepleri görür.
+     *
+     * İlke (QuoteRequestPolicy) tek kayıt erişimini korur; bu kapsam listeyi korur.
+     * İkisi birden gereklidir: yalnız listeyi filtrelemek, kayıt kimliğini bilen
+     * birinin doğrudan adrese gitmesini engellemez.
+     */
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->visibleTo(auth()->user());
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $user = auth()->user();
+
+        $count = QuoteRequest::query()
+            ->visibleTo($user)
+            ->when(
+                $user?->isInstaller(),
+                // Montajcı için "yeni" değil, "üzerine atanmış ve bitmemiş" iş sayısı anlamlıdır.
+                fn ($q) => $q->whereNotIn('status', [QuoteRequest::STATUS_COMPLETED, QuoteRequest::STATUS_CANCELLED]),
+                fn ($q) => $q->where('status', QuoteRequest::STATUS_NEW),
+            )
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
     }
 
     public static function getPages(): array

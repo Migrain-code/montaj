@@ -71,8 +71,12 @@ Hizmet, il ve sayfa slug'ları kök dizinde yayınlandığı için panel, birbir
 
 ## Teklif formu
 
-- Zorunlu alanlar: ad soyad, telefon, KVKK onayı. İl/ilçe, hizmet, açıklama, tarih ve fotoğraf isteğe bağlıdır.
-- Fotoğraf: en fazla 5 adet, her biri en fazla 5 MB; JPG, JPEG, PNG, WEBP.
+- Zorunlu alanlar: ad soyad, telefon, KVKK onayı ve **en az bir fotoğraf**. İl/ilçe, hizmet, açıklama
+  ve tarih isteğe bağlıdır.
+- **Fotoğraf neden zorunlu:** montaj fiyatı ürünün parça sayısına, kapak/çekmece adedine ve kurulacak
+  alana göre belirlenir. Fotoğrafsız gelen talepte fiyat verilemez; karşılıklı mesajlaşmayla zaman
+  kaybedilir. Fotoğraf çekemeyen ziyaretçi için WhatsApp yolu formun hemen yanında açık durur.
+- Fotoğraf: 1–5 adet, her biri en fazla 5 MB; JPG, JPEG, PNG, WEBP. Yüklenenler WebP'ye çevrilir.
 - Fotoğraflar herkese açık olmayan diskte (`storage/app/private/quote-photos`) saklanır, yalnızca panelde görüntülenir.
 - Spam koruması: gizli alan (honeypot) ve IP başına dakikada 5 gönderim sınırı.
 - Panelde **Talep bildirimi e-postası** doluysa ve `.env` içindeki `MAIL_*` ayarları yapılmışsa yeni talepler e-posta ile bildirilir.
@@ -349,6 +353,92 @@ Sistemde uygulanan, değiştirilmemesi gereken kurallar:
 7. **Keşif dosyaları cron'da** üretilir, istek anında değil.
 8. **İçerik silinmez.** Yayından kaldırılır ve yönlendirilir.
 9. **Geri alınamaz işlem yoktur.** Birleştirme geri alınabilir, pasife alınan hedefler silinmez.
+
+## Marka ve logo
+
+Logo vektör olarak `public/images/brand/` altındadır. Beş sürüm üretilmiştir:
+
+| Dosya | Nerede kullanılır |
+| --- | --- |
+| `logo.svg` / `logo.webp` | Tam logo (alt slogan dahil) — basılı iş, sosyal medya |
+| `logo-horizontal.svg` / `.webp` | Üst bilgi ve mobil menü (alt slogan yok) |
+| `logo-light.svg` / `.webp` | Koyu zeminde tam logo |
+| `logo-horizontal-light.svg` / `.webp` | Altbilgi (koyu zemin) |
+| `logo-mark.svg` / `.webp` | Yalnız simge — favicon, kare kullanım |
+
+Renkler logodan ölçülmüştür: lacivert `#0F2B47`, turuncu `#D86C30`.
+
+Sitede WebP sürümler kullanılır (istediğiniz gibi), SVG dosyaları kaynak olarak durur. Panelden
+**Site Ayarları** üzerinden logo yüklerseniz yüklediğiniz dosya bunların yerine geçer.
+
+> Yazı tipi notu: SVG'lerde başlıklar sistem yazı tipi yığınıyla (`Arial Black` ve alternatifleri)
+> tanımlıdır. Başka bir bilgisayarda açtığınızda harfler biraz farklı görünebilir. Sitede kullanılan
+> WebP dosyaları burada işlendiği için her yerde aynı görünür. Kurumsal bir baskı işi için
+> yazıların dışa vektör olarak (outline) çevrilmesi gerekir.
+
+## Görseller otomatik WebP olur
+
+Panele yüklenen her görsel **WebP'ye çevrilir**: hizmet görselleri, galeri, blog kapakları, personel
+fotoğrafları, site ayarlarındaki görseller ve müşterilerin teklif formundan gönderdiği fotoğraflar.
+
+Aynı işlemde:
+
+- Telefon fotoğraflarındaki **EXIF dönüklüğü** düzeltilir (yan yatmış fotoğraf sorunu).
+- Uzun kenarı **2200 pikseli** aşan görseller küçültülür.
+- Dosya adı Türkçe karakterlerden arındırılıp okunabilir hâle getirilir (görsel aramasında işe yarar).
+
+**Görsel olmayan dosyalara dokunulmaz.** Google servis hesabı JSON'u olduğu gibi kaydedilir; çevrilseydi
+bozulurdu. Bir görsel çevrilemezse (bozuk dosya, animasyonlu GIF) orijinali kaydedilir; yükleme asla düşmez.
+
+Ölçüm: 4000×3000 piksel 321 KB JPEG → 2200×1650 piksel 6 KB WebP.
+
+## Roller ve yetkiler
+
+Dört rol vardır. Yetkiler `app/Policies` altındaki dört ortak ilkede tanımlıdır.
+
+| | Süper Yönetici | Müşteri Temsilcisi | Personel | Montajcı |
+| --- | --- | --- | --- | --- |
+| İçerik görür | ✓ | ✓ | ✓ | — |
+| İçerik düzenler | ✓ | — | ✓ | — |
+| Teklif taleplerini görür | tümü | tümü | tümü | **yalnız kendine atananlar** |
+| Talep atar | ✓ | ✓ | — | — |
+| SEO ekranlarını görür | ✓ | — | ✓ | — |
+| SEO ayarlarını değiştirir | ✓ | — | — | — |
+| Site ayarları / kullanıcılar | ✓ | — | — | — |
+
+**Montajcı yalnız kendi işini görür.** Bu iki katmanda birden uygulanır: liste sorgusu filtrelenir ve
+tek kayıt erişimi ilkeyle korunur. Yalnız listeyi filtrelemek yeterli olmazdı — kayıt numarasını bilen
+biri doğrudan adrese gidebilirdi.
+
+**Hesap aktif** kapatılırsa kişi panele giremez ve sitede de görünmez; kayıtları ve geçmiş atamaları silinmez.
+
+## Talep atama akışı
+
+```
+Müşteri formu doldurur
+        ↓
+Müşteri temsilcisi talebi görür  →  "Montajcıya ata" (tek tek veya toplu)
+        ↓
+Montajcı panelinde yalnız kendi işini görür, durumunu günceller
+```
+
+Atama yapıldığında kim atadı, ne zaman atadı ve montajcıya bırakılan not kaydedilir. Durum otomatik
+olarak "Yeni"den "İletişime Geçildi"ye geçer; tamamlanmış bir iş yeniden atanırsa durumu geri alınmaz.
+
+Atama listesinde her montajcının yanında **açık iş sayısı** görünür, böylece iş yükü dengelenebilir.
+
+## Personelin sitede görünmesi
+
+**Ayarlar → Personel** ekranında bir kişiye telefon girip **"Web sitesinde göster"** anahtarını açın.
+O kişi iletişim sayfasındaki ve ana sayfadaki ekip listesinde yer alır; ziyaretçiler doğrudan onun
+numarasına yönlendirilir (tıkla-ara ve WhatsApp).
+
+Kurallar:
+
+- Telefonu olmayan kişi listelenmez — tıklanacak bir şey olmadan kart göstermek ziyaretçiyi çıkmaza sokar.
+- WhatsApp alanı boşsa telefon numarası kullanılır.
+- Fotoğraf yoksa baş harfleri gösterilir.
+- **E-posta ve rol asla siteye basılmaz**; panel hesabı bilgileri herkese açık sayfaya sızmaz.
 
 ## Analitik paneli
 

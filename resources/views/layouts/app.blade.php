@@ -25,7 +25,8 @@
     @if (setting('google_site_verification'))
         <meta name="google-site-verification" content="{{ setting('google_site_verification') }}">
     @endif
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset('images/brand/logo-mark.svg') }}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Josefin+Sans:wght@600;700&display=swap" rel="stylesheet">

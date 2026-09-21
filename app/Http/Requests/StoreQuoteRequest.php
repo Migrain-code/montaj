@@ -24,7 +24,10 @@ class StoreQuoteRequest extends FormRequest
             'service_id' => ['nullable', 'integer', 'exists:services,id'],
             'message' => ['nullable', 'string', 'max:2000'],
             'preferred_date' => ['nullable', 'date', 'after_or_equal:today'],
-            'photos' => ['nullable', 'array', 'max:5'],
+            // Fotoğraf ZORUNLU: montaj fiyatı ürünün parça sayısına, kapak/çekmece
+            // adedine ve kurulacak alana göre belirlenir. Fotoğrafsız gelen talepte
+            // fiyat verilemez ve karşılıklı mesajlaşmayla zaman kaybedilir.
+            'photos' => ['required', 'array', 'min:1', 'max:5'],
             'photos.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'kvkk' => ['accepted'],
             'website' => ['nullable', 'max:0'], // honeypot: gerçek kullanıcılar boş bırakır
@@ -36,6 +39,9 @@ class StoreQuoteRequest extends FormRequest
         return [
             'phone.regex' => 'Lütfen geçerli bir telefon numarası girin.',
             'kvkk.accepted' => 'Devam etmek için KVKK aydınlatma metnini onaylamanız gerekir.',
+            'photos.required' => 'Fiyat verebilmemiz için en az bir fotoğraf ekleyin.',
+            'photos.min' => 'Fiyat verebilmemiz için en az bir fotoğraf ekleyin.',
+            'photos.array' => 'Fotoğraflar yüklenemedi, lütfen tekrar deneyin.',
             'photos.max' => 'En fazla 5 fotoğraf yükleyebilirsiniz.',
             'photos.*.max' => 'Her fotoğraf en fazla 5 MB olabilir.',
             'photos.*.mimes' => 'Fotoğraflar JPG, PNG veya WebP formatında olmalıdır.',

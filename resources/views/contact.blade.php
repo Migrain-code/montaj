@@ -40,6 +40,14 @@
                 </div>
             </div>
 
+            @if ($staff->isNotEmpty())
+                <div class="mb-5">
+                    <x-section-title subtitle="Ekibimiz" title="Doğrudan Ulaşın"
+                        text="Aşağıdaki ekip arkadaşlarımıza doğrudan yazabilir veya arayabilirsiniz." />
+                    @include('partials.staff-cards')
+                </div>
+            @endif
+
             <div class="row g-5">
                 <div class="col-lg-7">
                     <x-section-title subtitle="Teklif Formu" title="Bize Yazın" text="Formu doldurun, fotoğraf ekleyin; size en kısa sürede dönelim." class="mb-4" />

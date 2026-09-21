@@ -33,6 +33,11 @@ class DuplicateCleaner extends Page
 
     protected string $view = 'filament.pages.duplicate-cleaner';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
     public static function getNavigationBadge(): ?string
     {
         if (Blog::query()->count() < 2) {

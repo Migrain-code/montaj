@@ -171,6 +171,12 @@ function quoteForm() {
                 });
                 const label = form.querySelector('[data-photo-count]');
                 if (label) label.textContent = files.length ? `${files.length} fotoğraf seçildi` : '';
+
+                // Fotoğraf zorunlu: seçildiğinde alan yeşile döner, hata durumu kalkar.
+                if (drop) {
+                    drop.classList.toggle('is-filled', files.length > 0);
+                    if (files.length > 0) drop.classList.remove('is-invalid');
+                }
             };
             input.addEventListener('change', render);
             if (drop) {

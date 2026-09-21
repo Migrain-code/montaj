@@ -3,7 +3,9 @@
 namespace App\Filament\Support;
 
 use App\Rules\UniquePublicSlug;
+use App\Services\Media\WebpConverter;
 use Filament\Forms\Components\FileUpload;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -115,6 +117,13 @@ class FormHelpers
             ->columnSpanFull();
     }
 
+    /**
+     * Görsel yükleme alanı.
+     *
+     * Yüklenen her görsel OTOMATİK WebP'ye çevrilir: aynı kalitede belirgin
+     * küçük dosya, daha hızlı sayfa. Telefon fotoğraflarındaki EXIF dönüklüğü
+     * düzeltilir ve çok büyük görseller küçültülür.
+     */
     public static function imageUpload(string $field, string $directory, string $label = 'Görsel'): FileUpload
     {
         return FileUpload::make($field)
@@ -124,9 +133,17 @@ class FormHelpers
             ->directory($directory)
             ->visibility('public')
             ->imageEditor()
-            ->maxSize(4096)
-            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-            ->helperText('JPG, PNG veya WebP; en fazla 4 MB. Mümkünse WebP kullanın.');
+            ->maxSize(8192)
+            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+            ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, FileUpload $component) use ($directory) {
+                return app(WebpConverter::class)->store(
+                    $file,
+                    $component->getDiskName(),
+                    $directory,
+                    $component->getVisibility(),
+                );
+            })
+            ->helperText('JPG, PNG, GIF veya WebP; en fazla 8 MB. Yüklenen görsel otomatik olarak WebP\'ye çevrilir.');
     }
 
     public static function iconInput(string $field = 'icon'): TextInput

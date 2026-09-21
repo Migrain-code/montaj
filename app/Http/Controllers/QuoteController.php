@@ -31,9 +31,13 @@ class QuoteController extends Controller
     {
         $data = $request->safe()->except(['photos', 'kvkk', 'website']);
 
+        // Müşteri fotoğrafları da WebP'ye çevrilir: telefon fotoğrafları büyüktür ve
+        // panelde hızlı açılması gerekir. Çevrilemezse orijinal korunur.
         $photos = [];
+        $converter = app(\App\Services\Media\WebpConverter::class);
+
         foreach ($request->file('photos', []) as $file) {
-            $photos[] = Storage::disk('local')->putFile('quote-photos/'.now()->format('Y/m'), $file);
+            $photos[] = $converter->store($file, 'local', 'quote-photos/'.now()->format('Y/m'));
         }
 
         $quote = QuoteRequest::query()->create($data + [

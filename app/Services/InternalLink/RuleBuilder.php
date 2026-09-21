@@ -2,6 +2,7 @@
 
 namespace App\Services\InternalLink;
 
+use App\Models\Brand;
 use App\Models\District;
 use App\Models\InternalLinkRule;
 use App\Models\Province;
@@ -28,13 +29,19 @@ class RuleBuilder
      */
     private const SERVICE_ALIASES = [
         'ikea-mobilya-montaji' => ['IKEA montajı', 'IKEA mobilyası'],
-        'yatak-baza-montaji' => ['baza montajı', 'yatak odası montajı'],
+        // DİKKAT: "yatak odası montajı" buraya EKLENMEZ — artık kendi sayfası var.
+        'yatak-baza-montaji' => ['baza montajı', 'sandıklı baza kurulumu'],
         'tv-unitesi-montaji' => ['TV ünitesi'],
         'masa-sandalye-montaji' => ['masa montajı', 'sandalye montajı'],
         'ofis-mobilyasi-montaji' => ['ofis mobilyası'],
         'kitaplik-montaji' => ['kitaplık ve raf'],
         'gardirop-montaji' => ['gardırop kurulumu'],
         'mobilya-montaji' => ['mobilya kurulumu'],
+        'yatak-odasi-montaji' => ['yatak odası takımı montajı'],
+        'yemek-odasi-montaji' => ['yemek odası takımı montajı'],
+        'koltuk-takimi-montaji' => ['köşe koltuk montajı', 'oturma grubu montajı'],
+        'genc-odasi-montaji' => ['genç odası takımı montajı'],
+        'cocuk-odasi-montaji' => ['ranza montajı', 'bebek odası montajı'],
     ];
 
     /** @return array{created: int, deactivated: int} */
@@ -50,6 +57,23 @@ class RuleBuilder
 
             foreach (self::SERVICE_ALIASES[$service->slug] ?? [] as $alias) {
                 $created += $this->upsert($alias, $url, 'all', 65, $activeHashes);
+            }
+        }
+
+        /*
+         * Marka sayfaları.
+         *
+         * Anchor olarak yalın marka adı KULLANILMAZ: "Çilek" gibi adlar günlük
+         * dilde başka anlama gelir ve yanlış yere link basılır. Tek kelimelik
+         * markalarda "{marka} montajı" kalıbı zorunludur; iki kelimeli adlar
+         * ("Kelebek Mobilya") zaten kendi başına açıktır.
+         */
+        foreach (Brand::query()->where('is_active', true)->with('service:id,slug')->get() as $brand) {
+            $url = $brand->path();
+            $created += $this->upsert($brand->name.' montajı', $url, 'all', 55, $activeHashes);
+
+            if (str_contains(trim($brand->name), ' ')) {
+                $created += $this->upsert($brand->name, $url, 'all', 35, $activeHashes);
             }
         }
 

@@ -3,6 +3,7 @@
 namespace App\Services\Seo;
 
 use App\Models\Blog;
+use App\Models\Brand;
 use App\Models\District;
 use App\Models\Page;
 use App\Models\Province;
@@ -19,6 +20,7 @@ class ContentRegistry
 {
     public const TYPES = [
         'service' => 'Hizmet',
+        'brand' => 'Marka',
         'province' => 'İl',
         'district' => 'İlçe',
         'blog' => 'Blog yazısı',
@@ -44,6 +46,7 @@ class ContentRegistry
     {
         return collect()
             ->merge($this->services())
+            ->merge($this->brands())
             ->merge($this->provinces())
             ->merge($this->districts())
             ->merge($this->blogs())
@@ -54,6 +57,7 @@ class ContentRegistry
     {
         return match (true) {
             $model instanceof Service => $this->fromService($model),
+            $model instanceof Brand => $model->hasOwnPage() ? $this->fromBrand($model) : null,
             $model instanceof Province => $this->fromProvince($model),
             $model instanceof District => $this->fromDistrict($model->loadMissing('province')),
             $model instanceof Blog => $this->fromBlog($model),
@@ -67,6 +71,7 @@ class ContentRegistry
     {
         return match ($type) {
             'service' => Service::find($id),
+            'brand' => Brand::find($id),
             'province' => Province::find($id),
             'district' => District::with('province')->find($id),
             'blog' => Blog::find($id),
@@ -78,6 +83,12 @@ class ContentRegistry
     private function services(): Collection
     {
         return Service::query()->get()->map(fn (Service $s) => $this->fromService($s));
+    }
+
+    private function brands(): Collection
+    {
+        // Hizmet sayfasına bağlanan markanın kendi sayfası yoktur; skorlanacak bir şey de yoktur.
+        return Brand::query()->whereNull('service_id')->get()->map(fn (Brand $b) => $this->fromBrand($b));
     }
 
     private function provinces(): Collection
@@ -119,6 +130,27 @@ class ContentRegistry
                 (array) $service->suitable_for,
                 collect($service->process_steps ?? [])->flatMap(fn ($s) => [$s['title'] ?? '', $s['description'] ?? ''])->all(),
                 collect($service->faqs ?? [])->flatMap(fn ($f) => [$f['question'] ?? '', $f['answer'] ?? ''])->all(),
+            ),
+        );
+    }
+
+    private function fromBrand(Brand $brand): ScorableContent
+    {
+        return new ScorableContent(
+            contentType: 'brand',
+            contentId: $brand->getKey(),
+            title: $brand->heading,
+            url: url($brand->path()),
+            metaTitle: $brand->meta_title,
+            metaDescription: $brand->meta_description,
+            bodyHtml: $brand->content,
+            slug: $brand->slug,
+            published: (bool) $brand->is_active,
+            hasImage: true, // marka sayfaları ortak başlık görselini kullanır
+            faqCount: count($brand->faqs ?? []),
+            extraText: array_merge(
+                (array) $brand->products,
+                collect($brand->faqs ?? [])->flatMap(fn ($f) => [$f['question'] ?? '', $f['answer'] ?? ''])->all(),
             ),
         );
     }

@@ -13,6 +13,10 @@ class DatabaseSeeder extends Seeder
             ImageSeeder::class,
             SettingsSeeder::class,
             ServiceSeeder::class,
+            // Oda tipi hizmetler ServiceSeeder'dan SONRA: sort_order'ı onun üstüne ekler.
+            RoomServiceSeeder::class,
+            // Markalar hizmetlerden SONRA: IKEA kendi hizmet sayfasına bağlanır.
+            BrandSeeder::class,
             FeatureSeeder::class,
             RegionSeeder::class,
             GallerySeeder::class,

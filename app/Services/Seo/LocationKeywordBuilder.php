@@ -39,6 +39,11 @@ class LocationKeywordBuilder
         'masa-sandalye-montaji' => 'masa sandalye montajı',
         'kitaplik-montaji' => 'kitaplık montajı',
         'mobilya-montaji' => 'mobilya sökme takma',
+        'yatak-odasi-montaji' => 'yatak odası montajı',
+        'yemek-odasi-montaji' => 'yemek odası montajı',
+        'koltuk-takimi-montaji' => 'koltuk takımı montajı',
+        'genc-odasi-montaji' => 'genç odası montajı',
+        'cocuk-odasi-montaji' => 'çocuk odası montajı',
     ];
 
     /** @return array{created: int, assigned: int, deactivated: int, regions: array<int, string>} */
@@ -54,7 +59,9 @@ class LocationKeywordBuilder
 
             // Ticari kalıplar — ilçe/il sayfası sahiplenir.
             foreach (self::OWNED_PATTERNS as $pattern => $type) {
-                $keyword = mb_strtolower(sprintf($pattern, $region['name']), 'UTF-8');
+                // TurkishText::lower kullanılır: mb_strtolower "İ" harfinde arkada
+                // birleşik nokta (U+0307) bırakır ve kelime aranan hâlinden farklı olur.
+                $keyword = sprintf($pattern, TurkishText::searchLower($region['name']));
                 $activeHashes[] = md5(TurkishText::lower($keyword));
 
                 [$row, $isNew] = $this->upsert($keyword, [
@@ -75,7 +82,7 @@ class LocationKeywordBuilder
 
             // Hizmet kalıpları — blog hattı için SAHİPSİZ kalır.
             foreach ($this->activeServiceTerms() as $term) {
-                $keyword = mb_strtolower($region['name'].' '.$term, 'UTF-8');
+                $keyword = TurkishText::searchLower($region['name']).' '.$term;
                 $activeHashes[] = md5(TurkishText::lower($keyword));
 
                 [, $isNew] = $this->upsert($keyword, [
