@@ -27,16 +27,39 @@
     @endif
     <link rel="icon" href="{{ asset('images/brand/logo-mark.svg') }}" type="image/svg+xml">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Josefin+Sans:wght@600;700&display=swap" rel="stylesheet">
+    {{-- Yazı tipleri app.scss içinde, kendi sunucumuzdan: Google Fonts bağlantısı yok. --}}
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+    {{--
+        İkonlar (Font Awesome) sayfanın ilk çizimini BEKLETMEZ: dosya "print" olarak iner
+        (tarayıcı bunu beklemeden sayfayı çizer), yüklenince tüm ekranlara uygulanır.
+    --}}
+    <link rel="stylesheet" href="{{ \Illuminate\Support\Facades\Vite::asset('resources/scss/icons.scss') }}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ \Illuminate\Support\Facades\Vite::asset('resources/scss/icons.scss') }}"></noscript>
     @foreach (($jsonLd ?? []) as $schema)
         <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
     @endforeach
-    @if (setting('google_analytics_id'))
-        <script async src="https://www.googletagmanager.com/gtag/js?id={{ setting('google_analytics_id') }}"></script>
-        <script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '{{ setting('google_analytics_id') }}');</script>
+    @if ($gaId = setting('google_analytics_id'))
+        {{--
+            Google Analytics ERTELENİR. gtag.js 167 KB ve açılışta ~230 ms işlemci harcıyordu
+            (PageSpeed: TBT). Komutlar hemen kuyruğa yazılır; betik ziyaretçinin ilk
+            etkileşiminde (kaydırma, dokunma, tuş) ya da sayfa yüklendikten 3,5 sn sonra iner
+            ve kuyruktaki sayfa görüntülemeyi gönderir. Hiç etkileşmeden 3,5 sn içinde çıkan
+            ziyaretçi sayılmayabilir; bu bilinçli bir ödünleşimdir.
+        --}}
+        <script>
+            window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', @json($gaId));
+            (function () {
+                var loaded = false;
+                function load() {
+                    if (loaded) return; loaded = true;
+                    var s = document.createElement('script'); s.async = true;
+                    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(@json($gaId));
+                    document.head.appendChild(s);
+                }
+                ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach(function (e) { window.addEventListener(e, load, { once: true, passive: true }); });
+                window.addEventListener('load', function () { setTimeout(load, 3500); });
+            })();
+        </script>
     @endif
     @stack('head')
 </head>

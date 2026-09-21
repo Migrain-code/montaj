@@ -35,7 +35,7 @@
         <nav class="navbar navbar-expand-lg p-0">
             <a class="brand" href="{{ route('home') }}" aria-label="{{ site_name() }} ana sayfa">
                 {{-- Panelden logo yüklenmişse o kullanılır; yoksa marka dosyası. --}}
-                <img src="{{ setting('logo') ? media_url(setting('logo')) : asset('images/brand/logo-horizontal.webp') }}"
+                <img src="{{ setting('logo') ? media_url(setting('logo')) : versioned_asset('images/brand/logo-horizontal-520.webp') }}"
                      alt="{{ site_name() }} — mobilya montaj, Tekirdağ" width="260" height="94">
             </a>
 

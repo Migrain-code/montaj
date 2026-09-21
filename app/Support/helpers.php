@@ -133,6 +133,23 @@ if (! function_exists('media_url')) {
     }
 }
 
+if (! function_exists('versioned_asset')) {
+    /**
+     * public/ altındaki sabit adlı bir dosyanın adresine değişiklik zamanını ekler.
+     *
+     * Statik dosyalar bir yıl tarayıcı önbelleğinde tutulur (public/.htaccess). Dosya
+     * aynı adla değiştirilirse eski sürüm görünmeye devam ederdi; ?v= değeri dosya
+     * değişince değiştiği için tarayıcı yenisini indirir.
+     */
+    function versioned_asset(string $path): string
+    {
+        $file = public_path(ltrim($path, '/'));
+        $version = is_file($file) ? filemtime($file) : null;
+
+        return asset(ltrim($path, '/')).($version ? '?v='.$version : '');
+    }
+}
+
 if (! function_exists('seo_title')) {
     function seo_title(?string $title = null): string
     {

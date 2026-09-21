@@ -3,28 +3,31 @@
 @endphp
 
 @if ($recaptcha->enabled())
+    {{--
+        Google betiği SAYFA AÇILIŞINDA YÜKLENMEZ. ~700 KB indirip 1 saniyeden fazla
+        işlemci harcıyordu (PageSpeed: TBT ve "kullanılmayan JavaScript"). Ziyaretçi forma
+        dokununca iner (v2'de form ekrana yaklaşınca, kutucuk görünsün diye).
+        Yükleyici: resources/js/app.js → recaptcha()
+    --}}
+    @once
+        @push('scripts')
+            <script>
+                window.__recaptcha = {
+                    version: @json($recaptcha->version()),
+                    siteKey: @json($recaptcha->siteKey()),
+                    action: @json($recaptcha->action()),
+                    src: @json($recaptcha->version() === 'v2'
+                        ? 'https://www.google.com/recaptcha/api.js'
+                        : 'https://www.google.com/recaptcha/api.js?render='.$recaptcha->siteKey()),
+                };
+            </script>
+        @endpush
+    @endonce
+
     @if ($recaptcha->version() === 'v2')
         <div class="g-recaptcha mb-2" data-sitekey="{{ $recaptcha->siteKey() }}"></div>
-
-        @once
-            @push('scripts')
-                <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-            @endpush
-        @endonce
     @else
         <input type="hidden" name="{{ \App\Services\Security\Recaptcha::FIELD }}">
-
-        @once
-            @push('scripts')
-                <script>
-                    window.__recaptcha = {
-                        siteKey: @json($recaptcha->siteKey()),
-                        action: @json($recaptcha->action()),
-                    };
-                </script>
-                <script src="https://www.google.com/recaptcha/api.js?render={{ $recaptcha->siteKey() }}" async defer></script>
-            @endpush
-        @endonce
 
         {{--
             Rozet gizlendiğinde Google bu bilgilendirmeyi zorunlu tutuyor.

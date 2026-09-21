@@ -1,7 +1,7 @@
 <div class="offcanvas offcanvas-end mobile-nav" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
     <div class="offcanvas-header">
         <span class="brand" id="mobileNavLabel">
-            <img src="{{ setting('logo') ? media_url(setting('logo')) : asset('images/brand/logo-horizontal.webp') }}"
+            <img src="{{ setting('logo') ? media_url(setting('logo')) : versioned_asset('images/brand/logo-horizontal-520.webp') }}"
                  alt="{{ site_name() }}" width="220" height="80">
         </span>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Kapat"></button>

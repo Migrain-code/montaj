@@ -18,7 +18,24 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // İstek başına bir kez: ayarlar ve menü verisi. "scoped" kayıtlar her kuyruk
+        // işinin başında da sıfırlanır, böylece uzun yaşayan işçi eski veriyle kalmaz.
+        $this->app->scoped(\App\Models\Setting::MEMO, fn () => \App\Models\Setting::loadFromStore());
+
+        // Ana sayfa hem kendisi hem içindeki personel kartları için aynı listeyi ister.
+        $this->app->scoped('site.staff', fn () => \App\Models\User::query()
+            ->public()
+            ->whereNotNull('phone')
+            ->where('phone', '!=', '')
+            ->ordered()
+            ->get());
+
+        $this->app->scoped('site.nav', fn () => [
+            'navServices' => Service::query()->active()->ordered()->get(['id', 'title', 'slug', 'icon']),
+            'navBrands' => Brand::query()->active()->ordered()->get(['id', 'name', 'slug']),
+            'navProvinces' => Province::query()->active()->ordered()->with('activeDistricts:id,province_id,name,slug')->get(['id', 'name', 'slug']),
+            'footerPages' => Page::query()->active()->where('show_in_footer', true)->ordered()->get(['id', 'title', 'slug']),
+        ]);
     }
 
     /**
@@ -66,13 +83,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('quote', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
 
         // Header / footer / teklif formu için ortak veriler
+        // Üç görünüm aynı veriyi kullanır; sorgular üç kez değil, istek başına bir kez çalışır.
         View::composer(['partials.header', 'partials.footer', 'partials.mobile-nav'], function ($view) {
-            $view->with([
-                'navServices' => Service::query()->active()->ordered()->get(['id', 'title', 'slug', 'icon']),
-                'navBrands' => Brand::query()->active()->ordered()->get(['id', 'name', 'slug']),
-                'navProvinces' => Province::query()->active()->ordered()->with('activeDistricts:id,province_id,name,slug')->get(['id', 'name', 'slug']),
-                'footerPages' => Page::query()->active()->where('show_in_footer', true)->ordered()->get(['id', 'title', 'slug']),
-            ]);
+            $view->with($this->app->make('site.nav'));
         });
 
         /*
@@ -84,12 +97,7 @@ class AppServiceProvider extends ServiceProvider
          * ziyaretçiyi çıkmaza sokar.
          */
         View::composer(['partials.staff-cards', 'contact', 'home'], function ($view) {
-            $view->with('staff', \App\Models\User::query()
-                ->public()
-                ->whereNotNull('phone')
-                ->where('phone', '!=', '')
-                ->ordered()
-                ->get());
+            $view->with('staff', $this->app->make('site.staff'));
         });
 
         View::composer('partials.quote-form', function ($view) {

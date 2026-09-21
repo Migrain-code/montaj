@@ -2,7 +2,8 @@
 
 @section('content')
     {{-- Hero --}}
-    <section class="hero" style="background-image:url('{{ media_url(setting('hero_image'), asset('images/placeholder.svg')) }}')">
+    <section class="hero">
+        <x-bg-picture :path="setting('hero_image')" :fallback="asset('images/placeholder.svg')" :priority="true" />
         <div class="container">
             <div class="row">
                 <div class="col-lg-8">
@@ -124,7 +125,8 @@
     {{-- Sayaçlar --}}
     @if ($stats->isNotEmpty())
         @php $statIcons = ['fa-solid fa-map-location-dot', 'fa-solid fa-city', 'fa-solid fa-screwdriver-wrench', 'fa-solid fa-camera']; @endphp
-        <section class="stats-band" style="background-image:url('{{ media_url(setting('cta_image'), '') }}')">
+        <section class="stats-band">
+            <x-bg-picture :path="setting('cta_image')" :mobile="[720, 900]" :widths="[1280, 1920]" />
             <div class="container">
                 <div class="row g-3">
                     @foreach ($stats as $i => $stat)
@@ -206,7 +208,9 @@
             <div class="container">
                 <div class="row g-0 testimonial-split reveal">
                     <div class="col-lg-5">
-                        <div class="split-img h-100" style="background-image:url('{{ media_url(setting('about_image'), asset('images/placeholder.svg')) }}')"></div>
+                        <div class="split-img h-100">
+                            <x-bg-picture :path="setting('about_image')" :fallback="asset('images/placeholder.svg')" :mobile="[720, 540]" :widths="[800, 1200]" />
+                        </div>
                     </div>
                     <div class="col-lg-7">
                         <div class="split-body h-100">

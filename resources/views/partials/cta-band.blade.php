@@ -1,4 +1,5 @@
-<section class="cta-band" style="background-image:url('{{ media_url(setting('cta_image'), '') }}')">
+<section class="cta-band">
+    <x-bg-picture :path="setting('cta_image')" :mobile="[720, 900]" :widths="[1280, 1920]" />
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-7">

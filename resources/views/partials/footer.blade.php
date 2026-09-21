@@ -38,7 +38,7 @@
             <div class="row g-4 g-lg-5">
                 <div class="col-lg-4 col-md-6">
                     <a class="brand mb-3" href="{{ route('home') }}">
-                        <img src="{{ asset('images/brand/logo-horizontal-light.webp') }}"
+                        <img src="{{ versioned_asset('images/brand/logo-horizontal-light-520.webp') }}"
                              alt="{{ site_name() }}" width="240" height="87">
                     </a>
                     <p>{{ setting('footer_text') }}</p>

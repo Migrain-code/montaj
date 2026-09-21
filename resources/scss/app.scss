@@ -1,3 +1,14 @@
+// Yazı tipleri KENDİ sunucumuzdan (eskiden Google Fonts). Google'ın CSS'i ayrı bir
+// alan adına bağlantı açıp sayfanın ilk çizimini bekletiyordu (PageSpeed: 750 ms).
+// Birleşik dosyalar unicode-range taşır: Türkçe karakterler (latin-ext) ayrı ve
+// yalnız gerektiğinde iner. Hepsi font-display: swap.
+@import '@fontsource/jost/400';
+@import '@fontsource/jost/500';
+@import '@fontsource/jost/600';
+@import '@fontsource/jost/700';
+@import '@fontsource/josefin-sans/600';
+@import '@fontsource/josefin-sans/700';
+
 @import 'variables';
 
 // Bootstrap 5 — yalnızca sitede kullanılan parçalar (daha küçük CSS)

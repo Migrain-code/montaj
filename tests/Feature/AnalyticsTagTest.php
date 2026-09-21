@@ -19,13 +19,15 @@ class AnalyticsTagTest extends TestCase
 
         $html = $this->get('/')->assertOk()->getContent();
 
-        // Google'ın verdiği etiketin ürettiği iki satır birebir çıkmalı.
-        $this->assertStringContainsString(
-            '<script async src="https://www.googletagmanager.com/gtag/js?id=G-J48B75G7Y3"></script>',
-            $html,
-        );
-        $this->assertStringContainsString("gtag('config', 'G-J48B75G7Y3')", $html);
+        // Komutlar Google'ın etiketiyle aynı: dataLayer kuyruğu ve config satırı hemen yazılır.
         $this->assertStringContainsString('window.dataLayer = window.dataLayer || []', $html);
+        $this->assertStringContainsString("gtag('config', \"G-J48B75G7Y3\")", $html);
+
+        // Betik ise ERTELENİR (PageSpeed: TBT). Engelleyen bir <script src> olmamalı,
+        // ama betiğin adresi yükleyicide bulunmalı.
+        $this->assertStringNotContainsString('<script async src="https://www.googletagmanager.com', $html);
+        $this->assertStringContainsString("https://www.googletagmanager.com/gtag/js?id=", $html);
+        $this->assertStringContainsString("['pointerdown', 'keydown', 'touchstart', 'scroll']", $html);
     }
 
     public function test_no_tag_is_emitted_when_the_field_is_empty(): void

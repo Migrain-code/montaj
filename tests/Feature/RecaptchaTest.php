@@ -208,9 +208,12 @@ class RecaptchaTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('name="'.Recaptcha::FIELD.'"', false);
-        $response->assertSee('recaptcha/api.js?render=test-site-key', false);
+        $response->assertSee('window.__recaptcha', false);
+        $response->assertSee('"test-site-key"', false);
         // Rozet gizlendiği için Google bu bilgilendirmeyi zorunlu tutuyor.
         $response->assertSee('Gizlilik Politikası', false);
+        // Betik açılışta YÜKLENMEZ (PageSpeed): forma dokununca JS ile eklenir.
+        $response->assertDontSee('<script src="https://www.google.com/recaptcha', false);
     }
 
     public function test_v2_renders_the_checkbox_widget(): void
@@ -222,6 +225,7 @@ class RecaptchaTest extends TestCase
         $response->assertOk();
         $response->assertSee('g-recaptcha', false);
         $response->assertSee('data-sitekey="test-site-key"', false);
+        $response->assertDontSee('<script src="https://www.google.com/recaptcha', false);
         // v2'de gizli alan OLMAMALI: Google kendi alanını kendisi ekler, çift olur.
         $response->assertDontSee('input type="hidden" name="'.Recaptcha::FIELD.'"', false);
     }

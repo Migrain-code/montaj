@@ -5,7 +5,14 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/scss/app.scss', 'resources/js/app.js', 'resources/css/filament/admin/theme.css'],
+            input: [
+                'resources/scss/app.scss',
+                // Font Awesome AYRI dosya: sayfanın ilk çizimini beklemesin diye
+                // engellemeyen biçimde yüklenir (layouts/app.blade.php).
+                'resources/scss/icons.scss',
+                'resources/js/app.js',
+                'resources/css/filament/admin/theme.css',
+            ],
             refresh: true,
         }),
         /*

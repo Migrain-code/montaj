@@ -1,4 +1,3 @@
-import '@fortawesome/fontawesome-free/css/all.min.css';
 import Collapse from 'bootstrap/js/dist/collapse';
 import Offcanvas from 'bootstrap/js/dist/offcanvas';
 import Carousel from 'bootstrap/js/dist/carousel';
@@ -13,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     galleryFilter();
     lightbox();
     quoteForm();
-    recaptchaV3();
+    recaptcha();
     backToTop();
 });
 
@@ -22,7 +21,9 @@ function stickyHeader() {
     const header = document.getElementById('siteHeader');
     if (!header) return;
     const toggle = () => header.classList.toggle('is-sticky', window.scrollY > 10);
-    toggle();
+    // İlk okuma bir sonraki kareye: diğer başlatıcılar DOM'u değiştirdikten hemen sonra
+    // scrollY okumak tarayıcıyı düzeni yeniden hesaplamaya zorluyordu (PageSpeed).
+    requestAnimationFrame(toggle);
     window.addEventListener('scroll', toggle, { passive: true });
 }
 
@@ -189,20 +190,54 @@ function quoteForm() {
 }
 
 /*
- * reCAPTCHA v3: jetonu GÖNDERIM ANINDA alır.
+ * reCAPTCHA — İSTEĞE BAĞLI yükleme.
  *
- * Jeton iki dakikada geçersizleşir. Sayfa açılışında alınsaydı, fotoğraf seçip
- * formu dolduran kullanıcının jetonu gönderim sırasında çoktan ölmüş olurdu.
+ * Google betiği sayfa açılışında yüklenmez (~700 KB, 1 sn'den fazla işlemci). Ziyaretçi
+ * forma dokununca iner; form doldurulurken hazır olur.
  *
- * Google'ın betiği yüklenemezse form OLDUĞU GİBİ gönderilir; kullanıcıyı
- * üçüncü taraf bir betiğin yüklenmesine rehin bırakmayız. Sunucu tarafı bu
- * durumu kendi politikasına göre değerlendirir.
+ * v3: jeton GÖNDERİM ANINDA alınır. Jeton iki dakikada geçersizleşir; sayfa açılışında
+ *     alınsaydı fotoğraf seçip formu dolduran kullanıcının jetonu çoktan ölmüş olurdu.
+ * v2: kutucuk görünür olmalı; form ekrana yaklaşınca yüklenir.
+ *
+ * Betik yüklenemezse form OLDUĞU GİBİ gönderilir; kullanıcı üçüncü taraf bir betiğe
+ * rehin kalmaz. Sunucu kendi politikasına göre karar verir.
  */
-function recaptchaV3() {
+function recaptcha() {
     const cfg = window.__recaptcha;
-    if (!cfg || !cfg.siteKey) return;
+    if (!cfg || !cfg.src) return;
 
-    document.querySelectorAll('form[data-recaptcha]').forEach((form) => {
+    const forms = document.querySelectorAll('form[data-recaptcha]');
+    if (!forms.length) return;
+
+    let loading = null;
+    const load = () => loading || (loading = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = cfg.src;
+        script.async = true;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    }));
+    const warmUp = () => load().catch(() => {});
+
+    forms.forEach((form) => {
+        ['focusin', 'pointerdown', 'touchstart'].forEach((ev) => form.addEventListener(ev, warmUp, { once: true, passive: true }));
+
+        if (cfg.version === 'v2') {
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    if (entries.some((entry) => entry.isIntersecting)) {
+                        observer.disconnect();
+                        warmUp();
+                    }
+                }, { rootMargin: '300px' });
+                observer.observe(form);
+            } else {
+                warmUp();
+            }
+            return;
+        }
+
         const field = form.querySelector('input[name="g-recaptcha-response"]');
         if (!field) return;
 
@@ -210,18 +245,16 @@ function recaptchaV3() {
 
         form.addEventListener('submit', (event) => {
             if (tokenReady) return;                       // ikinci tur: gerçekten gönder
-            if (!window.grecaptcha || !window.grecaptcha.execute) return;
-
             event.preventDefault();
 
             const send = () => { tokenReady = true; form.requestSubmit(); };
 
-            window.grecaptcha.ready(() => {
-                window.grecaptcha
-                    .execute(cfg.siteKey, { action: cfg.action })
-                    .then((token) => { field.value = token; send(); })
-                    .catch(send);
-            });
+            load()
+                .then(() => new Promise((resolve) => window.grecaptcha.ready(resolve)))
+                .then(() => window.grecaptcha.execute(cfg.siteKey, { action: cfg.action }))
+                .then((token) => { field.value = token; })
+                .catch(() => {})
+                .finally(send);
         });
     });
 }
@@ -231,7 +264,7 @@ function backToTop() {
     const btn = document.querySelector('.back-to-top');
     if (!btn) return;
     const toggle = () => btn.classList.toggle('show', window.scrollY > 500);
-    toggle();
+    requestAnimationFrame(toggle);
     window.addEventListener('scroll', toggle, { passive: true });
     btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
