@@ -226,7 +226,10 @@ class LinkApplier
 
                     $placed++;
 
-                    return '<a href="'.e(url($rule->target_url)).'" class="internal-link">'.$m[1].'</a>';
+                    // KÖK-GÖRELİ adres yazılır ("/gardirop-montaji"), url() ile tam adres DEĞİL.
+                    // Bu HTML veritabanına kalıcı yazılıyor; tam adres o anki alan adını
+                    // (yerelde 127.0.0.1) içeriğe gömer ve site taşınınca linkler kırılır.
+                    return '<a href="'.e(PathNormalizer::normalize($rule->target_url)).'" class="internal-link">'.$m[1].'</a>';
                 },
                 $segment['text'],
             );

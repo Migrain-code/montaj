@@ -32,5 +32,10 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- Testler .env'deki GERÇEK reCAPTCHA anahtarlarını kullanmamalı: aksi hâlde
+             her form testi Google'a gider ve jeton olmadığı için düşer. RecaptchaTest
+             anahtarları kendi içinde tanımlıyor. -->
+        <env name="RECAPTCHA_SITE_KEY" value="" force="true"/>
+        <env name="RECAPTCHA_SECRET_KEY" value="" force="true"/>
     </php>
 </phpunit>
