@@ -106,8 +106,15 @@ class CommandRunner
         $this->persist($run, ['status' => CommandRun::RUNNING, 'started_at' => now()]);
 
         // Tarayıcı sekmesi kapanırsa işlem yarıda kalmasın (örn. veritabanı güncellemesi).
-        ignore_user_abort(true);
-        @set_time_limit($definition['timeout']);
+        // İki fonksiyon da paylaşımlı hostinglerde kapatılabiliyor. PHP 8'de kapalı bir
+        // fonksiyonu çağırmak "@" ile bastırılamayan bir hata fırlatır; önce varlığı sorulur.
+        if (function_exists('ignore_user_abort')) {
+            ignore_user_abort(true);
+        }
+
+        if (function_exists('set_time_limit')) {
+            set_time_limit($definition['timeout']);
+        }
 
         $started = microtime(true);
         $output = new BufferedOutput;

@@ -169,13 +169,25 @@ class SystemCommands extends Page
         // komut satırı sürümüdür (cPanel: /opt/cpanel/ea-php82/root/usr/bin/php).
         // Düz "php" yazmak hostingde çoğu zaman ESKİ bir sürümü çalıştırır.
         $php = PHP_BINDIR.DIRECTORY_SEPARATOR.'php';
-        $base = escapeshellarg(base_path());
+        $base = self::shellQuote(base_path());
 
         return [
             'php' => $php,
             'schedule' => "cd {$base} && {$php} artisan schedule:run >> /dev/null 2>&1",
             'queue' => "cd {$base} && {$php} artisan queue:work --stop-when-empty --max-time=55 --tries=3 >> /dev/null 2>&1",
         ];
+    }
+
+    /**
+     * Yolu kabuk için tek tırnakla sarar (escapeshellarg ile aynı sonuç).
+     *
+     * escapeshellarg paylaşımlı hostinglerde sıkça kapatılır (disable_functions) ve
+     * PHP 8'de kapalı fonksiyon çağrısı sayfayı çökertir. Bu satır yalnız ekranda
+     * gösterilir, hiçbir zaman çalıştırılmaz.
+     */
+    private static function shellQuote(string $value): string
+    {
+        return "'".str_replace("'", "'\\''", $value)."'";
     }
 
     private function countTable(?string $table): ?int
