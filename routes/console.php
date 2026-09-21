@@ -15,6 +15,15 @@ use Illuminate\Support\Facades\Schedule;
 |   * * * * * cd /proje/yolu && php artisan schedule:run >> /dev/null 2>&1
 */
 
+/*
+ * Nabız: panel bu damgaya bakarak cron'un ve kuyruk işçisinin çalıştığını gösterir.
+ * Terminal erişimi olmayan sunucuda bunu görmenin başka yolu yok.
+ */
+Schedule::command('system:heartbeat')->everyMinute()->withoutOverlapping();
+
+// Panelden çalıştırılan komutların 30 günden eski kayıtları silinir.
+Schedule::command('model:prune', ['--model' => [\App\Models\CommandRun::class]])->dailyAt('00:30')->withoutOverlapping();
+
 Schedule::command('sitemap:generate')->dailyAt('01:00')->withoutOverlapping();
 Schedule::command('seo:discovery')->dailyAt('01:10')->withoutOverlapping();
 

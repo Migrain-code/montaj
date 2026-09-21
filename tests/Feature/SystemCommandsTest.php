@@ -1,0 +1,377 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Enums\UserRole;
+use App\Filament\Pages\SystemCommands;
+use App\Jobs\QueueHeartbeat;
+use App\Jobs\RunConsoleCommand;
+use App\Models\CommandRun;
+use App\Models\User;
+use App\Services\Admin\CommandRunner;
+use App\Support\Console\CommandCatalog;
+use App\Support\Heartbeat;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
+use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\DataProvider;
+use RuntimeException;
+use Tests\TestCase;
+
+/**
+ * Terminalsiz sunucu için komut paneli.
+ *
+ * DİKKAT: bu testler katalogdaki komutları TOPLU ÇALIŞTIRMAZ. "optimize" ve
+ * "config:cache" gerçek bootstrap/cache klasörüne test ortamının ayarlarını
+ * (bellek içi SQLite) yazar ve geliştirme sunucusunu bozar. Yalnız yan etkisiz
+ * komutlar (site haritası önbelleğini silmek gibi) gerçekten çalıştırılır.
+ */
+class SystemCommandsTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected bool $seed = true;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Nabız dosyaları gerçek storage klasörüne yazılmasın.
+        Storage::fake('local');
+    }
+
+    private function user(UserRole $role): User
+    {
+        return User::create([
+            'name' => $role->label(),
+            'email' => $role->value.'@komut.test',
+            'password' => 'parola1234',
+            'role' => $role,
+            'is_active' => true,
+        ]);
+    }
+
+    private function admin(): User
+    {
+        return $this->user(UserRole::SuperAdmin);
+    }
+
+    // ---------- İzin listesi ----------
+
+    public function test_catalog_never_contains_destructive_or_interactive_commands(): void
+    {
+        foreach (CommandCatalog::all() as $key => $definition) {
+            $this->assertNotContains($definition['command'], CommandCatalog::FORBIDDEN, $key.' yasaklı bir komut.');
+            // Veri silen tüm migrate türevleri ve db:* komutları dışarıda kalmalı.
+            $this->assertDoesNotMatchRegularExpression(
+                '/^(migrate:(fresh|refresh|reset|rollback)|db:|down$|tinker$)/',
+                $definition['command'],
+                $key.' veri silebilecek ya da paneli kilitleyebilecek bir komut.'
+            );
+        }
+    }
+
+    public function test_every_catalog_command_actually_exists(): void
+    {
+        $registered = array_keys(Artisan::all());
+
+        foreach (CommandCatalog::all() as $key => $definition) {
+            $this->assertContains($definition['command'], $registered, $key.' için komut bulunamadı.');
+        }
+    }
+
+    public function test_migrate_always_carries_force_so_it_cannot_hang_on_a_prompt(): void
+    {
+        // Canlıda migrate onay sorar; web isteğinde soruyu yanıtlayacak kimse yok.
+        $this->assertTrue(CommandCatalog::find('migrate')['arguments']['--force'] ?? false);
+    }
+
+    public function test_unknown_or_forbidden_keys_are_rejected(): void
+    {
+        $runner = app(CommandRunner::class);
+        $admin = $this->admin();
+
+        foreach (['migrate:fresh', 'db:wipe', 'tinker', 'olmayan-komut', ''] as $key) {
+            try {
+                $runner->start($key, $admin);
+                $this->fail($key.' reddedilmeliydi.');
+            } catch (InvalidArgumentException) {
+                $this->assertTrue(true);
+            }
+        }
+
+        $this->assertDatabaseCount('command_runs', 0);
+    }
+
+    // ---------- Erişim ----------
+
+    public function test_super_admin_can_open_the_page(): void
+    {
+        $this->actingAs($this->admin())->get(SystemCommands::getUrl())->assertOk()->assertSee('Sistem Komutları');
+    }
+
+    public static function otherRoles(): array
+    {
+        return [
+            'personel' => [UserRole::Personel],
+            'müşteri temsilcisi' => [UserRole::MusteriTemsilcisi],
+            'montajcı' => [UserRole::Montajci],
+        ];
+    }
+
+    // Her rol ayrı test: tek istekte kullanıcı değiştirmek oturumu karıştırıp yanıltıcı 302 döndürüyor.
+    #[DataProvider('otherRoles')]
+    public function test_other_roles_cannot_open_the_page(UserRole $role): void
+    {
+        $this->actingAs($this->user($role))->get(SystemCommands::getUrl())->assertForbidden();
+    }
+
+    public function test_guests_are_sent_to_login(): void
+    {
+        $this->get(SystemCommands::getUrl())->assertRedirect('/admin/login');
+    }
+
+    // ---------- Çalıştırma ----------
+
+    public function test_sync_command_runs_and_is_recorded(): void
+    {
+        $admin = $this->admin();
+
+        $run = app(CommandRunner::class)->start('sitemap', $admin);
+
+        $this->assertSame(CommandRun::SUCCEEDED, $run->status);
+        $this->assertSame(0, $run->exit_code);
+        $this->assertSame('sitemap:generate', $run->command_line);
+        $this->assertSame($admin->id, $run->user_id);
+        $this->assertStringContainsString('Site haritası', (string) $run->output);
+        $this->assertNotNull($run->duration_ms);
+    }
+
+    public function test_background_command_goes_to_the_queue_and_runs_there(): void
+    {
+        Queue::fake();
+
+        $run = app(CommandRunner::class)->start('score', $this->admin());
+
+        $this->assertSame(CommandRun::QUEUED, $run->status);
+        Queue::assertPushed(RunConsoleCommand::class, fn ($job) => $job->runId === $run->id);
+
+        // İşçi işi aldığında komut çalışır. Artisan taklit edilir: skorlama sayfaları render eder, testte gereksiz.
+        Artisan::shouldReceive('call')->once()->with('seo:score', [], \Mockery::any())->andReturn(0);
+        (new RunConsoleCommand($run->id))->handle(app(CommandRunner::class));
+
+        $this->assertSame(CommandRun::SUCCEEDED, $run->refresh()->status);
+    }
+
+    public function test_failing_command_is_recorded_as_failed_with_the_error(): void
+    {
+        Artisan::shouldReceive('call')->once()->andThrow(new RuntimeException('bağlantı koptu'));
+
+        $run = app(CommandRunner::class)->start('sitemap', $this->admin());
+
+        $this->assertSame(CommandRun::FAILED, $run->status);
+        $this->assertSame(1, $run->exit_code);
+        $this->assertStringContainsString('bağlantı koptu', (string) $run->output);
+    }
+
+    public function test_non_zero_exit_code_counts_as_failure(): void
+    {
+        Artisan::shouldReceive('call')->once()->andReturn(2);
+
+        $run = app(CommandRunner::class)->start('sitemap', $this->admin());
+
+        $this->assertSame(CommandRun::FAILED, $run->status);
+        $this->assertSame(2, $run->exit_code);
+    }
+
+    public function test_same_command_cannot_run_twice_at_once(): void
+    {
+        Queue::fake();
+        $runner = app(CommandRunner::class);
+
+        $admin = $this->admin();
+        $runner->start('score', $admin);
+
+        $this->expectException(RuntimeException::class);
+        $runner->start('score', $admin);
+    }
+
+    public function test_a_run_stuck_after_a_server_timeout_is_released(): void
+    {
+        // Sunucu isteği zaman sınırında öldürürse kayıt "çalışıyor"da asılı kalır.
+        $stuck = CommandRun::create([
+            'command_key' => 'sitemap', 'command_line' => 'sitemap:generate', 'mode' => 'sync',
+            'status' => CommandRun::RUNNING, 'started_at' => now()->subHour(),
+        ]);
+
+        $run = app(CommandRunner::class)->start('sitemap', $this->admin());
+
+        $this->assertSame(CommandRun::FAILED, $stuck->refresh()->status);
+        $this->assertStringContainsString('Zaman aşımı', (string) $stuck->output);
+        $this->assertSame(CommandRun::SUCCEEDED, $run->status, 'Takılan kayıt yeni çalıştırmayı engellememeli.');
+    }
+
+    public function test_ansi_colours_are_stripped_and_huge_output_is_capped(): void
+    {
+        Artisan::shouldReceive('call')->once()->andReturnUsing(function ($command, $arguments, $output) {
+            $output->write("\e[32mYeşil\e[0m ".str_repeat('x', 250_000));
+
+            return 0;
+        });
+
+        $run = app(CommandRunner::class)->start('sitemap', $this->admin());
+
+        $this->assertStringNotContainsString("\e[", (string) $run->output);
+        $this->assertStringStartsWith('Yeşil', (string) $run->output);
+        $this->assertLessThan(201_000, mb_strlen((string) $run->output));
+        $this->assertStringContainsString('çıktı kısaltıldı', (string) $run->output);
+    }
+
+    // ---------- Panel eylemi ----------
+
+    public function test_super_admin_runs_a_command_from_the_page(): void
+    {
+        $this->actingAs($this->admin());
+
+        Livewire::test(SystemCommands::class)
+            ->callAction('run', arguments: ['key' => 'sitemap'])
+            ->assertNotified();
+
+        $this->assertDatabaseHas('command_runs', ['command_key' => 'sitemap', 'status' => CommandRun::SUCCEEDED]);
+    }
+
+    public function test_page_rejects_a_key_outside_the_catalog(): void
+    {
+        $this->actingAs($this->admin());
+
+        Livewire::test(SystemCommands::class)
+            ->callAction('run', arguments: ['key' => 'db:wipe'])
+            ->assertNotified('Çalıştırılamadı');
+
+        $this->assertDatabaseCount('command_runs', 0);
+    }
+
+    // ---------- Nabız ----------
+
+    public function test_heartbeat_command_proves_the_scheduler_and_feeds_the_queue(): void
+    {
+        Queue::fake();
+
+        $this->assertFalse(Heartbeat::healthy(Heartbeat::SCHEDULER));
+
+        $this->artisan('system:heartbeat')->assertSuccessful();
+
+        $this->assertTrue(Heartbeat::healthy(Heartbeat::SCHEDULER));
+        Queue::assertPushed(QueueHeartbeat::class);
+    }
+
+    public function test_queue_heartbeat_is_written_only_when_a_worker_runs_the_job(): void
+    {
+        config(['queue.default' => 'database']);
+        $this->assertFalse(Heartbeat::healthy(Heartbeat::QUEUE));
+
+        (new QueueHeartbeat)->handle();
+
+        $this->assertTrue(Heartbeat::healthy(Heartbeat::QUEUE));
+    }
+
+    public function test_clearing_the_cache_does_not_erase_the_heartbeat(): void
+    {
+        Heartbeat::beat(Heartbeat::SCHEDULER);
+
+        // Panelden "Tüm önbellekleri temizle" çalıştırılınca yanlış alarm çıkmamalı.
+        \Illuminate\Support\Facades\Cache::flush();
+
+        $this->assertTrue(Heartbeat::healthy(Heartbeat::SCHEDULER));
+    }
+
+    public function test_heartbeat_goes_stale(): void
+    {
+        $this->travelTo(now()->subMinutes(Heartbeat::STALE_AFTER_MINUTES + 1));
+        Heartbeat::beat(Heartbeat::SCHEDULER);
+        $this->travelBack();
+
+        $this->assertFalse(Heartbeat::healthy(Heartbeat::SCHEDULER));
+    }
+
+    public function test_heartbeat_is_scheduled_every_minute(): void
+    {
+        $event = collect(app(Schedule::class)->events())
+            ->first(fn ($e) => str_contains((string) $e->command, 'system:heartbeat'));
+
+        $this->assertNotNull($event, 'system:heartbeat zamanlanmamış.');
+        $this->assertSame('* * * * *', $event->expression);
+    }
+
+    public function test_page_shows_cron_lines_while_the_scheduler_is_silent(): void
+    {
+        config(['queue.default' => 'database']);
+
+        $this->actingAs($this->admin())->get(SystemCommands::getUrl())
+            ->assertOk()
+            ->assertSee('Çalışmıyor')
+            ->assertSee('artisan schedule:run', false)
+            ->assertSee('artisan queue:work --stop-when-empty', false)
+            ->assertSee(PHP_BINDIR, false);
+    }
+
+    public function test_page_hides_cron_instructions_once_both_are_healthy(): void
+    {
+        config(['queue.default' => 'database']);
+        Heartbeat::beat(Heartbeat::SCHEDULER);
+        Heartbeat::beat(Heartbeat::QUEUE);
+
+        $this->actingAs($this->admin())->get(SystemCommands::getUrl())
+            ->assertOk()
+            ->assertDontSee('Cron kurulumu')
+            ->assertDontSee('Çalışmıyor');
+    }
+
+    // ---------- İlk yükleme: tablo henüz yok ----------
+
+    /** Kod hostinge yeni yüklendi, migrate henüz çalışmadı: command_runs tablosu yok. */
+    private function simulateFreshDeploy(): void
+    {
+        \Illuminate\Support\Facades\Schema::drop('command_runs');
+        \Illuminate\Support\Facades\DB::table('migrations')
+            ->where('migration', '2026_09_22_000001_create_command_runs_table')
+            ->delete();
+    }
+
+    public function test_page_still_opens_before_the_run_log_table_exists(): void
+    {
+        $this->simulateFreshDeploy();
+
+        $this->actingAs($this->admin())->get(SystemCommands::getUrl())
+            ->assertOk()
+            ->assertSee('Önce "Veritabanını güncelle" komutunu çalıştırın.', false);
+    }
+
+    public function test_migrate_from_the_panel_creates_the_missing_table_and_logs_itself(): void
+    {
+        $this->simulateFreshDeploy();
+        $this->actingAs($this->admin());
+
+        Livewire::test(SystemCommands::class)
+            ->callAction('run', arguments: ['key' => 'migrate'])
+            ->assertNotified();
+
+        $this->assertTrue(\Illuminate\Support\Facades\Schema::hasTable('command_runs'), 'migrate tabloyu oluşturmalıydı.');
+        // Tabloyu oluşturan çalıştırma, geçmişin ilk kaydı olarak yazılır.
+        $this->assertDatabaseHas('command_runs', ['command_key' => 'migrate', 'status' => CommandRun::SUCCEEDED]);
+    }
+
+    public function test_background_commands_explain_what_to_do_before_the_table_exists(): void
+    {
+        $this->simulateFreshDeploy();
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Veritabanını güncelle');
+
+        app(CommandRunner::class)->start('score', $this->admin());
+    }
+}
