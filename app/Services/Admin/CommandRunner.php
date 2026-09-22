@@ -8,9 +8,15 @@ use App\Models\User;
 use App\Support\AutomationLog;
 use App\Support\Console\CommandCatalog;
 use App\Support\StorageLink;
+use Closure;
+use Illuminate\Container\Container;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Schema;
 use InvalidArgumentException;
+use Livewire\ComponentHookRegistry;
+use ReflectionProperty;
 use RuntimeException;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Throwable;
@@ -124,18 +130,66 @@ class CommandRunner
         }
 
         $output = new BufferedOutput;
+        $failure = null;
+        $restore = $this->preserveApplicationState();
 
         try {
             $exitCode = Artisan::call($definition['command'], $definition['arguments'], $output);
-            $text = $output->fetch();
         } catch (Throwable $e) {
             $exitCode = 1;
-            $text = trim($output->fetch()."\n\nHATA: ".$e->getMessage());
+            $failure = $e;
+        } finally {
+            $restore();
+        }
 
-            AutomationLog::error('system.command', $e->getMessage(), ['command' => $run->command_line]);
+        $text = $output->fetch();
+
+        if ($failure !== null) {
+            $text = trim($text."\n\nHATA: ".$failure->getMessage());
+
+            AutomationLog::error('system.command', $failure->getMessage(), ['command' => $run->command_line]);
         }
 
         return $this->finish($run, $exitCode, $text, $started);
+    }
+
+    /**
+     * Komutun değiştirdiği uygulama durumunu isteğe geri verir.
+     *
+     * config:cache ve route:cache ("Önbellekleri oluştur" ikisini de çağırır) önbelleği
+     * üretmek için bootstrap/app.php'den TAZE bir uygulama başlatır. Laravel bu sırada
+     * global container'ı ve facade'ları o yeni uygulamaya çevirir; Livewire da bileşen
+     * kancalarını tutan statik listeyi sıfırlar. Panel isteği bu hâliyle sürerse yanıtın
+     * snapshot'ı eksik çıkar, bildirim kaybolur ve sayfadaki bir sonraki tıklama
+     * "Undefined array key children" hatasıyla düşer.
+     */
+    private function preserveApplicationState(): Closure
+    {
+        $container = Container::getInstance();
+        $facades = Facade::getFacadeApplication();
+        $resolver = Model::getConnectionResolver();
+        $dispatcher = Model::getEventDispatcher();
+
+        $hooks = class_exists(ComponentHookRegistry::class)
+            ? new ReflectionProperty(ComponentHookRegistry::class, 'components')
+            : null;
+        $components = $hooks?->getValue();
+
+        return function () use ($container, $facades, $resolver, $dispatcher, $hooks, $components): void {
+            Container::setInstance($container);
+            Facade::clearResolvedInstances();
+            Facade::setFacadeApplication($facades);
+
+            if ($resolver !== null) {
+                Model::setConnectionResolver($resolver);
+            }
+
+            if ($dispatcher !== null) {
+                Model::setEventDispatcher($dispatcher);
+            }
+
+            $hooks?->setValue(null, $components);
+        };
     }
 
     /**

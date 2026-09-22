@@ -18,6 +18,10 @@
 /public/fonts/filament
 /public/hot
 /public/js/filament
+# Sunucudaki zamanlanmış görev (seo:discovery) her gece yeniden yazar. Git'te kalırsa
+# sunucuda "değiştirilmiş" görünür ve cPanel'in Update from Remote'unu kilitler.
+/public/llms.txt
+/public/llms-full.txt
 /public/storage
 /storage/*.key
 /storage/pail

@@ -12,8 +12,11 @@ use App\Services\Admin\CommandRunner;
 use App\Support\Console\CommandCatalog;
 use App\Support\Heartbeat;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Console\Kernel as ConsoleKernel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
@@ -253,6 +256,37 @@ class SystemCommandsTest extends TestCase
             ->assertNotified('Çalıştırılamadı');
 
         $this->assertDatabaseCount('command_runs', 0);
+    }
+
+    /**
+     * config:cache ve route:cache ("Önbellekleri oluştur" ikisini de çağırır) önbelleği
+     * üretmek için bootstrap/app.php'den TAZE bir uygulama başlatır. Canlıda bu, panel
+     * isteğinin ortasında container'ı ve Livewire'ın bileşen kancalarını değiştiriyordu:
+     * bildirim kayboluyor, sayfadaki bir sonraki tıklama "Undefined array key children"
+     * ile düşüyordu. Gerçek komut bootstrap/cache'e yazacağı için aynı başlatma taklit edilir.
+     */
+    public function test_building_caches_does_not_break_the_panel_page(): void
+    {
+        $this->actingAs($this->admin());
+
+        Artisan::shouldReceive('call')->once()->with('optimize', [], \Mockery::any())->andReturnUsing(function () {
+            $fresh = require base_path('bootstrap/app.php');
+            $fresh->make(ConsoleKernel::class)->bootstrap();
+
+            return 0;
+        });
+
+        $page = Livewire::test(SystemCommands::class)
+            ->callAction('run', arguments: ['key' => 'optimize'])
+            ->assertNotified('Önbellekleri oluştur tamamlandı');
+
+        $this->assertSame($this->app, Container::getInstance());
+        $this->assertSame($this->app, Facade::getFacadeApplication());
+
+        // Hata, önbellekler oluştuktan SONRAKİ ilk istekte çıkıyordu.
+        $page->call('$refresh')->assertOk();
+
+        $this->assertDatabaseHas('command_runs', ['command_key' => 'optimize', 'status' => CommandRun::SUCCEEDED]);
     }
 
     // ---------- Nabız ----------
