@@ -9,11 +9,8 @@ use Illuminate\Console\Command;
 /**
  * Zamanlayıcı her dakika çalıştırır.
  *
- * Bilerek bir KOMUT olarak yazıldı, kapanış fonksiyonu (Schedule::call) olarak değil:
- * zamanlanmış komutlar ayrı bir süreçte çalışır. Hosting bu süreci başlatmayı
- * engelliyorsa (proc_open kapalı) kapanış fonksiyonu yine çalışır ve panel yanlışlıkla
- * "her şey yolunda" der. Komut olarak çalışınca damga ancak gerçek görevler de
- * çalışabiliyorsa yazılır.
+ * Diğer bütün görevlerle AYNI yoldan (InProcess::command) zamanlanır: damga
+ * yazılıyorsa gerçek görevler de çalışabiliyor demektir.
  */
 class SystemHeartbeat extends Command
 {

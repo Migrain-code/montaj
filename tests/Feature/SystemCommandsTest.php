@@ -10,7 +10,9 @@ use App\Models\CommandRun;
 use App\Models\User;
 use App\Services\Admin\CommandRunner;
 use App\Support\Console\CommandCatalog;
+use App\Support\Console\InProcess;
 use App\Support\Heartbeat;
+use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Console\Kernel as ConsoleKernel;
@@ -335,10 +337,42 @@ class SystemCommandsTest extends TestCase
     public function test_heartbeat_is_scheduled_every_minute(): void
     {
         $event = collect(app(Schedule::class)->events())
-            ->first(fn ($e) => str_contains((string) $e->command, 'system:heartbeat'));
+            ->first(fn ($e) => str_contains((string) $e->description, 'system:heartbeat'));
 
         $this->assertNotNull($event, 'system:heartbeat zamanlanmamış.');
         $this->assertSame('* * * * *', $event->expression);
+    }
+
+    /**
+     * Hosting proc_open'ı kapatıyor. Schedule::command() görevi ayrı süreçte başlattığı
+     * için cron doğru kurulu olsa da hiçbir görev çalışmıyordu.
+     */
+    public function test_scheduled_tasks_run_inside_the_scheduler_process(): void
+    {
+        foreach (app(Schedule::class)->events() as $event) {
+            $this->assertInstanceOf(
+                CallbackEvent::class,
+                $event,
+                ($event->description ?? $event->command).' ayrı süreçte başlatılıyor; proc_open kapalı hostingde çalışmaz. InProcess::command() kullanın.'
+            );
+        }
+
+        Queue::fake();
+        $this->travelTo(now()->setTime(12, 34)); // yalnız her dakika koşan görevlerin zamanı
+
+        $this->artisan('schedule:run')->assertSuccessful();
+
+        $this->assertTrue(Heartbeat::healthy(Heartbeat::SCHEDULER), 'Nabız görevi zamanlayıcının içinde çalışmadı.');
+        Queue::assertPushed(QueueHeartbeat::class);
+    }
+
+    public function test_a_scheduled_command_that_fails_is_reported(): void
+    {
+        Artisan::command('test:fails', fn () => 3);
+
+        $this->expectExceptionMessage('"test:fails" 3 koduyla bitti');
+
+        InProcess::command('test:fails')->run($this->app);
     }
 
     public function test_page_shows_cron_lines_while_the_scheduler_is_silent(): void

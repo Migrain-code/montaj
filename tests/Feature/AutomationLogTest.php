@@ -107,7 +107,7 @@ class AutomationLogTest extends TestCase
     {
         $events = collect(app(Schedule::class)->events());
 
-        $publish = $events->first(fn ($e) => str_contains($e->command ?? '', 'blog:publish-due'));
+        $publish = $events->first(fn ($e) => str_contains((string) $e->description, 'blog:publish-due'));
 
         $this->assertNotNull($publish, 'blog:publish-due zamanlanmış olmalı');
 
@@ -120,7 +120,7 @@ class AutomationLogTest extends TestCase
         $events = collect(app(Schedule::class)->events());
 
         $minutes = function (string $command) use ($events): int {
-            $event = $events->first(fn ($e) => str_contains($e->command ?? '', $command));
+            $event = $events->first(fn ($e) => str_contains((string) $e->description, $command));
             $this->assertNotNull($event, $command.' zamanlanmış olmalı');
 
             [$minute, $hour] = explode(' ', $event->expression);
@@ -141,7 +141,7 @@ class AutomationLogTest extends TestCase
         foreach (app(Schedule::class)->events() as $event) {
             $this->assertTrue(
                 $event->withoutOverlapping,
-                ($event->command ?? '?').' withoutOverlapping olmalı',
+                ($event->description ?? '?').' withoutOverlapping olmalı',
             );
         }
     }

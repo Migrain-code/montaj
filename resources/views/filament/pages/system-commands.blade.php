@@ -84,14 +84,6 @@
                 <span>PHP: <strong>{{ $health['php_version'] }}</strong></span>
             </div>
 
-            @unless ($health['proc_open'])
-                <div class="mt-4 rounded-lg border border-danger-300 bg-danger-50 p-3 text-sm text-danger-800 dark:border-danger-800 dark:bg-danger-950/40 dark:text-danger-300">
-                    <strong>proc_open kapalı görünüyor.</strong>
-                    Zamanlayıcı görevleri ayrı süreçte çalıştırır ve bu fonksiyona ihtiyaç duyar.
-                    Hosting firmanızdan cron için proc_open'ı açmasını isteyin; aksi hâlde otomatik SEO görevleri çalışmaz.
-                </div>
-            @endunless
-
             @unless ($health['scheduler_ok'] && $health['queue_ok'])
                 <div class="mt-6 space-y-4">
                     <div class="text-sm text-gray-700 dark:text-gray-300">

@@ -160,7 +160,6 @@ class SystemCommands extends Page
             'queue_connection' => $connection,
             'pending_jobs' => $this->countTable($connection === 'database' ? (string) config('queue.connections.database.table', 'jobs') : null),
             'failed_jobs' => $this->countTable((string) config('queue.failed.table', 'failed_jobs')),
-            'proc_open' => $this->procOpenAvailable(),
             'php_version' => PHP_VERSION,
             'php_ok' => version_compare(PHP_VERSION, '8.2.0', '>='),
             'stale_minutes' => Heartbeat::STALE_AFTER_MINUTES,
@@ -228,12 +227,5 @@ class SystemCommands extends Page
         } catch (Throwable) {
             return null;
         }
-    }
-
-    private function procOpenAvailable(): bool
-    {
-        $disabled = array_map('trim', explode(',', (string) ini_get('disable_functions')));
-
-        return function_exists('proc_open') && ! in_array('proc_open', $disabled, true);
     }
 }
