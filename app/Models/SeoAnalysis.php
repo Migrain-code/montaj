@@ -50,6 +50,7 @@ class SeoAnalysis extends Model
     protected $fillable = [
         'content_type', 'content_id', 'url', 'score', 'scores', 'issues', 'analyzed_at',
         'google_index_status', 'google_index_detail', 'index_checked_at',
+        'index_submitted_at', 'index_submit_count', 'index_submit_error',
     ];
 
     protected function casts(): array
@@ -59,6 +60,7 @@ class SeoAnalysis extends Model
             'issues' => 'array',
             'analyzed_at' => 'datetime',
             'index_checked_at' => 'datetime',
+            'index_submitted_at' => 'datetime',
         ];
     }
 

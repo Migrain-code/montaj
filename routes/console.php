@@ -57,6 +57,12 @@ InProcess::command('seo:enrich', ['--limit' => 3])->dailyAt('02:20')->withoutOve
 
 InProcess::command('seo:check-index')->dailyAt('03:00')->withoutOverlapping();
 
+/*
+ * Dizine girmemiş sayfalar Google'a bildirilir. Kontrolden SONRA koşar ki hangi
+ * sayfanın dizinde olmadığı taze veriyle belli olsun. Günlük kota 200 adres.
+ */
+InProcess::command('seo:submit-index')->dailyAt('03:30')->withoutOverlapping();
+
 InProcess::command('blog:generate')->dailyAt('04:00')->withoutOverlapping();
 
 // --- veri çekme ---

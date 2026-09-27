@@ -90,6 +90,10 @@ class SeoAnalysisResource extends Resource
                     ->searchable(query: fn (Builder $query, string $search) => $query->where('google_index_detail', 'like', "%{$search}%")),
                 TextColumn::make('score')->label('SEO skoru')->badge()->sortable()
                     ->color(fn (SeoAnalysis $r) => $r->score_color),
+                TextColumn::make('index_submitted_at')->label('Google\'a bildirildi')->since()->sortable()
+                    ->placeholder('—')
+                    ->description(fn (SeoAnalysis $r) => $r->index_submit_error ? 'Hata: '.str($r->index_submit_error)->limit(60) : null)
+                    ->color(fn (SeoAnalysis $r) => $r->index_submit_error ? 'danger' : null),
                 TextColumn::make('index_checked_at')->label('Son kontrol')->since()->sortable()
                     ->placeholder('Hiç')
                     ->tooltip(fn (SeoAnalysis $r) => $r->index_checked_at?->translatedFormat('d F Y H:i')),

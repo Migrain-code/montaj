@@ -5,6 +5,7 @@ namespace App\Filament\Resources\SeoAnalyses\Pages;
 use App\Filament\Pages\SeoDashboard;
 use App\Filament\Resources\SeoAnalyses\SeoAnalysisResource;
 use App\Services\Admin\CommandRunner;
+use App\Services\Google\IndexingService;
 use App\Services\Google\SearchConsoleService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -51,6 +52,36 @@ class ManageSeoAnalyses extends ManageRecords
                     Notification::make()
                         ->title('Dizin kontrolü sıraya alındı')
                         ->body('Kuyruk işçisi çalıştırdıktan sonra bu sayfayı yenileyin.')
+                        ->info()->send();
+                }),
+            Action::make('submitIndex')
+                ->label('Dizine ekleme bildirimi gönder')
+                ->icon('heroicon-o-paper-airplane')
+                ->color('warning')
+                ->visible(fn () => auth()->user()?->isSuperAdmin() && app(IndexingService::class)->isConfigured())
+                ->requiresConfirmation()
+                ->modalHeading('Dizine ekleme bildirimi')
+                ->modalDescription(fn () => implode(' ', [
+                    'Dizinde olmayan sayfalar Google Indexing API ile bildirilir.',
+                    'Bugün kalan kota: '.app(IndexingService::class)->remainingToday().' adres.',
+                    'Google bu API\'yi resmî olarak iş ilanı ve canlı yayın sayfaları için açtı;',
+                    'diğer sayfalarda bildirimi dikkate almayabilir. Asıl yol site haritası ve Search Console\'dur.',
+                ]))
+                ->modalSubmitActionLabel('Evet, gönder')
+                ->action(function (CommandRunner $runner) {
+                    abort_unless(auth()->user()?->isSuperAdmin(), 403);
+
+                    try {
+                        $runner->start('submit-index', auth()->user());
+                    } catch (Throwable $e) {
+                        Notification::make()->title('Çalıştırılamadı')->body($e->getMessage())->danger()->send();
+
+                        return;
+                    }
+
+                    Notification::make()
+                        ->title('Bildirim sıraya alındı')
+                        ->body('Kuyruk işçisi gönderimi yapacak; sonucu "Google\'a bildirildi" sütununda görürsünüz.')
                         ->info()->send();
                 }),
             Action::make('dashboard')
