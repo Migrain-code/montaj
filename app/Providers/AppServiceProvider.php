@@ -68,7 +68,7 @@ class AppServiceProvider extends ServiceProvider
             \App\Models\SeoKeyword::class, \App\Models\SeoTarget::class,
             \App\Models\InternalLinkRule::class, \App\Models\AiGeneration::class,
             \App\Models\Redirect::class, \App\Models\NotFoundLog::class,
-            \App\Models\AiCrawlerVisit::class,
+            \App\Models\AiCrawlerVisit::class, \App\Models\SeoAnalysis::class,
         ];
 
         foreach ($seo as $model) {
