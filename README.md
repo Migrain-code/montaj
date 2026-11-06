@@ -187,6 +187,7 @@ Sıra önemlidir: önce veri çekilir, sonra ondan türetilen işler koşar.
 | 04:00 | Blog konusu üretimi | `blog:generate` |
 | 05:00 | Search Console performansı | `seo:sync-search-console` |
 | 05:10 | Kelime sıralama geçmişi | `seo:sync-rankings` |
+| 05:15 | GSC fırsat avı (sıra + iyileştirme) | `seo:opportunities` |
 | 05:20 (pazartesi) | Yeni kelime keşfi | `seo:discover-keywords` |
 | 05:30 (pazartesi) | Düşük CTR meta tazeleme | `seo:refresh-meta` |
 | 05:40 | Yönlendirme önerisi | `seo:suggest-redirects` |
@@ -321,6 +322,42 @@ planlanmış taslak varsa üretim yapmaz ve bunu günlüğe yazar. Stok azalınc
 Üretilen her yazının uzunluğu **kod tarafında** denetlenir. Model istenen uzunluğun belirgin
 altında bir metin döndürürse bir genişletme turu yapılır; mevcut bölümler korunur, üzerine yeni
 bölüm eklenir.
+
+## GSC Fırsat Avı
+
+**SEO & AI → GSC Fırsat Avı** ekranı bölge kelimelerini (Çerkezköy, Kapaklı, Kızılpınar, Saray…)
+ilk 3'e taşımak için vardır. tavsiyemiz projesindeki "Kelime Sırası" modülünden uyarlandı.
+
+**Nasıl çalışır (her sabah 05:15, `seo:opportunities`):**
+
+1. **Odak bölgeler** (`config/seo.php → opportunity.focus_regions`) için `{bölge} mobilya montaj` ve
+   `{bölge} mobilya montajcı` GSC verisi beklenmeden takibe alınır.
+2. Search Console'dan **son 28 günün** sorguları çekilir. Bölge kelimeleri az arandığı için tek
+   günlük veri çoğu gün boştur. "çerkezköy" ile "cerkezkoy" aynı arama sayılır, gösterimleri toplanır.
+3. Sorguda **bölge adı** (hâl ekiyle de: "çerkezköyde") ve bir **hizmet kelimesi** (montaj, kurulum,
+   sökme, takma, usta…) geçiyorsa fırsattır. Ürün adı yetmez: "ikea çorlu" mağaza aramasıdır.
+4. Kelime bölgenin sayfasına bağlanır. Kendi sayfası olmayan yer adları `region_aliases` ile bağlanır:
+   **Kızılpınar → Çerkezköy**.
+5. Sıra ilk 3'teyse kelime **Hedefte** olur ve ona **hiçbir işlem yapılmaz**. Düşerse kendiliğinden
+   yeniden ele alınır.
+6. Otomatik iyileştirme açıksa günde en fazla 3 kelimenin sayfası güçlendirilir. Aynı kelimeye en
+   erken 7 günde bir dokunulur.
+
+**İyileştirme adımları** (yalnız ilçe, il ve hizmet sayfalarına yazılır):
+
+| Adım | Ne yapar | Sınır |
+| --- | --- | --- |
+| Başlık ve açıklama (AI) | Kelimeyi sayfa başlığının başına koyar | Sayfanın **ana** kelimesi için; 30 günde bir |
+| Kelimeye özel bölüm (AI) | Kelimeyi yanıtlayan bir H2 bölümü ekler | Kelime başına bir kez; sayfa başına 4 |
+| Soru-cevap (AI) | Kelimeyi soran 2 soru ekler | Sayfada en fazla 10 soru |
+| İç link kuralı | anchor = kelime → sayfa | İç link motoru açıkken uygulanır |
+| Google'a bildirim | Sayfa değiştiyse Indexing API'ye bildirir | Günlük 200 kota ortak |
+
+AI çıktısı kodda denetlenir: kelime başlıkta veya soruda yoksa **kaydedilmez**. Her yazma işlemi
+**İşlem kaydı**'ndan geri alınabilir; işlemden sonra sayfa elle değiştirildiyse geri alma reddedilir.
+
+**Bilerek yapılmayanlar:** destek blogu (para sayfasıyla aynı kelimeyi hedefler, sayfanın sırasını yer)
+ve "ilgili aramalar"dan kelime türetme (tavsiyemiz'de binlerce alakasız kelimeye yol açmıştı).
 
 ## Yeni komutlar
 

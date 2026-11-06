@@ -79,6 +79,44 @@ return [
         'min_similarity' => 0.72,
     ],
 
+    /*
+     * GSC fırsat avı: bölge kelimelerini ilk 3'e taşıma.
+     *
+     * Kelime ilk target_position sıraya girince ona HİÇBİR işlem yapılmaz.
+     * Aynı sayfaya sürekli yazmak spam'dir; bu yüzden kelime başına bekleme süresi
+     * ve günlük üst sınır vardır.
+     */
+    'opportunity' => [
+        'autopilot' => true,          // günlük görev kelimeleri kendiliğinden iyileştirsin mi
+        'daily_limit' => 3,           // günde en fazla kaç kelime iyileştirilir
+        'cooldown_days' => 7,         // aynı kelimeye iki iyileştirme arası; Google'ın tepki süresi
+        'target_position' => 3,
+        'window_days' => 28,          // bölge kelimeleri az aranır; tek günlük veri çoğu gün boş gelir
+        'min_impressions' => 3,       // bundan az gösterimli sorgu fırsat sayılmaz
+        'max_position' => 60,         // bunun altındaki sıra pratikte görünmez
+        'max_new_per_run' => 30,      // bir turda eklenecek yeni kelime tavanı (tavsiyemiz'deki çığ etkisine karşı)
+        'max_sections_per_page' => 4, // bir sayfaya eklenecek kelime bölümü tavanı
+        'max_faqs' => 10,
+
+        // Öne çıkarılacak bölgeler: listede önce bunlar işlenir.
+        'focus_regions' => ['Çerkezköy', 'Kapaklı', 'Kızılpınar', 'Saray'],
+
+        // Kendi sayfası olmayan yer adları → bağlanacağı sayfa.
+        // Kızılpınar, Çerkezköy'ün mahallesidir (Kızılpınar Atatürk, Gültepe, Namık Kemal).
+        'region_aliases' => [
+            'Kızılpınar' => '/tekirdag/cerkezkoy',
+        ],
+
+        // Odak bölgeler için GSC verisi beklenmeden takibe alınan kelimeler.
+        'seed_patterns' => ['%s mobilya montaj', '%s mobilya montajcı'],
+
+        // Sorgunun işimizle ilgili sayılması için bir HİZMET kelimesi geçmeli.
+        // Ürün adı yetmez: canlı veride "ikea çorlu", "ikea çorlu da varmı" çıktı —
+        // bunlar mağaza arayan kişilerdir, montaj aramaz. "çorlu ikea montaj" ise fırsattır.
+        // Kelime başında eşleşir: "montaj" → montajı, montajcı; "kur" yazılmaz, "kurs"u da yakalardı.
+        'business_terms' => ['montaj', 'kurulum', 'kurma', 'kuran', 'sökme', 'söküm', 'takma', 'usta'],
+    ],
+
     // Tanınan AI ajanları (spec §3.9)
     'ai_bots' => [
         'GPTBot' => 'GPTBot',

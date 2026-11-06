@@ -93,7 +93,7 @@ class SeoConfig
     /** seo_duplicate_scan_threshold → config('seo.duplicate.scan_threshold') */
     private static function configDefault(string $key): mixed
     {
-        foreach (['duplicate', 'blog', 'internal_links', 'score', 'redirects', 'ai', 'google'] as $group) {
+        foreach (['duplicate', 'blog', 'internal_links', 'score', 'redirects', 'ai', 'google', 'opportunity'] as $group) {
             $prefix = $group.'_';
 
             if (str_starts_with($key, $prefix)) {

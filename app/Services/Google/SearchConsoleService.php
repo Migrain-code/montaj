@@ -8,6 +8,7 @@ use App\Models\SeoRankHistory;
 use App\Models\SeoSearchQuery;
 use App\Support\AutomationLog;
 use App\Support\PathNormalizer;
+use App\Support\TurkishText;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -113,7 +114,9 @@ class SearchConsoleService
     public function syncRankings(): array
     {
         $date = Carbon::today()->subDays(3);
-        $keywords = SeoKeyword::query()->where('status', true)->with('target')->get();
+        // Fırsat avındaki kelimeler 28 günlük pencereyle ayrıca izlenir (OpportunityHunter);
+        // burada da yazılsalar aynı geçmiş satırının üzerine tek günlük veri yazılırdı.
+        $keywords = SeoKeyword::query()->where('status', true)->whereNull('campaign_status')->with('target')->get();
 
         if ($keywords->isEmpty()) {
             return ['tracked' => 0, 'matched' => 0, 'mismatched' => 0];
@@ -125,7 +128,8 @@ class SearchConsoleService
         $best = [];
 
         foreach ($rows as $row) {
-            $query = mb_strtolower((string) ($row['keys'][0] ?? ''));
+            // TurkishText::lower: mb_strtolower("İ") arkada birleşik nokta bırakır ve eşleşme kaçar (spec §7.5).
+            $query = TurkishText::lower((string) ($row['keys'][0] ?? ''));
             $page = (string) ($row['keys'][1] ?? '');
 
             if ($query === '') {
@@ -145,7 +149,7 @@ class SearchConsoleService
         $tracked = $matched = $mismatched = 0;
 
         foreach ($keywords as $keyword) {
-            $row = $best[mb_strtolower($keyword->keyword)] ?? null;
+            $row = $best[TurkishText::lower($keyword->keyword)] ?? null;
 
             if (! $row) {
                 continue;
@@ -155,16 +159,20 @@ class SearchConsoleService
             $actual = PathNormalizer::normalize($row['page']);
             $targetMatch = $expected ? (PathNormalizer::normalize($expected) === $actual) : null;
 
-            SeoRankHistory::updateOrCreate(
-                ['keyword_id' => $keyword->getKey(), 'data_date' => $date->toDateString()],
-                [
-                    'position_avg' => $row['position'],
-                    'clicks' => $row['clicks'],
-                    'impressions' => $row['impressions'],
-                    'ranking_url' => Str::limit($row['page'], 490, ''),
-                    'target_match' => $targetMatch,
-                ],
-            );
+            // whereDate ile aranır: "date" cast'i SQLite'ta saati de yazar ve updateOrCreate
+            // aynı günün satırını bulamayıp aynı gün ikinci çalıştırmada unique hatası verir.
+            $history = SeoRankHistory::query()
+                ->where('keyword_id', $keyword->getKey())
+                ->whereDate('data_date', $date->toDateString())
+                ->first() ?? new SeoRankHistory(['keyword_id' => $keyword->getKey(), 'data_date' => $date->toDateString()]);
+
+            $history->fill([
+                'position_avg' => $row['position'],
+                'clicks' => $row['clicks'],
+                'impressions' => $row['impressions'],
+                'ranking_url' => Str::limit($row['page'], 490, ''),
+                'target_match' => $targetMatch,
+            ])->save();
 
             $tracked++;
             $targetMatch === false ? $mismatched++ : ($targetMatch === true ? $matched++ : null);

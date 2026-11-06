@@ -132,6 +132,9 @@ final class CommandCatalog
             'discover-keywords' => self::entry('seo:discover-keywords', [], 'Yeni kelime fırsatlarını bul',
                 'Search Console sorgularından henüz hedeflenmeyen kelimeleri kelime havuzuna ekler.',
                 'seo', mode: 'background'),
+            'opportunities' => self::entry('seo:opportunities', [], 'GSC fırsat avı (yapay zeka)',
+                'Bölge kelimelerinin sırasını çeker, yeni fırsatları ekler ve ilk 3\'te olmayan kelimelerin sayfasını iyileştirir. Günlük sınır ve bekleme süresi uygulanır.',
+                'seo', mode: 'background', danger: true),
 
             // ---------- Kuyruk ----------
             'queue-retry' => self::entry('queue:retry', ['id' => ['all']], 'Başarısız işleri tekrar dene',

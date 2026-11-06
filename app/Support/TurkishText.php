@@ -132,6 +132,17 @@ class TurkishText
         return round($intersection / $union, 4);
     }
 
+    /**
+     * Arama sorgularını karşılaştırmak için ASCII'ye katlanmış, tek boşluklu hâl.
+     *
+     * Kullanıcılar Google'a çoğu zaman Türkçe karakter yazmaz: "cerkezkoy mobilya montaj"
+     * ile "çerkezköy mobilya montaj" aynı aramadır ve aynı kelime sayılmalıdır.
+     */
+    public static function fold(?string $value): string
+    {
+        return str_replace('-', ' ', self::slug($value));
+    }
+
     /** ASCII slug (spec §10.1: slug ASCII olmalı). */
     public static function slug(?string $value): string
     {

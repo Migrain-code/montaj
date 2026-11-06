@@ -58,14 +58,48 @@ class SeoKeyword extends Model
         'navigational' => 'Marka / yönlendirme',
     ];
 
+    /*
+     * Fırsat avı kampanyası (GSC Fırsat Avı ekranı).
+     * Kampanyadaki kelime ilk target_position sıraya girince "won" olur ve ona
+     * artık hiçbir işlem yapılmaz; sıra düşerse kendiliğinden "active"e döner.
+     */
+    public const CAMPAIGN_ACTIVE = 'active';
+
+    public const CAMPAIGN_WON = 'won';
+
+    public const CAMPAIGN_PAUSED = 'paused';
+
+    public const CAMPAIGN_STATUSES = [
+        self::CAMPAIGN_ACTIVE => 'Yükseltiliyor',
+        self::CAMPAIGN_WON => 'Hedefte',
+        self::CAMPAIGN_PAUSED => 'Duraklatıldı',
+    ];
+
+    public const CAMPAIGN_SOURCES = [
+        'gsc' => 'Search Console',
+        'focus' => 'Odak bölge',
+        'manual' => 'Elle eklendi',
+    ];
+
     protected $fillable = [
         'keyword', 'search_intent', 'keyword_type', 'priority', 'search_volume',
         'owner_blog_id', 'target_id', 'assignment_status', 'slot', 'status', 'note', 'last_checked_at',
+        'campaign_status', 'target_position', 'campaign_source', 'region',
+        'last_position', 'previous_position', 'gsc_clicks', 'gsc_impressions', 'gsc_ctr',
+        'ranking_url', 'ranked_at', 'last_boost_at',
     ];
 
     protected function casts(): array
     {
-        return ['status' => 'boolean', 'last_checked_at' => 'datetime'];
+        return [
+            'status' => 'boolean',
+            'last_checked_at' => 'datetime',
+            'last_position' => 'float',
+            'previous_position' => 'float',
+            'gsc_ctr' => 'float',
+            'ranked_at' => 'datetime',
+            'last_boost_at' => 'datetime',
+        ];
     }
 
     protected static function booted(): void
@@ -98,9 +132,40 @@ class SeoKeyword extends Model
         return $this->hasMany(SeoRankHistory::class, 'keyword_id');
     }
 
+    public function actions(): HasMany
+    {
+        return $this->hasMany(SeoKeywordAction::class, 'keyword_id');
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', true);
+    }
+
+    public function scopeInCampaign(Builder $query): Builder
+    {
+        return $query->whereNotNull('campaign_status');
+    }
+
+    public function targetPosition(): int
+    {
+        return max(1, (int) ($this->target_position ?: 3));
+    }
+
+    /** Sıra hedefte mi? Hedefteki kelimeye hiçbir iyileştirme yapılmaz. */
+    public function reachedTarget(): bool
+    {
+        return $this->last_position !== null && round($this->last_position) <= $this->targetPosition();
+    }
+
+    /** Pozitif = yükseldi (sıra numarası küçüldü). */
+    public function positionDelta(): ?float
+    {
+        if ($this->last_position === null || $this->previous_position === null) {
+            return null;
+        }
+
+        return round($this->previous_position - $this->last_position, 1);
     }
 
     /** Sahipsiz kelimeler — AI konu üreticisine YALNIZ bunlar verilir (spec §7.3). */

@@ -5,9 +5,9 @@ namespace App\Services\Ai;
 use App\Models\District;
 use App\Models\Province;
 use App\Models\Service;
+use App\Services\Seo\KeywordSections;
 use App\Support\AutomationLog;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 /**
  * Bölge ve hizmet sayfalarının içeriğini zenginleştirir (spec §1: AI yalnız içerik üretir).
@@ -44,6 +44,14 @@ class RegionContentEnricher
 
         if ($this->sanitizer->wordCount($body) < 200) {
             throw new AiException('Üretilen içerik çok kısa, kaydedilmedi.');
+        }
+
+        // Fırsat avının eklediği kelime bölümleri yeni metnin sonuna aynen geri konur;
+        // yoksa her zenginleştirme o kelimeler için yapılan işi sessizce silerdi.
+        [, $keywordBlocks] = KeywordSections::extract($this->bodyOf($model));
+
+        if ($keywordBlocks) {
+            $body .= "\n".implode("\n", $keywordBlocks);
         }
 
         $updates = [$this->bodyField($model) => $body];
@@ -116,7 +124,7 @@ class RegionContentEnricher
             'İL: '.$province?->name,
             '',
             'MEVCUT METİN (bu metnin bilgilerini KORU, sil veya çelişme — üzerine ekleyerek genişlet):',
-            strip_tags((string) $district->content),
+            strip_tags(KeywordSections::extract($district->content)[0]),
             '',
             'BU İLÇEDE HİZMET VERDİĞİMİZ MAHALLE/KÖYLER (yalnız bunları kullan, yenisini uydurma):',
             implode(', ', $neighborhoods),
@@ -169,7 +177,7 @@ class RegionContentEnricher
             'İL: '.$province->name,
             '',
             'MEVCUT METİN (bilgilerini KORU, üzerine ekleyerek genişlet):',
-            strip_tags((string) $province->content),
+            strip_tags(KeywordSections::extract($province->content)[0]),
             '',
             'BU İLDE HİZMET VERDİĞİMİZ AKTİF İLÇELER (yalnız bunları say, başka ilçe UYDURMA):',
             implode(', ', $districts),
@@ -203,7 +211,7 @@ class RegionContentEnricher
             'KISA AÇIKLAMA: '.$service->short_description,
             '',
             'MEVCUT METİN (bilgilerini KORU, üzerine ekleyerek genişlet):',
-            strip_tags((string) $service->description),
+            strip_tags(KeywordSections::extract($service->description)[0]),
             '',
             'BU HİZMETTE YAPTIKLARIMIZ (sayfada ayrı bir liste olarak zaten var, metinde TEKRARLAMA;',
             'bunları bağlam olarak kullan):',

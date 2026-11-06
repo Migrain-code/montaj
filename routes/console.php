@@ -69,6 +69,14 @@ InProcess::command('blog:generate')->dailyAt('04:00')->withoutOverlapping();
 InProcess::command('seo:sync-search-console')->dailyAt('05:00')->withoutOverlapping();
 InProcess::command('seo:sync-rankings')->dailyAt('05:10')->withoutOverlapping();
 
+/*
+ * GSC fırsat avı: bölge kelimelerinin 28 günlük sırası, yeni fırsatlar ve günlük sınır
+ * kadar kelimenin sayfasını iyileştirme. İlk 3'teki kelimeye dokunmaz.
+ * Veri çekme saatlerinden SONRA koşar; iç link kuralları (05:45) ve uygulayıcı (05:50)
+ * aynı sabah yeni kuralları alır.
+ */
+InProcess::command('seo:opportunities')->dailyAt('05:15')->withoutOverlapping();
+
 // --- veriden türetilen işler ---
 InProcess::command('seo:discover-keywords')->weeklyOn(1, '05:20')->withoutOverlapping();
 InProcess::command('seo:refresh-meta')->weeklyOn(1, '05:30')->withoutOverlapping();
