@@ -26,6 +26,11 @@ class IndexingService
 {
     private const API = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
 
+    /** Salt okunur: bildirim göndermeden API'nin açık ve yetkinin tam olduğunu sınar. */
+    private const METADATA = 'https://indexing.googleapis.com/v3/urlNotifications/metadata';
+
+    private const SERVICE_USAGE = 'https://serviceusage.googleapis.com/v1/projects/%s/services/indexing.googleapis.com:enable';
+
     /** Google'ın mülk başına günlük bildirim kotası. */
     public const GUNLUK_KOTA = 200;
 
@@ -132,5 +137,72 @@ class IndexingService
         }
 
         return ['sent' => $sent, 'failed' => $failed, 'remaining' => $this->remainingToday(), 'skipped' => null];
+    }
+
+    /**
+     * "Bildirimi onar" düğmesi: Indexing API'yi bildirim göndermeden sınar, düzeltilebilecek
+     * olanı düzeltir, düzeltilemeyeni (sahiplik gibi) açıkça söyler.
+     *
+     * - API kapalıysa Service Usage ile açmayı dener. Servis hesabının projede "Düzenleyici"
+     *   ya da "Service Usage Admin" rolü yoksa açamaz; o zaman bağlantıyı verir.
+     * - Erişim tamsa, son denemesi hatalı kalan sayfaların hatasını siler ki "Bildirim hatalı"
+     *   filtresi eski hatayı göstermesin; gönderimi çağıran taraf kuyruğa alır.
+     *
+     * @return array{status: 'ok'|'enabled'|'manual', message: string, cleared: int}
+     */
+    public function repair(): array
+    {
+        $probe = $this->client->request(GoogleClient::SCOPE_INDEXING)
+            ->get(self::METADATA, ['url' => rtrim((string) config('app.url'), '/').'/']);
+
+        // 404 = bu adres hiç bildirilmemiş; API açık ve erişim var demektir.
+        if ($probe->successful() || $probe->status() === 404) {
+            $cleared = SeoAnalysis::query()->whereNotNull('index_submit_error')->update(['index_submit_error' => null]);
+
+            return ['status' => 'ok', 'message' => 'Indexing API erişimi çalışıyor.', 'cleared' => $cleared];
+        }
+
+        $message = (string) $probe->json('error.message');
+
+        if ($probe->status() !== 403 || ! $this->isServiceDisabled($message)) {
+            return ['status' => 'manual', 'message' => $this->client->explainPermissionError($probe->status(), $message), 'cleared' => 0];
+        }
+
+        // Proje numarası Google'ın mesajında yazar; yoksa kimlik dosyasındaki proje kimliği.
+        $project = preg_match('/project (\d+)/', $message, $m) ? $m[1] : $this->client->projectId();
+
+        if (blank($project)) {
+            return ['status' => 'manual', 'message' => $this->client->explainPermissionError(403, $message), 'cleared' => 0];
+        }
+
+        try {
+            $enable = $this->client->request(GoogleClient::SCOPE_CLOUD)->post(sprintf(self::SERVICE_USAGE, $project));
+        } catch (Throwable $e) {
+            $enable = null;
+            AutomationLog::error('gsc.indexing', 'API açılamadı: '.$e->getMessage());
+        }
+
+        if ($enable?->successful()) {
+            AutomationLog::summary('gsc.indexing.repair', ['enabled' => true, 'project' => $project]);
+
+            return [
+                'status' => 'enabled',
+                'message' => 'Web Search Indexing API Google Cloud projesinde açıldı. Google\'ın bunu yayması birkaç dakika sürer; '
+                    .'5 dakika sonra bu düğmeye yeniden basın.',
+                'cleared' => 0,
+            ];
+        }
+
+        return [
+            'status' => 'manual',
+            'message' => $this->client->explainPermissionError(403, $message)
+                .' (Otomatik açma denendi ama servis hesabının projede API açma yetkisi yok; bir kez elle açmanız gerekiyor.)',
+            'cleared' => 0,
+        ];
+    }
+
+    private function isServiceDisabled(string $message): bool
+    {
+        return str_contains($message, 'has not been used') || str_contains($message, 'is disabled');
     }
 }

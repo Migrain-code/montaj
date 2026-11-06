@@ -151,6 +151,61 @@ class GoogleIndexingTest extends TestCase
         Http::assertSentCount(1);
     }
 
+    public function test_repair_enables_a_disabled_api(): void
+    {
+        Http::fake([
+            'indexing.googleapis.com/*' => Http::response(['error' => [
+                'message' => 'Web Search Indexing API has not been used in project 447048394966 before or it is disabled.',
+            ]], 403),
+            'serviceusage.googleapis.com/*' => Http::response(['name' => 'operations/x', 'done' => true], 200),
+        ]);
+
+        $sonuc = app(IndexingService::class)->repair();
+
+        $this->assertSame('enabled', $sonuc['status']);
+        Http::assertSent(fn ($r) => str_contains($r->url(), 'projects/447048394966/services/indexing.googleapis.com:enable'));
+    }
+
+    public function test_repair_falls_back_to_manual_when_it_cannot_enable(): void
+    {
+        Http::fake([
+            'indexing.googleapis.com/*' => Http::response(['error' => [
+                'message' => 'Web Search Indexing API has not been used in project 447048394966 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/indexing.googleapis.com/overview?project=447048394966 then retry.',
+            ]], 403),
+            'serviceusage.googleapis.com/*' => Http::response(['error' => ['message' => 'Permission denied']], 403),
+        ]);
+
+        $sonuc = app(IndexingService::class)->repair();
+
+        $this->assertSame('manual', $sonuc['status']);
+        $this->assertStringContainsString('console.developers.google.com', $sonuc['message']);
+    }
+
+    public function test_repair_reports_ownership_without_trying_to_enable(): void
+    {
+        Http::fake(['indexing.googleapis.com/*' => Http::response(['error' => ['message' => 'Permission denied. Failed to verify the URL ownership.']], 403)]);
+
+        $sonuc = app(IndexingService::class)->repair();
+
+        $this->assertSame('manual', $sonuc['status']);
+        $this->assertStringContainsString('Failed to verify the URL ownership', $sonuc['message']);
+        Http::assertNotSent(fn ($r) => str_contains($r->url(), 'serviceusage'));
+    }
+
+    public function test_repair_clears_stale_errors_when_access_works(): void
+    {
+        // 404: adres hiç bildirilmemiş — API açık ve erişim var.
+        Http::fake(['indexing.googleapis.com/*' => Http::response(['error' => ['message' => 'Requested entity was not found.']], 404)]);
+        $eski = $this->analiz('/bir', 'FAIL', ['index_submit_error' => 'Google erişimi reddetti (403)']);
+
+        $sonuc = app(IndexingService::class)->repair();
+
+        $this->assertSame('ok', $sonuc['status']);
+        $this->assertSame(1, $sonuc['cleared']);
+        $this->assertNull($eski->fresh()->index_submit_error);
+        Http::assertNotSent(fn ($r) => str_contains($r->url(), ':publish'));
+    }
+
     public function test_command_exists_in_the_panel_catalog(): void
     {
         $this->assertSame('seo:submit-index', CommandCatalog::find('submit-index')['command']);

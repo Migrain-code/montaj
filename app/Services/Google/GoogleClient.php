@@ -26,6 +26,9 @@ class GoogleClient
 
     public const SCOPE_INDEXING = 'https://www.googleapis.com/auth/indexing';
 
+    /** Yalnız kapalı bir API'yi açmak için (Service Usage); başka yerde kullanılmaz. */
+    public const SCOPE_CLOUD = 'https://www.googleapis.com/auth/cloud-platform';
+
     public function isConfigured(): bool
     {
         return filled($this->credentialsPath()) && is_readable((string) $this->credentialsPath()) && filled($this->property());
@@ -60,6 +63,18 @@ class GoogleClient
             $json = json_decode((string) file_get_contents((string) $this->credentialsPath()), true);
 
             return $json['client_email'] ?? null;
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    /** Servis hesabının bağlı olduğu Google Cloud projesi. */
+    public function projectId(): ?string
+    {
+        try {
+            $json = json_decode((string) file_get_contents((string) $this->credentialsPath()), true);
+
+            return $json['project_id'] ?? null;
         } catch (Throwable) {
             return null;
         }

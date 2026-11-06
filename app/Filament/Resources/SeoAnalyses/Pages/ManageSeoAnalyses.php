@@ -84,6 +84,54 @@ class ManageSeoAnalyses extends ManageRecords
                         ->body('Kuyruk işçisi gönderimi yapacak; sonucu "Google\'a bildirildi" sütununda görürsünüz.')
                         ->info()->send();
                 }),
+            Action::make('repairIndexing')
+                ->label('Bildirimi onar')
+                ->icon('heroicon-o-wrench-screwdriver')
+                ->color('danger')
+                ->visible(fn () => auth()->user()?->isSuperAdmin() && app(IndexingService::class)->isConfigured())
+                ->requiresConfirmation()
+                ->modalHeading('Google bildirimini onar')
+                ->modalDescription('Google\'a bildirim göndermeden erişimi sınar. Indexing API kapalıysa açmayı dener; '
+                    .'erişim çalışıyorsa eski hataları temizler ve bildirimi kuyruğa alır. Sahiplik gibi elle '
+                    .'yapılması gereken bir şey varsa ne yapılacağını söyler.')
+                ->modalSubmitActionLabel('Evet, onar')
+                ->action(function (IndexingService $indexing, CommandRunner $runner) {
+                    abort_unless(auth()->user()?->isSuperAdmin(), 403);
+
+                    try {
+                        $result = $indexing->repair();
+                    } catch (Throwable $e) {
+                        Notification::make()->title('Onarım çalışmadı')->body($e->getMessage())->danger()->persistent()->send();
+
+                        return;
+                    }
+
+                    if ($result['status'] === 'enabled') {
+                        Notification::make()->title('API açıldı')->body($result['message'])->success()->persistent()->send();
+
+                        return;
+                    }
+
+                    if ($result['status'] === 'manual') {
+                        Notification::make()->title('Elle yapılması gereken bir adım var')->body($result['message'])->danger()->persistent()->send();
+
+                        return;
+                    }
+
+                    try {
+                        $runner->start('submit-index', auth()->user());
+                    } catch (Throwable $e) {
+                        Notification::make()->title('Erişim tamam ama bildirim başlatılamadı')->body($e->getMessage())->warning()->persistent()->send();
+
+                        return;
+                    }
+
+                    Notification::make()
+                        ->title('Erişim çalışıyor, bildirim sıraya alındı')
+                        ->body(($result['cleared'] ? $result['cleared'].' sayfanın eski hatası temizlendi. ' : '')
+                            .'Kuyruk işçisi gönderdikten sonra "Bildirildi" filtresinde görünür.')
+                        ->success()->send();
+                }),
             Action::make('dashboard')
                 ->label('SEO gösterge paneli')
                 ->icon('heroicon-o-chart-bar')
