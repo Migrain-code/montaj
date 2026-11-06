@@ -19,6 +19,7 @@ use App\Support\SeoConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class OpportunityHuntTest extends TestCase
@@ -361,6 +362,23 @@ class OpportunityHuntTest extends TestCase
     }
 
     // ---------- panel ----------
+
+    /**
+     * Canlıda yaşandı: kod migration'dan önce sunucuya ulaştı, menü rozeti olmayan sütunu
+     * sorguladı ve BÜTÜN panel 500 verdi — migration'ı çalıştıracak Sistem Komutları dahil.
+     */
+    public function test_panel_still_opens_before_the_migration_has_run(): void
+    {
+        Schema::table('seo_keywords', function ($table) {
+            $table->dropIndex(['campaign_status']);
+            $table->dropColumn('campaign_status');
+        });
+
+        $this->actingAs(User::where('email', 'admin@example.com')->firstOrFail());
+
+        $this->get('/admin')->assertOk();
+        $this->get('/admin/system-commands')->assertOk();
+    }
 
     public function test_page_renders_and_requires_permission(): void
     {

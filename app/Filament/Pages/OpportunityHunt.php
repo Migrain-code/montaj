@@ -28,6 +28,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 use UnitEnum;
 
@@ -67,9 +68,19 @@ class OpportunityHunt extends Page implements HasTable
         return auth()->user()?->isSuperAdmin() ?? false;
     }
 
-    /** Menü rozeti: ilk 3'e girmeyi bekleyen odak bölge kelimeleri. */
+    /**
+     * Menü rozeti: ilk 3'e girmeyi bekleyen odak bölge kelimeleri.
+     *
+     * Rozet panelin HER sayfasında çizilir. Kod sunucuya migration'dan önce ulaşırsa sütun
+     * henüz yoktur; sorgu çalışsaydı bütün panel 500 verirdi — migration'ı çalıştıracak
+     * Sistem Komutları sayfası dahil. Bu yüzden sütun yoksa rozet sessizce gizlenir.
+     */
     public static function getNavigationBadge(): ?string
     {
+        if (! Schema::hasColumn('seo_keywords', 'campaign_status')) {
+            return null;
+        }
+
         $count = SeoKeyword::query()
             ->where('campaign_status', SeoKeyword::CAMPAIGN_ACTIVE)
             ->whereIn('region', (array) config('seo.opportunity.focus_regions', []))
