@@ -255,7 +255,7 @@ class RankBooster
 
         if ($lastFailure && $lastFailure->id > ($lastPing->id ?? 0) && $lastFailure->created_at?->gt(now()->subDays(7))
             && str_contains((string) $lastFailure->message, '403')) {
-            return ['state' => 'blocked', 'reason' => 'Google bildirime izin vermedi (403): servis hesabı Search Console\'da "Sahip" olmalı'];
+            return ['state' => 'blocked', 'reason' => 'Google bildirimi reddetti (403); sebep işlem kaydındaki mesajda. 7 gün sonra yeniden denenir'];
         }
 
         if ($this->indexing->remainingToday() < 1) {

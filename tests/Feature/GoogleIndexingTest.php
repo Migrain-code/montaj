@@ -54,6 +54,35 @@ class GoogleIndexingTest extends TestCase
         ] + $fazlasi);
     }
 
+    /**
+     * Canlıda yaşandı: Google Cloud projesinde Indexing API kapalıydı. Mesaj "sahip değilsiniz"
+     * dediği için Sahip yetkisi verildi ama hata sürdü; Google'ın asıl mesajı atılıyordu.
+     */
+    public function test_disabled_api_is_reported_as_such_not_as_missing_ownership(): void
+    {
+        Http::fake(['indexing.googleapis.com/*' => Http::response(['error' => [
+            'message' => 'Web Search Indexing API has not been used in project 447048394966 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/indexing.googleapis.com/overview?project=447048394966 then retry.',
+        ]], 403)]);
+
+        $analiz = $this->analiz('/bir', 'FAIL');
+        app(IndexingService::class)->submitPending();
+
+        $hata = (string) $analiz->fresh()->index_submit_error;
+        $this->assertStringContainsString('API etkin değil', $hata);
+        $this->assertStringContainsString('indexing.googleapis.com/overview?project=447048394966', $hata);
+        $this->assertStringNotContainsString('sahip değilsiniz', $hata);
+    }
+
+    public function test_ownership_error_keeps_googles_own_message(): void
+    {
+        Http::fake(['indexing.googleapis.com/*' => Http::response(['error' => ['message' => 'Permission denied. Failed to verify the URL ownership.']], 403)]);
+
+        $analiz = $this->analiz('/bir', 'FAIL');
+        app(IndexingService::class)->submitPending();
+
+        $this->assertStringContainsString('Failed to verify the URL ownership', (string) $analiz->fresh()->index_submit_error);
+    }
+
     public function test_only_pages_missing_from_the_index_are_submitted(): void
     {
         Http::fake(['indexing.googleapis.com/*' => Http::response(['urlNotificationMetadata' => []], 200)]);

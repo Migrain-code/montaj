@@ -3,6 +3,7 @@
 namespace App\Services\Google;
 
 use App\Support\AutomationLog;
+use App\Support\SeoConfig;
 use Google\Auth\Credentials\ServiceAccountCredentials;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Cache;
@@ -32,14 +33,14 @@ class GoogleClient
 
     public function property(): ?string
     {
-        $value = \App\Support\SeoConfig::string('google_property', config('seo.google.property'));
+        $value = SeoConfig::string('google_property', config('seo.google.property'));
 
         return filled($value) ? trim((string) $value) : null;
     }
 
     public function credentialsPath(): ?string
     {
-        $path = \App\Support\SeoConfig::string('google_credentials', config('seo.google.credentials'));
+        $path = SeoConfig::string('google_credentials', config('seo.google.credentials'));
 
         if (blank($path)) {
             return null;
@@ -98,16 +99,33 @@ class GoogleClient
             return 'Google API hatası (HTTP '.$status.')'.($message ? ': '.$message : '');
         }
 
+        /*
+         * 403'ün her zaman yetki sorunu olmadığı canlıda görüldü: Google Cloud projesinde
+         * Indexing API etkin değildi, mesaj ise "sahip değilsiniz" diyordu ve Sahip yetkisi
+         * verilmesine rağmen hata sürdü. API kapalıysa bunu açıkça söyle.
+         */
+        $message = (string) $message;
+
+        if (str_contains($message, 'has not been used') || str_contains($message, 'is disabled')) {
+            preg_match('#https://console\.developers\.google\.com/\S+#', $message, $link);
+
+            return 'Google Cloud projesinde bu API etkin değil (403). Google Cloud Console\'da API\'yi etkinleştirin'
+                .(isset($link[0]) ? ': '.rtrim($link[0], '.') : '').' — etkinleştirdikten sonra birkaç dakika bekleyip yeniden deneyin.';
+        }
+
         $email = $this->serviceAccountEmail() ?: 'servis hesabı e-postası okunamadı';
 
-        return implode(' ', [
-            'Google "bu siteye sahip değilsiniz" diyor (403). Üç olası sebep:',
+        return implode(' ', array_filter([
+            // Google'ın kendi açıklaması EN BAŞTA: hata 300 karakterlik sütuna kesilerek yazılır
+            // ve aşağıdaki tahminler yanlışsa asıl sebep budur.
+            $message !== '' ? 'Google erişimi reddetti (403): "'.mb_substr($message, 0, 160).'".' : 'Google erişimi reddetti (403).',
+            'Olası sebepler:',
             "1) Servis hesabı ({$email}) Search Console mülküne kullanıcı olarak eklenmemiş.",
             '2) Mülk tipi uyuşmuyor: ayarlardaki "'.$this->property().'" değeri GSC\'deki mülkle BİREBİR aynı olmalı',
             '(Domain mülkü "sc-domain:ornek.com", URL öneki mülkü "https://ornek.com/" biçimindedir).',
             '3) İncelenen adres mülkün dışında (www / http farkı).',
             'URL Inspection için "Tam" yetki yeterlidir; Indexing API için "Sahip" gerekir ve sahiplik ayrı ekrandan verilir.',
-        ]);
+        ]));
     }
 
     public function logUnavailable(string $task): void
