@@ -278,6 +278,22 @@ class OpportunityHuntTest extends TestCase
         $this->assertFalse(InternalLinkRule::where('anchor_text', 'çerkezköy mobilya montaj')->first()->is_active);
     }
 
+    /** Canlıda yaşandı: servis hesabı "Sahip" değil, Indexing API her denemede 403 döndü. */
+    public function test_index_step_waits_after_a_permission_error(): void
+    {
+        $this->fake([]);
+        $keyword = $this->activeCerkezkoyKeyword();
+        $booster = app(RankBooster::class);
+        $booster->runStep($keyword, 'content');
+
+        SeoKeywordAction::create([
+            'keyword_id' => $keyword->id, 'action' => 'index', 'status' => SeoKeywordAction::FAILED,
+            'message' => 'Google "bu siteye sahip değilsiniz" diyor (403).', 'page_url' => '/tekirdag/cerkezkoy',
+        ]);
+
+        $this->assertSame('blocked', $booster->diagnose($keyword)['index']['state']);
+    }
+
     public function test_revert_refuses_to_overwrite_a_later_manual_edit(): void
     {
         $this->fake([]);

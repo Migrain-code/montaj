@@ -247,6 +247,17 @@ class RankBooster
             return ['state' => 'done', 'reason' => 'Sayfada bildirilecek yeni değişiklik yok'];
         }
 
+        // Yetki hatası (403) kendiliğinden düzelmez: her iyileştirmede yeniden denemek yalnız
+        // log'u doldurur. Son başarısız deneme 7 gün içindeyse adım beklemeye alınır.
+        $lastFailure = SeoKeywordAction::query()
+            ->where('page_url', $url)->where('action', 'index')->where('status', SeoKeywordAction::FAILED)
+            ->latest('id')->first();
+
+        if ($lastFailure && $lastFailure->id > ($lastPing->id ?? 0) && $lastFailure->created_at?->gt(now()->subDays(7))
+            && str_contains((string) $lastFailure->message, '403')) {
+            return ['state' => 'blocked', 'reason' => 'Google bildirime izin vermedi (403): servis hesabı Search Console\'da "Sahip" olmalı'];
+        }
+
         if ($this->indexing->remainingToday() < 1) {
             return ['state' => 'blocked', 'reason' => 'Günlük bildirim kotası doldu'];
         }
