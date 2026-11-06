@@ -6,6 +6,7 @@ use App\Jobs\BoostKeyword;
 use App\Models\SeoKeyword;
 use App\Models\SeoKeywordAction;
 use App\Models\SeoTarget;
+use App\Services\Admin\CommandRunner;
 use App\Services\Ai\AiClient;
 use App\Services\Seo\OpportunityHunter;
 use App\Services\Seo\RankBooster;
@@ -139,6 +140,34 @@ class OpportunityHunt extends Page implements HasTable
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('runNow')
+                ->label('Otomatik çalıştır')
+                ->icon('heroicon-o-bolt')
+                ->color('primary')
+                ->visible(fn () => self::canEdit())
+                ->requiresConfirmation()
+                ->modalHeading('Otomatik turu şimdi çalıştır')
+                ->modalDescription(fn () => 'Her sabah 05:15\'te çalışan turun aynısı: sıraları çeker, yeni fırsatları ekler ve ilk 3\'te '
+                    .'olmayan en fazla '.SeoConfig::int('opportunity_daily_limit', 3, 1, 20).' kelimenin sayfasını iyileştirir. '
+                    .'Bekleme süresindeki ve hedefteki kelimelere dokunulmaz.'
+                    .(SeoConfig::bool('opportunity_autopilot', true) ? '' : ' Otomatik iyileştirme KAPALI olduğu için yalnız sıralar çekilir, sayfalara yazılmaz.'))
+                ->modalSubmitActionLabel('Evet, çalıştır')
+                ->action(function (CommandRunner $runner) {
+                    abort_unless(self::canEdit(), 403);
+
+                    try {
+                        $runner->start('opportunities', auth()->user());
+                    } catch (Throwable $e) {
+                        Notification::make()->title('Çalıştırılamadı')->body($e->getMessage())->danger()->persistent()->send();
+
+                        return;
+                    }
+
+                    Notification::make()->title('Otomatik tur sıraya alındı')
+                        ->body('Kuyruk işçisi çalıştırır; birkaç dakika sonra sayfayı yenileyin. Sonuç Ayarlar → Sistem Komutları geçmişinde de görünür.')
+                        ->success()->send();
+                }),
+
             Action::make('sync')
                 ->label('Sıraları çek')
                 ->icon('heroicon-o-arrow-path')

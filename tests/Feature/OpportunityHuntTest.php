@@ -407,4 +407,17 @@ class OpportunityHuntTest extends TestCase
             ->assertSee('çerkezköy mobilya montaj')
             ->assertSee('Kızılpınar');
     }
+
+    public function test_run_now_button_queues_the_daily_round(): void
+    {
+        $this->fake([]);
+        $this->actingAs(User::where('email', 'admin@example.com')->firstOrFail());
+        \Filament\Facades\Filament::setCurrentPanel(\Filament\Facades\Filament::getPanel('admin'));
+
+        \Livewire\Livewire::test(\App\Filament\Pages\OpportunityHunt::class)
+            ->callAction('runNow')
+            ->assertNotified('Otomatik tur sıraya alındı');
+
+        $this->assertDatabaseHas('command_runs', ['command_key' => 'opportunities']);
+    }
 }
