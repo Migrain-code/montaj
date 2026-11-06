@@ -102,6 +102,20 @@ class SeoAnalysisResource extends Resource
                 SelectFilter::make('google_index_status')->label('Dizin durumu')
                     ->options(SeoAnalysis::INDEX_STATUSES),
                 SelectFilter::make('content_type')->label('Tip')->options(ContentRegistry::TYPES),
+                // Indexing API bildirimi. Başarısız deneme hatayı yazar ama tarihi değiştirmez;
+                // bu yüzden "bildirildi" = tarih var ve son denemede hata yok.
+                SelectFilter::make('submission')->label('Google\'a bildirim')
+                    ->options([
+                        'submitted' => 'Bildirildi',
+                        'failed' => 'Bildirim hatalı',
+                        'never' => 'Hiç bildirilmedi',
+                    ])
+                    ->query(fn (Builder $query, array $data) => match ($data['value'] ?? null) {
+                        'submitted' => $query->whereNotNull('index_submitted_at')->whereNull('index_submit_error'),
+                        'failed' => $query->whereNotNull('index_submit_error'),
+                        'never' => $query->whereNull('index_submitted_at')->whereNull('index_submit_error'),
+                        default => $query,
+                    }),
                 Filter::make('unchecked')->label('Yalnız hiç kontrol edilmeyenler')
                     ->query(fn (Builder $query) => $query->whereNull('index_checked_at')),
             ])

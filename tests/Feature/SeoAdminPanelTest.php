@@ -2,6 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Pages\SeoAiSettings;
+use App\Filament\Pages\SiteSettings;
+use App\Filament\Resources\Blogs\Pages\ListBlogs;
+use App\Filament\Resources\SeoAnalyses\Pages\ManageSeoAnalyses;
+use App\Filament\Resources\SeoAnalyses\SeoAnalysisResource;
 use App\Models\AiCrawlerVisit;
 use App\Models\AiGeneration;
 use App\Models\Blog;
@@ -14,9 +19,7 @@ use App\Models\SeoKeyword;
 use App\Models\SeoTarget;
 use App\Models\Setting;
 use App\Models\User;
-use App\Filament\Pages\SeoAiSettings;
-use App\Filament\Resources\SeoAnalyses\Pages\ManageSeoAnalyses;
-use App\Filament\Resources\SeoAnalyses\SeoAnalysisResource;
+use App\Services\InternalLink\LinkApplier;
 use App\Services\Seo\TargetSynchroniser;
 use App\Support\SeoConfig;
 use Filament\Facades\Filament;
@@ -81,7 +84,7 @@ class SeoAdminPanelTest extends TestCase
 
     // ---------- Dizin durumu ----------
 
-    /** @return array<string, \App\Models\SeoAnalysis> */
+    /** @return array<string, SeoAnalysis> */
     private function seedIndexStatuses(): array
     {
         // Her içeriğin tek analiz kaydı vardır (content_type + content_id benzersiz).
@@ -112,6 +115,25 @@ class SeoAdminPanelTest extends TestCase
             ->assertCanSeeTableRecords([$rows['missing'], $rows['unchecked'], $rows['indexed']])
             // Dizine girmeyen sayfa üstte olmalı; kullanıcı listeyi bunun için açıyor.
             ->assertCanSeeTableRecords([$rows['missing'], $rows['indexed']], inOrder: true);
+    }
+
+    public function test_index_status_page_filters_by_submission(): void
+    {
+        $rows = $this->seedIndexStatuses();
+        $rows['indexed']->forceFill(['index_submitted_at' => now()])->save();
+        $rows['missing']->forceFill(['index_submitted_at' => now()->subDays(20), 'index_submit_error' => '403'])->save();
+        $this->actingAs($this->admin());
+
+        Livewire::test(ManageSeoAnalyses::class)
+            ->filterTable('submission', 'submitted')
+            ->assertCanSeeTableRecords([$rows['indexed']])
+            ->assertCanNotSeeTableRecords([$rows['missing'], $rows['unchecked']])
+            ->filterTable('submission', 'failed')
+            ->assertCanSeeTableRecords([$rows['missing']])
+            ->assertCanNotSeeTableRecords([$rows['indexed'], $rows['unchecked']])
+            ->filterTable('submission', 'never')
+            ->assertCanSeeTableRecords([$rows['unchecked']])
+            ->assertCanNotSeeTableRecords([$rows['indexed'], $rows['missing']]);
     }
 
     public function test_index_status_page_filters_by_status(): void
@@ -186,7 +208,7 @@ class SeoAdminPanelTest extends TestCase
         $this->assertSame(0.62, SeoConfig::threshold('duplicate_scan_threshold'));
 
         // Ayar gerçekten motoru etkiliyor mu?
-        $this->assertTrue(app(\App\Services\InternalLink\LinkApplier::class)->enabled());
+        $this->assertTrue(app(LinkApplier::class)->enabled());
     }
 
     public function test_site_settings_page_does_not_clobber_seo_settings(): void
@@ -198,7 +220,7 @@ class SeoAdminPanelTest extends TestCase
         Setting::flush();
 
         // İki ayrı ayar sayfası aynı tabloyu kullanır; biri diğerinin anahtarlarını silmemeli.
-        Livewire::test(\App\Filament\Pages\SiteSettings::class)->call('save')->assertHasNoFormErrors();
+        Livewire::test(SiteSettings::class)->call('save')->assertHasNoFormErrors();
 
         Setting::flush();
         $this->assertTrue(SeoConfig::bool('internal_links_enabled'));
@@ -225,12 +247,12 @@ class SeoAdminPanelTest extends TestCase
         Filament::setCurrentPanel(Filament::getPanel('admin'));
 
         // Anahtar yoksa AI aksiyonu görünmez, hata vermez (spec §10.5).
-        Livewire::test(\App\Filament\Resources\Blogs\Pages\ListBlogs::class)
+        Livewire::test(ListBlogs::class)
             ->assertActionHidden('generate');
 
         config(['seo.ai.api_key' => 'test-key']);
 
-        Livewire::test(\App\Filament\Resources\Blogs\Pages\ListBlogs::class)
+        Livewire::test(ListBlogs::class)
             ->assertActionVisible('generate');
     }
 }
