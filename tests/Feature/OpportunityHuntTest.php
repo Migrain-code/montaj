@@ -173,8 +173,11 @@ class OpportunityHuntTest extends TestCase
 
         $this->assertSame(SeoKeyword::CAMPAIGN_WON, $this->keyword('kapaklı mobilya montaj')->campaign_status);
         $this->assertNull($this->keyword('çerkezköy nöbetçi eczane'));
-        // Bölgesiz kelime kampanyaya girmez.
-        $this->assertNull($this->keyword('mobilya montaj ustası')->campaign_status);
+        // Bölgesiz kelime bölge kampanyasına değil, "sıraya yakın" olarak Google'ın gösterdiği sayfaya girer.
+        $usta = $this->keyword('mobilya montaj ustası');
+        $this->assertSame('gsc_near', $usta->campaign_source);
+        $this->assertNull($usta->region);
+        $this->assertSame(SeoTarget::where('url_hash', PathNormalizer::hash('/mobilya-montaji'))->value('id'), $usta->target_id);
 
         // Kızılpınar GSC verisi olmadan da takipte ve Çerkezköy sayfasına bağlı.
         $this->assertSame($this->cerkezkoyTarget()->id, $this->keyword('kızılpınar mobilya montaj')->target_id);
@@ -419,5 +422,86 @@ class OpportunityHuntTest extends TestCase
             ->assertNotified('Otomatik tur sıraya alındı');
 
         $this->assertDatabaseHas('command_runs', ['command_key' => 'opportunities']);
+    }
+
+    // ---------- sıraya yakın aramalar ----------
+
+    private function blog(string $slug, string $title): \App\Models\Blog
+    {
+        return \App\Models\Blog::create([
+            'title' => $title, 'slug' => $slug, 'body_html' => '<p>Menteşe vidaları ile kapak hizası ayarlanır.</p>',
+            'meta_title' => $title, 'meta_description' => 'Açıklama', 'faqs' => [],
+            'blog_category_id' => \App\Models\BlogCategory::first()->getKey(),
+            'status' => \App\Models\Blog::STATUS_PUBLISHED, 'publish_at' => now()->subDay(),
+        ]);
+    }
+
+    /** Canlı veri (Kasım 2026): trafik bölge kelimelerinden değil, blogdaki "nasıl yapılır" aramalarından geliyordu. */
+    public function test_near_miss_queries_are_tracked_on_the_page_google_already_shows(): void
+    {
+        $blog = $this->blog('mentese-ayari', 'Menteşe Ayarı Nasıl Yapılır');
+        $this->blog('corlu-ikea', 'Çorlu IKEA Montajı');
+
+        $this->fake([
+            ['oda kapı menteşe ayarı nasıl yapılır', 10.3, 30, '/blog/mentese-ayari'],
+            ['ikea çorlu', 8.8, 17, '/blog/corlu-ikea'],              // mağaza araması: hizmet/nasıl yok
+            ['çorluda ikea var mı', 9.0, 9, '/blog/corlu-ikea'],      // mağaza araması
+            ['menteşe ayarı', 1.5, 20, '/blog/mentese-ayari'],         // zaten ilk 3'te
+            ['gardırop menteşe değişimi', 40.0, 12, '/blog/mentese-ayari'], // yakın değil
+            ['gömme dolap nasıl yapılır', 7.0, 7, '/markalar/cilek'],  // marka sayfası iyileştirilmez
+            ['dolap kapağı ayarı', 12.0, 1, '/blog/mentese-ayari'],    // gösterim az
+            ['menteşe ayarı nasıl yapılır', 8.5, 4, '/blog/mentese-ayari'], // aynı yazı: tek kelime yeter
+        ]);
+
+        app(OpportunityHunter::class)->run();
+
+        $near = $this->keyword('oda kapı menteşe ayarı nasıl yapılır');
+        $this->assertNotNull($near);
+        $this->assertSame($blog->id, $near->owner_blog_id);
+        $this->assertNull($near->target_id);
+        $this->assertSame('gsc_near', $near->campaign_source);
+        $this->assertSame(SeoKeyword::CAMPAIGN_ACTIVE, $near->campaign_status);
+
+        foreach (['menteşe ayarı nasıl yapılır', 'ikea çorlu', 'çorluda ikea var mı', 'menteşe ayarı', 'gardırop menteşe değişimi', 'gömme dolap nasıl yapılır', 'dolap kapağı ayarı'] as $text) {
+            $this->assertNull($this->keyword($text)?->campaign_status, $text.' takibe alınmamalı');
+        }
+    }
+
+    public function test_blog_keyword_is_boosted_without_touching_the_title_and_can_be_reverted(): void
+    {
+        $blog = $this->blog('mentese-ayari', 'Menteşe Ayarı Nasıl Yapılır');
+        $original = $blog->only(['meta_title', 'meta_description', 'body_html', 'faqs']);
+
+        $this->fake([], [
+            'html' => '<h2>Oda kapı menteşe ayarı nasıl yapılır</h2><p>'.str_repeat('Kapağı açın, üst menteşenin derinlik vidasını çeyrek tur çevirin ve hizayı kontrol edin. ', 12).'</p>',
+            'faqs' => [['question' => 'Oda kapı menteşe ayarı nasıl yapılır?', 'answer' => 'Önce yan vidayla hizayı, sonra derinlik vidasıyla boşluğu ayarlayın; her adımda kapağı kapatıp kontrol edin.']],
+        ]);
+
+        $keyword = SeoKeyword::create([
+            'keyword' => 'oda kapı menteşe ayarı nasıl yapılır', 'keyword_type' => 'COMMERCIAL_VARIANT', 'search_intent' => 'informational',
+            'priority' => 2, 'status' => true, 'owner_blog_id' => $blog->id,
+            'campaign_status' => SeoKeyword::CAMPAIGN_ACTIVE, 'campaign_source' => 'gsc_near', 'target_position' => 3, 'last_position' => 10.3,
+        ]);
+
+        $booster = app(RankBooster::class);
+        $this->assertNull($booster->blocker($keyword));
+
+        $result = $booster->boost($keyword);
+
+        $this->assertContains('content', $result['ran']);
+        $this->assertContains('faq', $result['ran']);
+        $this->assertNotContains('meta', $result['ran'], 'Blog başlığı değiştirilmez.');
+
+        $blog->refresh();
+        $this->assertSame($original['meta_title'], $blog->meta_title);
+        $this->assertStringContainsString('data-kw=', $blog->body_html);
+        $this->assertCount(1, $blog->faqs);
+        $this->assertSame('/blog/mentese-ayari', SeoKeywordAction::where('action', 'content')->value('page_url'));
+
+        foreach (SeoKeywordAction::where('status', 'done')->get()->filter->isRevertible() as $action) {
+            $booster->revert($action);
+        }
+
+        $this->assertSame($original, $blog->fresh()->only(['meta_title', 'meta_description', 'body_html', 'faqs']));
     }
 }

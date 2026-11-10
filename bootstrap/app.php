@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AiDiscoveryHeaders;
+use App\Http\Middleware\CanonicalHost;
 use App\Models\NotFoundLog;
 use App\Models\Redirect;
 use App\Support\AutomationLog;
@@ -22,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(fn () => route('filament.admin.auth.login'));
 
         // AI ajan keşif başlıkları + bot ziyaret kaydı (spec §3.9).
+        // www → www'suz 301: her sayfanın iki kopyası Google'da ayrı sıralanmasın.
+        $middleware->prepend(CanonicalHost::class);
+
         $middleware->web(append: [
             AiDiscoveryHeaders::class,
         ]);

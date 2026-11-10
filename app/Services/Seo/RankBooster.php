@@ -2,6 +2,7 @@
 
 namespace App\Services\Seo;
 
+use App\Models\Blog;
 use App\Models\District;
 use App\Models\InternalLinkRule;
 use App\Models\Province;
@@ -64,8 +65,14 @@ class RankBooster
     // ---------- sayfa ----------
 
     /** Kelimenin yazılabilir sayfası: ilçe, il ya da hizmet. Blog ve statik sayfa yazılmaz. */
-    public function page(SeoKeyword $keyword): District|Province|Service|null
+    public function page(SeoKeyword $keyword): District|Province|Service|Blog|null
     {
+        // Blog yazısına ait kelime (tek sahip kuralı: target_id ile owner_blog_id birlikte olmaz).
+        // Trafiği getiren "nasıl yapılır" aramaları çoğunlukla blog yazılarına düşer.
+        if ($keyword->owner_blog_id) {
+            return Blog::query()->published()->find($keyword->owner_blog_id);
+        }
+
         $target = $keyword->target;
 
         if (! $target || ! $target->status) {
@@ -82,24 +89,44 @@ class RankBooster
 
     private function bodyField(Model $page): string
     {
-        return $page instanceof Service ? 'description' : 'content';
+        return match (true) {
+            $page instanceof Service => 'description',
+            $page instanceof Blog => 'body_html',
+            default => 'content',
+        };
+    }
+
+    /** AI kaydı ve dizin kaydı için içerik kimliği. */
+    private function contentRef(SeoKeyword $keyword): array
+    {
+        return $keyword->owner_blog_id
+            ? ['content_type' => 'blog', 'content_id' => $keyword->owner_blog_id]
+            : ['content_type' => $keyword->target?->content_type, 'content_id' => $keyword->target?->content_id];
     }
 
     private function pageUrl(SeoKeyword $keyword): ?string
     {
+        if ($keyword->owner_blog_id) {
+            $blog = $keyword->ownerBlog;
+
+            return $blog ? PathNormalizer::normalize($blog->path()) : null;
+        }
+
         return $keyword->target?->url ? PathNormalizer::normalize($keyword->target->url) : null;
     }
 
     /** Aynı sayfayı hedefleyen kelimeler arasında başlığın sahibi: en çok gösterim alan. */
     public function primaryKeyword(SeoKeyword $keyword): ?SeoKeyword
     {
-        if (! $keyword->target_id) {
+        if (! $keyword->target_id && ! $keyword->owner_blog_id) {
             return null;
         }
 
         return SeoKeyword::query()
             ->inCampaign()
-            ->where('target_id', $keyword->target_id)
+            ->when($keyword->target_id,
+                fn ($q) => $q->where('target_id', $keyword->target_id),
+                fn ($q) => $q->where('owner_blog_id', $keyword->owner_blog_id))
             ->where('campaign_status', '!=', SeoKeyword::CAMPAIGN_PAUSED)
             ->orderByDesc('gsc_impressions')
             ->orderBy('priority')
@@ -117,8 +144,7 @@ class RankBooster
         return match (true) {
             $keyword->campaign_status === SeoKeyword::CAMPAIGN_PAUSED => 'Kampanya duraklatıldı.',
             $keyword->campaign_status === SeoKeyword::CAMPAIGN_WON || $keyword->reachedTarget() => 'Kelime hedefte (ilk '.$keyword->targetPosition().'). Hedefteki kelimeye işlem yapılmaz.',
-            $keyword->owner_blog_id !== null => 'Kelime bir blog yazısına ait; blog yazıları buradan düzenlenmez.',
-            $this->page($keyword) === null => 'Kelimeye bağlı yayında bir ilçe, il veya hizmet sayfası yok. "Sayfaya bağla" ile seçin.',
+            $this->page($keyword) === null => 'Kelimeye bağlı yayında bir sayfa yok (ilçe, il, hizmet ya da blog yazısı). "Sayfaya bağla" ile seçin.',
             default => null,
         };
     }
@@ -161,6 +187,12 @@ class RankBooster
 
     private function diagnoseMeta(SeoKeyword $keyword, Model $page, string $url): array
     {
+        // Blog başlığı yazının kendi konusuna yazılmıştır; bir arama varyantı için değiştirilmez.
+        // Yazıya bölüm ve soru eklemek yeter, başlık ve açıklama olduğu gibi kalır.
+        if ($page instanceof Blog) {
+            return ['state' => 'done', 'reason' => 'Blog başlığı yazının kendi konusuna ait; değiştirilmez'];
+        }
+
         $primary = $this->primaryKeyword($keyword);
 
         if ($primary && ! $primary->is($keyword)) {
@@ -362,7 +394,7 @@ class RankBooster
             '- Rakam, yıl, puan, "en iyi", "1 numara" gibi doğrulanamaz iddia YOK.',
             '',
             'Şema: {"meta_title":"","meta_description":""}',
-        ]), ['content_type' => $keyword->target?->content_type, 'content_id' => $keyword->target?->content_id, 'batch_key' => 'opportunity.meta']);
+        ]), [...$this->contentRef($keyword), 'batch_key' => 'opportunity.meta']);
 
         $title = $this->sanitizer->metaTitle($payload['meta_title'] ?? null, $page->meta_title);
         $description = $this->sanitizer->metaDescription($payload['meta_description'] ?? null, $page->meta_description);
@@ -397,10 +429,12 @@ class RankBooster
             '- Bir <h2> başlığı: arama kelimesinin kelimeleri başlıkta geçsin (Türkçe ek alabilir).',
             '- Altında 150-250 kelime: 2-3 <p> paragrafı, istersen bir <ul> listesi.',
             '- Yalnız yukarıdaki gerçek bilgileri kullan (bölge, mahalleler, hizmetler).',
-            '- Başka bir bölgeye kopyalanabilecek genel metin yazma; bu bölgenin adını ve mahallelerini kullan.',
+            $page instanceof District || $page instanceof Province
+                ? '- Başka bir bölgeye kopyalanabilecek genel metin yazma; bu bölgenin adını ve mahallelerini kullan.'
+                : '- Arama yapan kişinin sorusunu doğrudan ve somut yanıtla (adım adım, dikkat edilecekler); dolgu metin yazma.',
             '',
             'Şema: {"html":""}',
-        ]), ['content_type' => $keyword->target?->content_type, 'content_id' => $keyword->target?->content_id, 'batch_key' => 'opportunity.content']);
+        ]), [...$this->contentRef($keyword), 'batch_key' => 'opportunity.content']);
 
         $html = $this->sanitizer->bodyHtml($payload['html'] ?? null);
 
@@ -445,7 +479,7 @@ class RankBooster
             '- Fiyat rakamı, süre garantisi, yıl, müşteri sayısı YOK. Bilinmeyeni genel bırak.',
             '',
             'Şema: {"faqs":[{"question":"","answer":""}]}',
-        ]), ['content_type' => $keyword->target?->content_type, 'content_id' => $keyword->target?->content_id, 'batch_key' => 'opportunity.faq']);
+        ]), [...$this->contentRef($keyword), 'batch_key' => 'opportunity.faq']);
 
         $seen = array_map(fn ($f) => TurkishText::fold($f['question'] ?? ''), $existing);
         $added = [];
@@ -502,10 +536,12 @@ class RankBooster
         $this->indexing->submit(url($url));
 
         // Günlük kota seo_analyses üzerinden sayılır; gece görevi de aynı sayfayı tekrar bildirmesin.
-        if ($target = $keyword->target) {
+        $ref = $this->contentRef($keyword);
+
+        if ($ref['content_type'] && $ref['content_id']) {
             SeoAnalysis::query()
-                ->where('content_type', $target->content_type)
-                ->where('content_id', $target->content_id)
+                ->where('content_type', $ref['content_type'])
+                ->where('content_id', $ref['content_id'])
                 ->get()
                 ->each(fn (SeoAnalysis $a) => $a->forceFill([
                     'index_submitted_at' => now(),
@@ -670,6 +706,7 @@ class RankBooster
         $lines = match (true) {
             $page instanceof District => ['SAYFA: '.$page->name.' ilçe sayfası', 'İL: '.$page->province?->name],
             $page instanceof Province => ['SAYFA: '.$page->name.' il sayfası'],
+            $page instanceof Blog => ['SAYFA: "'.$page->title.'" başlıklı rehber blog yazısı', 'HİZMET BÖLGESİ: Tekirdağ, Edirne ve Kırklareli (Trakya)'],
             default => ['SAYFA: '.$page->title.' hizmet sayfası', 'HİZMET BÖLGESİ: Tekirdağ, Edirne ve Kırklareli (Trakya)'],
         };
 

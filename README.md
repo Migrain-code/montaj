@@ -340,10 +340,16 @@ ilk 3'e taşımak için vardır. tavsiyemiz projesindeki "Kelime Sırası" modü
    **Kızılpınar → Çerkezköy**.
 5. Sıra ilk 3'teyse kelime **Hedefte** olur ve ona **hiçbir işlem yapılmaz**. Düşerse kendiliğinden
    yeniden ele alınır.
-6. Otomatik iyileştirme açıksa günde en fazla 3 kelimenin sayfası güçlendirilir. Aynı kelimeye en
-   erken 7 günde bir dokunulur.
+6. **Sıraya yakın aramalar:** bölge adı geçmese de Google'ın sitemizi zaten **4–25. sırada**
+   gösterdiği, en az 3 gösterimli sorgular da takibe alınır. Sorguda bir hizmet kelimesi ya da
+   "nasıl / ayar / yapılır…" geçmeli (`howto_terms`). Mağaza aramaları ("ikea çorlu", "… var mı")
+   alınmaz (`skip_terms`). Kelime, **Google'ın o sorguda gösterdiği sayfaya** bağlanır (blog yazısı
+   dahil). Sayfa başına **tek** sıraya yakın kelime alınır, en çok gösterim alan; benzer sorgular için
+   ayrı bölümler kelime doldurma olur.
+7. Otomatik iyileştirme açıksa günde en fazla 3 kelimenin sayfası güçlendirilir. Aynı kelimeye en
+   erken 7 günde bir dokunulur. **Otomatik çalıştır** düğmesi aynı turu hemen başlatır.
 
-**İyileştirme adımları** (yalnız ilçe, il ve hizmet sayfalarına yazılır):
+**İyileştirme adımları** (ilçe, il, hizmet sayfaları ve blog yazıları; blog başlığı değiştirilmez):
 
 | Adım | Ne yapar | Sınır |
 | --- | --- | --- |

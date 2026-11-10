@@ -90,9 +90,9 @@ class HuntOpportunities extends Command
 
         return SeoKeyword::query()
             ->where('campaign_status', SeoKeyword::CAMPAIGN_ACTIVE)
-            ->whereNotNull('target_id')
+            ->where(fn ($q) => $q->whereNotNull('target_id')->orWhereNotNull('owner_blog_id'))
             ->where(fn ($q) => $q->whereNull('last_boost_at')->orWhere('last_boost_at', '<', now()->subDays($cooldown)))
-            ->with('target')
+            ->with(['target', 'ownerBlog'])
             ->get()
             ->reject(fn (SeoKeyword $k) => $k->reachedTarget())
             ->sortBy(fn (SeoKeyword $k) => [

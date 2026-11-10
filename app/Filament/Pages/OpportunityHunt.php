@@ -254,7 +254,7 @@ class OpportunityHunt extends Page implements HasTable
         $focus = (array) config('seo.opportunity.focus_regions', []);
 
         return $table
-            ->query(SeoKeyword::query()->inCampaign()->with('target'))
+            ->query(SeoKeyword::query()->inCampaign()->with(['target', 'ownerBlog']))
             ->columns([
                 TextColumn::make('keyword')->label('Kelime')->searchable()->weight('semibold')->wrap()
                     ->description(fn (SeoKeyword $k) => trim(
@@ -283,13 +283,17 @@ class OpportunityHunt extends Page implements HasTable
                     }),
 
                 TextColumn::make('target.url')->label('Bağlı sayfa')->wrap()->placeholder('Sayfa bağlı değil')
+                    // Blog yazısına ait kelimenin hedefi yoktur; yazının adresi gösterilir.
+                    ->state(fn (SeoKeyword $k) => $k->target?->url ?? $k->ownerBlog?->path())
                     ->description(function (SeoKeyword $k) {
+                        $url = $k->target?->url ?? $k->ownerBlog?->path();
+
                         // Google başka bir sayfamızı gösteriyorsa bu GÖRÜNÜR olmalı (spec §7.4).
-                        if ($k->ranking_url && $k->target?->url && $k->ranking_url !== $k->target->url) {
+                        if ($k->ranking_url && $url && $k->ranking_url !== $url) {
                             return 'Google şu sayfayı gösteriyor: '.$k->ranking_url;
                         }
 
-                        return $k->target?->name;
+                        return $k->target?->name ?? ($k->ownerBlog ? 'Blog: '.$k->ownerBlog->title : null);
                     }),
 
                 TextColumn::make('gsc_impressions')->label('Gösterim')->numeric()->sortable()

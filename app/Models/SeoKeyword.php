@@ -79,6 +79,7 @@ class SeoKeyword extends Model
         'gsc' => 'Search Console',
         'focus' => 'Odak bölge',
         'manual' => 'Elle eklendi',
+        'gsc_near' => 'Sıraya yakın arama',
     ];
 
     protected $fillable = [

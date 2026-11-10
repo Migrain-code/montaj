@@ -98,6 +98,20 @@ return [
         'max_sections_per_page' => 4, // bir sayfaya eklenecek kelime bölümü tavanı
         'max_faqs' => 10,
 
+        // "Sıraya yakın" arama: bölge adı geçmese de Google'ın sitemizi zaten 4-25. sırada
+        // gösterdiği sorgu. En hızlı kazanç burada: sayfa zaten ilgili sayılıyor.
+        // Kelime, Google'ın o sorguda gösterdiği sayfaya (blog yazısı dahil) bağlanır.
+        'near_enabled' => true,
+        'near_min_position' => 4,
+        'near_max_position' => 25,
+
+        // Bölgesiz sorguda hizmet kelimesi yoksa bu "nasıl yapılır" ifadelerinden biri gerekir.
+        // "ikea çorlu" gibi mağaza aramaları ikisini de taşımaz, alınmaz.
+        'howto_terms' => ['nasıl', 'nasil', 'ayar', 'takılır', 'takilir', 'değiş', 'sabitle', 'yapılır', 'kurulum', 'montaj'],
+
+        // Mağaza/navigasyon niyeti: bu sorgular montaj hizmeti aramıyor.
+        'skip_terms' => ['var mı', 'varmı', 'varmi', 'nerede', 'adres', 'telefon', 'saatleri', 'randevu', 'lieferzeit', 'kampanya', 'fiyatı ne'],
+
         // Öne çıkarılacak bölgeler: listede önce bunlar işlenir.
         'focus_regions' => ['Çerkezköy', 'Kapaklı', 'Kızılpınar', 'Saray'],
 
