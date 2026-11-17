@@ -165,4 +165,19 @@ class BrandTest extends TestCase
         $this->assertStringContainsString('yetkili servis değildir', $index);
         $this->assertStringNotContainsString('/markalar/ikea', $index);
     }
+
+    /** Eski marka adı başlıkta kalmasın: "… | Trakya Montaj Servisi | Dost Montaj" oluyordu. */
+    public function test_old_brand_suffix_is_trimmed_from_titles_but_manual_titles_are_kept(): void
+    {
+        $almila = Brand::where('slug', 'almila')->firstOrFail();
+        $almila->update(['meta_title' => 'Almila Mobilya Montajı | Trakya Montaj Servisi']);
+        $istikbal = Brand::where('slug', 'istikbal')->firstOrFail();
+        $istikbal->update(['meta_title' => 'İstikbal kurulumu | Çerkezköy']);
+
+        (require database_path('migrations/2026_11_17_000002_trim_brand_meta_title_suffix.php'))->up();
+
+        $this->assertSame('Almila Mobilya Montajı', $almila->fresh()->meta_title);
+        $this->assertSame('İstikbal kurulumu | Çerkezköy', $istikbal->fresh()->meta_title);
+        $this->get('/markalar/almila')->assertSee('<title>Almila Mobilya Montajı | '.site_name().'</title>', false);
+    }
 }

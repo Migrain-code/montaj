@@ -1,7 +1,7 @@
 <?php
 return [
 'enza-home' => [
-'meta_title' => 'Enza Home Mobilya Montajı | Trakya Montaj Servisi',
+'meta_title' => 'Enza Home Mobilya Montajı',
 'meta_description' => 'Enza Home yatak odası, yemek odası, asma TV ünitesi ve koltuk montajı. Alçıpan duvara uygun dübelle sabitleme. Tekirdağ, Edirne, Kırklareli.',
 'content' => <<<'HTML'
 <p>Enza Home ürünlerinin montajını Tekirdağ, Edirne ve Kırklareli genelinde yapıyoruz. Bu üründe en sık karşımıza çıkan iş modüler TV üniteleri ve duvara asılan raf sistemleri; ikisi de duvarla doğrudan temas ettiği için kurulumun en teknik kısmıdır.</p>
@@ -19,7 +19,7 @@ HTML,
 ],
 
 'kelebek-mobilya' => [
-'meta_title' => 'Kelebek Mobilya Montajı | Trakya Montaj Servisi',
+'meta_title' => 'Kelebek Mobilya Montajı',
 'meta_description' => 'Kelebek Mobilya yatak odası, genç odası, gardırop ve çalışma masası montajı. Yüksek mobilyalar duvara sabitlenir. Tekirdağ, Edirne, Kırklareli.',
 'content' => <<<'HTML'
 <p>Kelebek Mobilya ürünlerinin kurulumunu Tekirdağ, Edirne ve Kırklareli genelinde yapıyoruz. En sık aldığımız talep genç odası takımı: çalışma masası, gardırop, yatak ve raf sisteminin aynı randevuda kurulması.</p>
@@ -37,7 +37,7 @@ HTML,
 ],
 
 'inegol-mobilya' => [
-'meta_title' => 'İnegöl Mobilya Montajı | Trakya Montaj Servisi',
+'meta_title' => 'İnegöl Mobilya Montajı',
 'meta_description' => 'İnegöl\'den nakliyeyle gelen yatak odası ve yemek odası takımlarının kurulumu. Eksik ve hasarlı parça kontrolü dahil. Tekirdağ, Edirne, Kırklareli.',
 'content' => <<<'HTML'
 <p>İnegöl, Türkiye\'nin mobilya üretim merkezlerinden biridir ve Trakya\'ya çok sayıda takım buradan nakliyeyle gelir. Bu takımlar mağaza teslimatından farklı bir yolla ulaştığı için montajı da farklı bir hazırlık ister.</p>
@@ -55,7 +55,7 @@ HTML,
 ],
 
 'almila' => [
-'meta_title' => 'Almila Mobilya Montajı | Trakya Montaj Servisi',
+'meta_title' => 'Almila Mobilya Montajı',
 'meta_description' => 'Almila yatak odası, gardırop, genç odası ve TV ünitesi montajı. Kendi ekipmanımızla kuruyoruz. Tekirdağ, Edirne ve Kırklareli\'ne geliyoruz.',
 'content' => <<<'HTML'
 <p>Almila ürünlerinin montajını Tekirdağ, Edirne ve Kırklareli genelinde yapıyoruz. Paketli gelen gövdeleri kılavuza uygun sırayla birleştirip kapak, çekmece ve menteşe ayarlarını yapıyoruz.</p>
@@ -77,7 +77,7 @@ HTML,
 ],
 
 'cilek' => [
-'meta_title' => 'Çilek Çocuk ve Genç Odası Montajı | Trakya Montaj',
+'meta_title' => 'Çilek Çocuk ve Genç Odası Montajı',
 'meta_description' => 'Çilek çocuk ve genç odası montajı: ranza, karyola, gardırop ve çalışma masası. Korkuluk, merdiven ve duvar sabitlemesi dahil. Tekirdağ, Edirne, Kırklareli.',
 'content' => <<<'HTML'
 <p>Çilek, çocuk ve genç odası mobilyalarında uzmanlaşmış bir markadır ve bize gelen taleplerin çoğu ranza, karyola, gardırop ve çalışma masasından oluşan takımların kurulumu. Bu odalarda montaj, diğer odalardan farklı olarak doğrudan bir güvenlik işidir.</p>

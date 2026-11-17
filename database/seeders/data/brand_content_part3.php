@@ -1,7 +1,7 @@
 <?php
 return [
 'alfemo' => [
-'meta_title' => 'Alfemo Mobilya Montajı | Trakya Montaj Servisi',
+'meta_title' => 'Alfemo Mobilya Montajı',
 'meta_description' => 'Alfemo koltuk takımı, yatak odası, yemek odası ve TV ünitesi montajı. Köşe koltuk modülleri kilitlenir. Tekirdağ, Edirne ve Kırklareli.',
 'content' => <<<'HTML'
 <p>Alfemo ürünlerinin kurulumunu Tekirdağ, Edirne ve Kırklareli genelinde yapıyoruz. En sık geldiğimiz işler koltuk takımı ve yatak odası kurulumu; ikisini de kendi ekipmanımızla, ürünün kendi bağlantı elemanlarıyla monte ediyoruz.</p>
@@ -20,7 +20,7 @@ HTML,
 ],
 
 'veltev' => [
-'meta_title' => 'Veltev Mobilya Montajı | Trakya Montaj Servisi',
+'meta_title' => 'Veltev Mobilya Montajı',
 'meta_description' => 'Veltev yatak odası, gardırop, koltuk ve TV ünitesi montajı. Taşınma için sökme ve yeniden kurma. Tekirdağ, Edirne ve Kırklareli\'ne geliyoruz.',
 'content' => <<<'HTML'
 <p>Veltev ürünlerinin montajını Tekirdağ, Edirne ve Kırklareli genelinde yapıyoruz. Paketli gelen ürünü kutu listesiyle karşılaştırıp kurulum planını çıkarıyor, ardından gövde birleştirme ve ayar işlemlerini yapıyoruz.</p>
@@ -41,7 +41,7 @@ HTML,
 ],
 
 'teksen-mobilya' => [
-'meta_title' => 'Teksen Mobilya Montajı | Trakya Montaj Servisi',
+'meta_title' => 'Teksen Mobilya Montajı',
 'meta_description' => 'Teksen yatak odası, gardırop ve yemek odası montajı. Fiyat işe başlamadan net olarak bildirilir. Tekirdağ, Edirne ve Kırklareli\'ne geliyoruz.',
 'content' => <<<'HTML'
 <p>Teksen ürünlerinin montajını Tekirdağ, Edirne ve Kırklareli genelinde yapıyoruz. Gövde birleştirme, kapak ve çekmece ayarı ile duvara sabitleme işlemlerini kendi ekipmanımızla yapıyoruz.</p>
@@ -58,7 +58,7 @@ HTML,
 ],
 
 'koctas' => [
-'meta_title' => 'Koçtaş Mobilya ve Raf Montajı | Trakya Montaj',
+'meta_title' => 'Koçtaş Mobilya ve Raf Montajı',
 'meta_description' => 'Koçtaş\'tan alınan raf sistemi, dolap, banyo dolabı ve çalışma masası montajı. Duvar tipine uygun dübel, tesisat kontrolü. Tekirdağ, Edirne, Kırklareli.',
 'content' => <<<'HTML'
 <p>Koçtaş\'tan aldığınız paketli mobilya, raf sistemi ve dolapların kurulumunu Tekirdağ, Edirne ve Kırklareli genelinde yapıyoruz. Bu ürünlerin büyük bölümü duvara monte edildiği için kurulumun ağırlığı gövdede değil, duvardadır.</p>

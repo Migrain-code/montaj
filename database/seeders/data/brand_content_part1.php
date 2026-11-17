@@ -3,7 +3,7 @@
 // Marka hakkında iddia yok; yalnız o ürünleri monte ederken yaptığımız iş anlatılıyor.
 return [
 'istikbal' => [
-'meta_title' => 'İstikbal Mobilya Montajı | Trakya Montaj Servisi',
+'meta_title' => 'İstikbal Mobilya Montajı',
 'meta_description' => 'İstikbal yatak odası, koltuk takımı, gardırop ve baza montajı. Tekirdağ, Edirne ve Kırklareli\'ne geliyoruz. Fotoğraf gönderin, net fiyat alın.',
 'content' => <<<'HTML'
 <p>İstikbal ürünleri bayiden kapıya paketli olarak teslim edilir; kurulum ayrı bir iştir ve ayrı planlanır. Bu kurulumu Tekirdağ, Edirne ve Kırklareli genelinde bağımsız olarak yapıyoruz. Gövde birleştirme, kapak ve çekmece ayarı, devrilmeye karşı duvara sabitleme ve montaj sonrası kontrol hizmete dahildir.</p>
@@ -20,7 +20,7 @@ HTML,
 ],
 
 'bellona' => [
-'meta_title' => 'Bellona Mobilya Montajı | Trakya Montaj Servisi',
+'meta_title' => 'Bellona Mobilya Montajı',
 'meta_description' => 'Bellona yatak odası, yemek odası, vitrin ve koltuk takımı montajı. Tekirdağ, Edirne ve Kırklareli\'ne geliyoruz. Vitrin ve konsol duvara sabitlenir.',
 'content' => <<<'HTML'
 <p>Bellona ürünlerinin kurulumunu Tekirdağ, Edirne ve Kırklareli genelinde yapıyoruz. En sık geldiğimiz işler yemek odası takımı ve yatak odası takımı montajı; ikisinde de takımın tamamını tek randevuda kuruyoruz.</p>
@@ -37,7 +37,7 @@ HTML,
 ],
 
 'mondi-home' => [
-'meta_title' => 'Mondi Home Mobilya Montajı | Trakya Montaj Servisi',
+'meta_title' => 'Mondi Home Mobilya Montajı',
 'meta_description' => 'Mondi Home yatak odası, gardırop, TV ünitesi ve oturma grubu montajı. Tekirdağ, Edirne ve Kırklareli\'nde bağımsız montaj hizmeti.',
 'content' => <<<'HTML'
 <p>Mondi Home ürünlerinin montajını Tekirdağ, Edirne ve Kırklareli genelinde yapıyoruz. Paketli gelen ürünü kutu içeriğiyle karşılaştırıp kurulum planını çıkarıyor, ardından gövde birleştirme ve ayar işlemlerine geçiyoruz.</p>
@@ -54,7 +54,7 @@ HTML,
 ],
 
 'dogtas' => [
-'meta_title' => 'Doğtaş Mobilya Montajı | Trakya Montaj Servisi',
+'meta_title' => 'Doğtaş Mobilya Montajı',
 'meta_description' => 'Doğtaş yemek odası, yatak odası, vitrin ve gardırop montajı. Ağır gövdeler için çok kişilik ekip. Tekirdağ, Edirne ve Kırklareli\'ne geliyoruz.',
 'content' => <<<'HTML'
 <p>Doğtaş ürünlerinin kurulumunu Tekirdağ, Edirne ve Kırklareli genelinde yapıyoruz. Bu ürünlerde gövdeler diğer markalara göre ağır olduğu için taşıma ve dikme aşaması çoğu zaman iki veya üç kişilik ekip gerektirir; randevuyu buna göre planlıyoruz.</p>
@@ -71,7 +71,7 @@ HTML,
 ],
 
 'yatas' => [
-'meta_title' => 'Yataş Baza ve Yatak Odası Montajı | Trakya Montaj',
+'meta_title' => 'Yataş Baza ve Yatak Odası Montajı',
 'meta_description' => 'Yataş sandıklı baza, başlık ve yatak odası montajı. Piston ayarı ve başlık bağlantısı dahil. Tekirdağ, Edirne ve Kırklareli\'ne geliyoruz.',
 'content' => <<<'HTML'
 <p>Yataş ürünlerinde bize en sık gelen iş sandıklı baza ve başlık kurulumu. Bunu Tekirdağ, Edirne ve Kırklareli genelinde yapıyoruz; taşınma durumunda bazayı söküp yeni adreste yeniden kurabiliyoruz.</p>
