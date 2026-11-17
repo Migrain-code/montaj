@@ -1,4 +1,4 @@
-<section class="page-banner">
+<section data-track-area="page_banner" class="page-banner">
     {{-- Bant alçak (≈300 px): mobil kırpım yatay, masaüstü boyları küçük. --}}
     <x-bg-picture :path="setting('banner_image')" :fallback="asset('images/placeholder.svg')" :mobile="[800, 600]" :widths="[1280, 1920]" :priority="true" />
     <div class="container">

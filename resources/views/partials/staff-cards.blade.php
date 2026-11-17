@@ -4,7 +4,7 @@
 @endphp
 
 @if ($staff->isNotEmpty())
-    <div class="row g-4">
+    <div data-track-area="staff" class="row g-4">
         @foreach ($staff as $person)
             @php
                 $wa = $person->whatsapp_number;

@@ -2,6 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Pages\OpportunityHunt;
+use App\Models\Blog;
+use App\Models\BlogCategory;
+use App\Models\Brand;
 use App\Models\District;
 use App\Models\InternalLinkRule;
 use App\Models\SeoKeyword;
@@ -16,10 +20,12 @@ use App\Services\Seo\RankBooster;
 use App\Services\Seo\TargetSynchroniser;
 use App\Support\PathNormalizer;
 use App\Support\SeoConfig;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class OpportunityHuntTest extends TestCase
@@ -405,7 +411,7 @@ class OpportunityHuntTest extends TestCase
         $this->activeCerkezkoyKeyword();
 
         $this->actingAs(User::where('email', 'admin@example.com')->firstOrFail())
-            ->get('/admin/gsc-firsat-avi')
+            ->get('/admin/seo-merkezi/kelime-sirasi')
             ->assertOk()
             ->assertSee('çerkezköy mobilya montaj')
             ->assertSee('Kızılpınar');
@@ -415,9 +421,9 @@ class OpportunityHuntTest extends TestCase
     {
         $this->fake([]);
         $this->actingAs(User::where('email', 'admin@example.com')->firstOrFail());
-        \Filament\Facades\Filament::setCurrentPanel(\Filament\Facades\Filament::getPanel('admin'));
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
 
-        \Livewire\Livewire::test(\App\Filament\Pages\OpportunityHunt::class)
+        Livewire::test(OpportunityHunt::class)
             ->callAction('runNow')
             ->assertNotified('Otomatik tur sıraya alındı');
 
@@ -426,13 +432,13 @@ class OpportunityHuntTest extends TestCase
 
     // ---------- sıraya yakın aramalar ----------
 
-    private function blog(string $slug, string $title): \App\Models\Blog
+    private function blog(string $slug, string $title): Blog
     {
-        return \App\Models\Blog::create([
+        return Blog::create([
             'title' => $title, 'slug' => $slug, 'body_html' => '<p>Menteşe vidaları ile kapak hizası ayarlanır.</p>',
             'meta_title' => $title, 'meta_description' => 'Açıklama', 'faqs' => [],
-            'blog_category_id' => \App\Models\BlogCategory::first()->getKey(),
-            'status' => \App\Models\Blog::STATUS_PUBLISHED, 'publish_at' => now()->subDay(),
+            'blog_category_id' => BlogCategory::first()->getKey(),
+            'status' => Blog::STATUS_PUBLISHED, 'publish_at' => now()->subDay(),
         ]);
     }
 
@@ -503,5 +509,126 @@ class OpportunityHuntTest extends TestCase
         }
 
         $this->assertSame($original, $blog->fresh()->only(['meta_title', 'meta_description', 'body_html', 'faqs']));
+    }
+
+    /** Yeni sitede veri az: kullanıcı filtreleri kapatıp GSC'de ne varsa görmek istedi. */
+    public function test_filters_can_be_turned_off_from_the_panel(): void
+    {
+        $this->fake([
+            ['gardırop montajı', 9.0, 1, '/gardirop-montaji'],
+            ['trakyamontajcim', 1.0, 2, '/'],
+            ['çerkezköy gardırop montajı', 6.0, 1],
+        ]);
+        $this->actingAs(User::where('email', 'admin@example.com')->firstOrFail());
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        // Varsayılan filtrelerle (en az 3 gösterim, bölge + iş terimi) hiçbiri girmez.
+        app(OpportunityHunter::class)->run();
+        $this->assertNull($this->keyword('gardırop montajı')?->campaign_status);
+        $this->assertNull($this->keyword('çerkezköy gardırop montajı')?->campaign_status);
+
+        Livewire::test(OpportunityHunt::class)
+            ->callAction('filters', data: [
+                'min_impressions' => 1, 'max_position' => 100,
+                'require_region' => false, 'require_business' => false, 'max_new' => 100,
+            ])
+            ->assertNotified('Filtreler kaydedildi');
+
+        app(OpportunityHunter::class)->run();
+
+        $this->assertSame(SeoKeyword::CAMPAIGN_ACTIVE, $this->keyword('gardırop montajı')->campaign_status);
+        $this->assertNull($this->keyword('gardırop montajı')->region);
+        $this->assertSame(
+            SeoTarget::where('url_hash', PathNormalizer::hash('/gardirop-montaji'))->value('id'),
+            $this->keyword('gardırop montajı')->target_id,
+            'Bölgesiz sorgu Google\'ın gösterdiği sayfaya bağlanır.',
+        );
+        $this->assertNotNull($this->keyword('trakyamontajcim')?->campaign_status, 'İş terimi şartı kapalıyken marka sorgusu da girer.');
+        $this->assertSame($this->cerkezkoyTarget()->id, $this->keyword('çerkezköy gardırop montajı')->target_id);
+    }
+
+    private function pagelessKeyword(string $text, ?int $targetId = null): SeoKeyword
+    {
+        return SeoKeyword::create([
+            'keyword' => $text, 'keyword_type' => 'COMMERCIAL_VARIANT', 'status' => true,
+            'campaign_status' => SeoKeyword::CAMPAIGN_ACTIVE, 'target_position' => 3,
+            'last_position' => 12.0, 'gsc_impressions' => 5, 'target_id' => $targetId,
+        ]);
+    }
+
+    /** Marka sayfasına bağlı kelime "Yükselt"te "bağlı sayfa yok" diye takılıyordu. */
+    public function test_pageless_brand_keyword_gets_a_published_blog_post_with_internal_links(): void
+    {
+        $this->fake([]);
+        Brand::query()->where('slug', 'istikbal')->update(['is_active' => true, 'service_id' => null]);
+        app(TargetSynchroniser::class)->sync();
+        $brandTarget = SeoTarget::query()->where('url_hash', PathNormalizer::hash('/markalar/istikbal'))->first();
+        $keyword = $this->pagelessKeyword('istikbal baza kurulumu', $brandTarget?->id);
+
+        $booster = app(RankBooster::class);
+        $this->assertNull($booster->blocker($keyword), 'Sayfasız kelime artık takılmamalı.');
+        $this->assertSame('todo', $booster->diagnose($keyword)['blog']['state']);
+
+        $result = $booster->boost($keyword);
+
+        $this->assertContains('blog', $result['ran']);
+        $keyword->refresh();
+        $blog = $keyword->ownerBlog;
+        $this->assertNotNull($blog, 'Kelime yazıya bağlanmalı.');
+        $this->assertNull($keyword->target_id);
+        $this->assertTrue($blog->is_published);
+        $this->get($blog->path())->assertOk()->assertSee('href="/markalar/istikbal"', false);
+        $this->assertSame('istikbal baza kurulumu', $blog->primary_keyword);
+
+        // Para sayfalarına iç link: marka, hizmet ve hizmet verilen iller.
+        $this->assertStringContainsString('href="/markalar/istikbal"', $blog->body_html);
+        $this->assertStringContainsString('href="/yatak-baza-montaji"', $blog->body_html);
+        $this->assertStringContainsString('href="/tekirdag"', $blog->body_html);
+        $this->assertGreaterThanOrEqual(4, substr_count($blog->body_html, '<li><a href="/'));
+
+        // Sonraki adımlar (iç link kuralı, bildirim) artık blog adresine yapılır.
+        $this->assertDatabaseHas('seo_keyword_actions', ['keyword_id' => $keyword->id, 'action' => 'blog', 'status' => 'done']);
+        $this->assertSame('blocked', $booster->diagnose($keyword->fresh())['blog']['state'], 'Yazı yayında: kelimenin artık yazılabilir sayfası var.');
+    }
+
+    public function test_keyword_that_clearly_matches_a_service_is_bound_to_it_instead_of_a_new_blog(): void
+    {
+        $this->fake([]);
+        $keyword = $this->pagelessKeyword('tv ünitesi kurulumu');
+
+        app(RankBooster::class)->boost($keyword);
+
+        $keyword->refresh();
+        $this->assertNull($keyword->owner_blog_id, 'Hizmet sayfası varken aynı konuya blog açılmaz.');
+        $this->assertSame('service', $keyword->target?->content_type);
+        $this->assertSame('/tv-unitesi-montaji', $keyword->target?->url);
+        $this->assertSame(0, Blog::query()->where('primary_keyword', 'tv ünitesi kurulumu')->count());
+    }
+
+    public function test_blog_fallback_can_be_turned_off(): void
+    {
+        $this->fake([]);
+        SeoConfig::set('opportunity_blog_fallback', false);
+        $keyword = $this->pagelessKeyword('istikbal baza kurulumu');
+
+        $this->assertStringContainsString('blog yazısı yazılamıyor', (string) app(RankBooster::class)->blocker($keyword));
+    }
+
+    public function test_panel_shows_the_keyword_rank_summary_tiles(): void
+    {
+        $this->fake([]);
+        SeoKeyword::create([
+            'keyword' => 'çerkezköy mobilya montaj', 'status' => true, 'campaign_status' => SeoKeyword::CAMPAIGN_ACTIVE,
+            'region' => 'Çerkezköy', 'last_position' => 8.0, 'gsc_impressions' => 40, 'gsc_clicks' => 3, 'target_id' => $this->cerkezkoyTarget()->id,
+        ]);
+
+        $this->actingAs(User::where('email', 'admin@example.com')->firstOrFail())
+            ->get('/admin/seo-merkezi/kelime-sirasi')
+            ->assertOk()
+            ->assertSee('Otomasyon')
+            ->assertSee('Tam Otomatik Çalıştır')
+            ->assertSee('Ortalama sıra')
+            ->assertSee('Google tıklama')
+            ->assertSee('Filtreler');
     }
 }

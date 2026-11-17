@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\NotFoundLogs;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Filament\Resources\NotFoundLogs\Pages\ManageNotFoundLogs;
 use App\Models\NotFoundLog;
 use App\Models\Redirect;
@@ -19,7 +20,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class NotFoundLogResource extends Resource
 {
@@ -27,9 +27,11 @@ class NotFoundLogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedExclamationTriangle;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Gözlem';
+    protected static ?string $cluster = SeoMerkezi::class;
 
-    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationLabel = '404 Yöneticisi';
+
+    protected static ?int $navigationSort = 9;
 
     protected static ?string $modelLabel = '404 Kaydı';
 

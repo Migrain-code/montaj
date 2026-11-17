@@ -5,12 +5,12 @@ namespace App\Filament\Resources\SeoKeywords\Pages;
 use App\Filament\Resources\SeoKeywords\SeoKeywordResource;
 use App\Models\SeoKeyword;
 use App\Services\Seo\KeywordPool;
+use App\Support\TurkishText;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRecords;
-use Filament\Schemas\Components\Text;
 
 class ManageSeoKeywords extends ManageRecords
 {
@@ -46,7 +46,7 @@ class ManageSeoKeywords extends ManageRecords
                     $added = 0;
 
                     foreach ($lines as $line) {
-                        $hash = md5(\App\Support\TurkishText::lower($line));
+                        $hash = md5(TurkishText::lower($line));
 
                         if (SeoKeyword::where('keyword_hash', $hash)->exists()) {
                             continue;

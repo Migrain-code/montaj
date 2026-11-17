@@ -90,7 +90,8 @@ class HuntOpportunities extends Command
 
         return SeoKeyword::query()
             ->where('campaign_status', SeoKeyword::CAMPAIGN_ACTIVE)
-            ->where(fn ($q) => $q->whereNotNull('target_id')->orWhereNotNull('owner_blog_id'))
+            // Sahiplik süzgeci yok: sayfaya ya da blog yazısına bağlı kelimeler işlenir, sayfasız
+            // kelime de sıraya girer (RankBooster ona hizmet sayfası bulur ya da blog yazar).
             ->where(fn ($q) => $q->whereNull('last_boost_at')->orWhere('last_boost_at', '<', now()->subDays($cooldown)))
             ->with(['target', 'ownerBlog'])
             ->get()

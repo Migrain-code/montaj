@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\GenerateBlogArticle;
+use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Services\Ai\AiClient;
 use App\Services\Ai\TopicGenerator;
@@ -34,7 +35,7 @@ class GenerateBlogTopics extends Command
         $dryRun = (bool) $this->option('dry-run');
 
         if (! $dryRun && ! SeoConfig::bool('blog_daily_enabled', (bool) config('seo.blog.daily_enabled', false))) {
-            $this->warn('Günlük blog üretimi kapalı (SEO & AI Ayarları → Blog otomasyonu).');
+            $this->warn('Günlük blog üretimi kapalı (SEO Merkezi → Ayarlar → Blog otomasyonu).');
             AutomationLog::summary('blog.generate', ['enabled' => false], reasons: ['disabled']);
 
             return self::SUCCESS;
@@ -146,11 +147,11 @@ class GenerateBlogTopics extends Command
         if ($stats['free'] === 0) {
             // Kök sebep genelde budur: üretim hızı ≠ içerik kapasitesi (spec §7.15).
             $this->line('  Havuz boş. Filtre tekrarı engeller ama YENİ konu üretmez.');
-            $this->line('  Yapılacak: Panel → SEO & AI → Anahtar Kelimeler ekranından yeni kelime ekleyin');
+            $this->line('  Yapılacak: Panel → SEO Merkezi → Anahtar Kelimeler ekranından yeni kelime ekleyin');
             $this->line('  veya haftalık kelime keşfini çalıştırın: php artisan seo:discover-keywords');
         } else {
             $this->line('  Havuzda kelime var ama adaylar filtrelere takıldı.');
-            $this->line('  Yapılacak: Panel → SEO & AI → AI İşlemleri ekranından ret gerekçelerine bakın,');
+            $this->line('  Yapılacak: Panel → SEO Merkezi → AI Logları ekranından ret gerekçelerine bakın,');
             $this->line('  ya da storage/logs/automation.log dosyasında "blog.topics" satırlarını inceleyin.');
         }
 
@@ -173,8 +174,8 @@ class GenerateBlogTopics extends Command
     {
         $bufferDays = 3; // en az 3 günlük stok tutulur
 
-        $scheduled = \App\Models\Blog::query()
-            ->where('status', \App\Models\Blog::STATUS_DRAFT)
+        $scheduled = Blog::query()
+            ->where('status', Blog::STATUS_DRAFT)
             ->whereNull('merged_into_id')
             ->whereNotNull('publish_at')
             ->where('publish_at', '>=', Carbon::today())
@@ -199,7 +200,7 @@ class GenerateBlogTopics extends Command
         $hour = $start + ($offset % max(1, $end - $start + 1));
 
         // Zaten yazı planlanmış günleri atla; aynı güne ikinci yazı koyma.
-        $taken = \App\Models\Blog::query()
+        $taken = Blog::query()
             ->whereNotNull('publish_at')
             ->where('publish_at', '>=', Carbon::today())
             ->pluck('publish_at')

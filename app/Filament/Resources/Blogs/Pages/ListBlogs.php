@@ -25,7 +25,7 @@ class ListBlogs extends ListRecords
     {
         return [
             Action::make('generate')
-                ->label('AI ile konu üret')
+                ->label('AI ile Blog Üret')
                 ->icon('heroicon-o-sparkles')
                 ->color('info')
                 // AI anahtarı yoksa aksiyon GİZLENİR, hata vermez (spec §10.5).
@@ -82,7 +82,7 @@ class ListBlogs extends ListRecords
 
                     Notification::make()
                         ->title(count($result['accepted']).' konu kuyruğa alındı')
-                        ->body("Reddedilen aday: ".count($result['rejected'])."\nYazılar kuyruk işçisi tarafından üretilecek (php artisan queue:work).")
+                        ->body('Reddedilen aday: '.count($result['rejected'])."\nYazılar kuyruk işçisi tarafından üretilecek (php artisan queue:work).")
                         ->success()->persistent()->send();
                 }),
             CreateAction::make(),

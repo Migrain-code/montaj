@@ -11,6 +11,7 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SitemapController;
+use App\Services\Seo\IndexNow;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -62,6 +63,17 @@ Route::get('/admin-files/teklif/{quoteRequest}/{index}', [AdminFileController::c
     ->whereNumber('index')
     ->middleware('auth')
     ->name('admin.quote-photo');
+
+// IndexNow anahtar doğrulaması: /{anahtar}.txt yalnız yapılandırılmış anahtarla yanıt verir.
+Route::get('/{indexNowKey}.txt', function (string $indexNowKey) {
+    $key = app(IndexNow::class)->key();
+    abort_unless($key && hash_equals($key, $indexNowKey), 404);
+
+    return response($key, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+})->where('indexNowKey', '[A-Fa-f0-9]{8,128}')->name('indexnow.key');
+
+// RSS: yeni yazıların arama motorları ve okuyucular tarafından hızlı keşfi için.
+Route::get('/blog/feed.xml', [BlogController::class, 'feed'])->name('blog.feed');
 
 // Blog rotaları catch-all'dan ÖNCE gelmeli: /{slug} deseni "/blog" adresini de yakalar.
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');

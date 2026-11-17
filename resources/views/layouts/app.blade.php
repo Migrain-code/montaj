@@ -8,6 +8,8 @@
         $pageDescription = $metaDescription ?? setting('meta_description');
         $pageCanonical = $canonical ?? url()->current();
         $pageImage = $ogImage ?? media_url(setting('hero_image'), asset('images/placeholder.svg'));
+        // Analytics olaylarındaki "page_type" (resources/js/tracking.js body'den okur).
+        $pageType = \App\Support\PageType::resolve($pageType ?? null);
     @endphp
     <title>{{ $pageTitle }}</title>
     <meta name="description" content="{{ \Illuminate\Support\Str::limit(strip_tags((string) $pageDescription), 300, '') }}">
@@ -27,6 +29,7 @@
     @endif
     <link rel="icon" href="{{ asset('images/brand/logo-mark.svg') }}" type="image/svg+xml">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ site_name() }} Blog" href="{{ route('blog.feed') }}">
     {{-- Yazı tipleri app.scss içinde, kendi sunucumuzdan: Google Fonts bağlantısı yok. --}}
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     {{--
@@ -45,6 +48,10 @@
             etkileşiminde (kaydırma, dokunma, tuş) ya da sayfa yüklendikten 3,5 sn sonra iner
             ve kuyruktaki sayfa görüntülemeyi gönderir. Hiç etkileşmeden 3,5 sn içinde çıkan
             ziyaretçi sayılmayabilir; bu bilinçli bir ödünleşimdir.
+
+            Dönüşüm olayları (telefon/WhatsApp/e-posta tıklaması, generate_lead) aynı gtag()
+            kuyruğuna yazılır (resources/js/tracking.js, quote/thanks): betik geç inse de
+            kaybolmaz. Kimlik girilmemişse gtag tanımlı olmaz ve olaylar sessizce atlanır.
         --}}
         <script>
             window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', @json($gaId));
@@ -68,7 +75,7 @@
     --}}
     @stack('head')
 </head>
-<body class="{{ $bodyClass ?? '' }}">
+<body class="{{ $bodyClass ?? '' }}" data-page-type="{{ $pageType }}">
     @include('partials.header')
 
     <main id="main">

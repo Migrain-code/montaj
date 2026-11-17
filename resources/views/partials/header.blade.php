@@ -8,7 +8,7 @@
         'youtube' => setting('youtube_url'),
     ]);
 @endphp
-<div class="topbar d-none d-lg-block">
+<div data-track-area="topbar" class="topbar d-none d-lg-block">
     <div class="container d-flex align-items-center">
         <ul class="topbar-list">
             @if ($phone)
@@ -30,7 +30,7 @@
     </div>
 </div>
 
-<header class="site-header" id="siteHeader">
+<header data-track-area="header" class="site-header" id="siteHeader">
     <div class="container">
         <nav class="navbar navbar-expand-lg p-0">
             <a class="brand" href="{{ route('home') }}" aria-label="{{ site_name() }} ana sayfa">

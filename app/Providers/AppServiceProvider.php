@@ -2,10 +2,35 @@
 
 namespace App\Providers;
 
+use App\Models\AiCrawlerVisit;
+use App\Models\AiGeneration;
+use App\Models\Blog;
+use App\Models\BlogCategory;
 use App\Models\Brand;
+use App\Models\District;
+use App\Models\Faq;
+use App\Models\Feature;
+use App\Models\GalleryCategory;
+use App\Models\GalleryItem;
+use App\Models\IndexStatus;
+use App\Models\InternalLinkRule;
+use App\Models\NotFoundLog;
 use App\Models\Page;
 use App\Models\Province;
+use App\Models\QuoteRequest;
+use App\Models\Redirect;
+use App\Models\SeoAnalysis;
+use App\Models\SeoKeyword;
+use App\Models\SeoTarget;
 use App\Models\Service;
+use App\Models\Setting;
+use App\Models\Testimonial;
+use App\Models\User;
+use App\Observers\IndexNowObserver;
+use App\Policies\ContentPolicy;
+use App\Policies\QuoteRequestPolicy;
+use App\Policies\SeoPolicy;
+use App\Policies\UserPolicy;
 use App\Support\Queue\SharedHostingWorker;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -13,6 +38,7 @@ use Illuminate\Queue\Worker;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,10 +51,10 @@ class AppServiceProvider extends ServiceProvider
 
         // İstek başına bir kez: ayarlar ve menü verisi. "scoped" kayıtlar her kuyruk
         // işinin başında da sıfırlanır, böylece uzun yaşayan işçi eski veriyle kalmaz.
-        $this->app->scoped(\App\Models\Setting::MEMO, fn () => \App\Models\Setting::loadFromStore());
+        $this->app->scoped(Setting::MEMO, fn () => Setting::loadFromStore());
 
         // Ana sayfa hem kendisi hem içindeki personel kartları için aynı listeyi ister.
-        $this->app->scoped('site.staff', fn () => \App\Models\User::query()
+        $this->app->scoped('site.staff', fn () => User::query()
             ->public()
             ->whereNotNull('phone')
             ->where('phone', '!=', '')
@@ -53,37 +79,53 @@ class AppServiceProvider extends ServiceProvider
     private function registerPolicies(): void
     {
         $content = [
-            \App\Models\Service::class, \App\Models\Province::class, \App\Models\District::class,
-            \App\Models\Brand::class,
-            \App\Models\Page::class, \App\Models\Blog::class, \App\Models\BlogCategory::class,
-            \App\Models\GalleryItem::class, \App\Models\GalleryCategory::class,
-            \App\Models\Testimonial::class, \App\Models\Faq::class, \App\Models\Feature::class,
+            Service::class, Province::class, District::class,
+            Brand::class,
+            Page::class, Blog::class, BlogCategory::class,
+            GalleryItem::class, GalleryCategory::class,
+            Testimonial::class, Faq::class, Feature::class,
         ];
 
         foreach ($content as $model) {
-            Gate::policy($model, \App\Policies\ContentPolicy::class);
+            Gate::policy($model, ContentPolicy::class);
         }
 
         $seo = [
-            \App\Models\SeoKeyword::class, \App\Models\SeoTarget::class,
-            \App\Models\InternalLinkRule::class, \App\Models\AiGeneration::class,
-            \App\Models\Redirect::class, \App\Models\NotFoundLog::class,
-            \App\Models\AiCrawlerVisit::class, \App\Models\SeoAnalysis::class,
+            SeoKeyword::class, SeoTarget::class,
+            InternalLinkRule::class, AiGeneration::class,
+            Redirect::class, NotFoundLog::class,
+            AiCrawlerVisit::class, SeoAnalysis::class,
+            // Dizin Durumu ekranı (SEO Merkezi → Index Kontrol) bu modeli listeler.
+            IndexStatus::class,
         ];
 
         foreach ($seo as $model) {
-            Gate::policy($model, \App\Policies\SeoPolicy::class);
+            Gate::policy($model, SeoPolicy::class);
         }
 
-        Gate::policy(\App\Models\QuoteRequest::class, \App\Policies\QuoteRequestPolicy::class);
-        Gate::policy(\App\Models\User::class, \App\Policies\UserPolicy::class);
+        Gate::policy(QuoteRequest::class, QuoteRequestPolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
     }
 
     public function boot(): void
     {
         Carbon::setLocale(config('app.locale'));
 
+        // https zorunluysa (APP_URL https ya da FORCE_HTTPS=true) tüm üretilen adresler
+        // (canonical, site haritası, IndexNow) https olur; istek http ile gelse bile kopya
+        // http adresleri yayılmaz. Yerelde APP_URL http olduğu için dokunulmaz.
+        if (config('app.force_https')) {
+            URL::forceScheme('https');
+        }
+
         $this->registerPolicies();
+
+        // Yayına giren / metni değişen sayfalar IndexNow'a bildirilir; her içerik
+        // kaydında site haritası ve RSS önbelleği düşer.
+        foreach ([Blog::class, Province::class, District::class,
+            Service::class, Brand::class, Page::class] as $model) {
+            $model::observe(IndexNowObserver::class);
+        }
 
         RateLimiter::for('quote', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
 

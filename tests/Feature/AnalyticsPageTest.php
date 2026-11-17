@@ -47,14 +47,14 @@ class AnalyticsPageTest extends TestCase
 
     public function test_page_requires_login(): void
     {
-        $this->get('/admin/analytics')->assertRedirect('/admin/login');
+        $this->get('/admin/seo-merkezi/analytics')->assertRedirect('/admin/login');
     }
 
     public function test_page_renders_for_admin(): void
     {
         $this->actingAs(User::first());
 
-        $this->get('/admin/analytics')->assertOk();
+        $this->get('/admin/seo-merkezi/analytics')->assertOk();
     }
 
     public function test_bot_visits_are_grouped_into_one_card_per_bot(): void
@@ -62,7 +62,7 @@ class AnalyticsPageTest extends TestCase
         $this->seedVisits();
         $this->actingAs(User::first());
 
-        $html = $this->get('/admin/analytics')->assertOk()->getContent();
+        $html = $this->get('/admin/seo-merkezi/analytics')->assertOk()->getContent();
 
         // Her bot TEK kart: ham satırlar değil, toplam gösterilir.
         $this->assertSame(1, substr_count($html, '>ClaudeBot</span>'), 'ClaudeBot tek kartta toplanmalı');
@@ -114,7 +114,7 @@ class AnalyticsPageTest extends TestCase
     {
         $this->actingAs(User::first());
 
-        $html = $this->get('/admin/analytics')->assertOk()->getContent();
+        $html = $this->get('/admin/seo-merkezi/analytics')->assertOk()->getContent();
 
         $this->assertStringContainsString('Henüz yapay zeka botu ziyareti kaydedilmedi', $html);
     }
@@ -171,6 +171,6 @@ class AnalyticsPageTest extends TestCase
 
         $this->actingAs(User::first());
 
-        $this->get('/admin/analytics')->assertOk()->assertSee('Yaklaşan yazı');
+        $this->get('/admin/seo-merkezi/analytics')->assertOk()->assertSee('Yaklaşan yazı');
     }
 }

@@ -2,11 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\IndexStatus;
 use App\Models\SeoAnalysis;
 use App\Services\Google\GoogleClient;
 use App\Services\Google\IndexingService;
+use App\Services\Google\SearchConsoleService;
 use App\Support\Console\CommandCatalog;
+use App\Support\SitemapUrls;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -93,7 +97,9 @@ class GoogleIndexingTest extends TestCase
 
         $sonuc = app(IndexingService::class)->submitPending();
 
-        $this->assertSame(2, $sonuc['sent']);
+        // Site haritasındaki diğer (hiç kontrol edilmemiş) adresler de sıraya girer.
+        $this->assertGreaterThanOrEqual(2, $sonuc['sent']);
+        Http::assertNotSent(fn ($istek) => $istek['url'] === '/dizinde');
         $this->assertNull($dizinde->fresh()->index_submitted_at, 'Dizindeki sayfa bildirilmemeli.');
         $this->assertNotNull($degil->fresh()->index_submitted_at);
         $this->assertNotNull($bilinmiyor->fresh()->index_submitted_at);
@@ -111,7 +117,7 @@ class GoogleIndexingTest extends TestCase
 
         $sonuc = app(IndexingService::class)->submitPending();
 
-        $this->assertSame(1, $sonuc['sent']);
+        Http::assertNotSent(fn ($istek) => ($istek['url'] ?? null) === '/dun-gonderildi');
         $this->assertTrue($eski->fresh()->index_submitted_at->isToday());
         $this->assertTrue($yeni->fresh()->index_submitted_at->isYesterday(), 'Bekleme süresi dolmadan tekrar gönderilmemeli.');
     }
@@ -225,5 +231,66 @@ class GoogleIndexingTest extends TestCase
         $this->artisan('seo:check-index')->assertSuccessful();
 
         $this->assertSame(45, SeoAnalysis::whereNotNull('index_checked_at')->count());
+    }
+
+    /** Eskiden yalnız skorlanan içerikler kontrol ediliyordu; site haritasındaki her adres sorulmalı. */
+    public function test_index_check_and_submission_cover_every_sitemap_url(): void
+    {
+        Http::fake([
+            'searchconsole.googleapis.com/*' => Http::response([
+                'inspectionResult' => ['indexStatusResult' => ['verdict' => 'NEUTRAL', 'coverageState' => 'URL is unknown to Google']],
+            ], 200),
+            'indexing.googleapis.com/*' => Http::response([], 200),
+        ]);
+
+        $sitemap = array_column(SitemapUrls::all(), 'loc');
+        $combo = collect($sitemap)->first(fn ($u) => substr_count(trim((string) parse_url($u, PHP_URL_PATH), '/'), '/') === 1
+            && ! str_contains($u, '/markalar/') && ! str_contains($u, '/blog/'));
+        $this->assertNotNull($combo, 'Test verisinde ilçe adresi olmalı.');
+
+        $this->artisan('seo:check-index')->assertSuccessful();
+
+        $this->assertSame(count(array_unique($sitemap)), IndexStatus::whereNotNull('index_checked_at')->count());
+        $this->assertSame('NEUTRAL', IndexStatus::where('url', $combo)->value('google_index_status'));
+
+        app(IndexingService::class)->submitPending();
+        Http::assertSent(fn ($istek) => ($istek['url'] ?? null) === $combo);
+    }
+
+    public function test_index_check_stops_at_the_daily_inspection_quota(): void
+    {
+        Http::fake(['searchconsole.googleapis.com/*' => Http::response([
+            'inspectionResult' => ['indexStatusResult' => ['verdict' => 'PASS']],
+        ], 200)]);
+
+        Cache::put('gsc.inspect.used.'.now('America/Los_Angeles')->toDateString(), SearchConsoleService::INSPECT_DAILY_QUOTA - 3, now()->addDay());
+
+        $result = app(SearchConsoleService::class)->syncIndexStatus();
+
+        $this->assertSame(3, $result['checked']);
+        $this->assertSame(0, $result['quota_left']);
+    }
+
+    /** Canlıda kuyruk işi 900 sn'de "timed out" ile öldü; tur süre bütçesiyle durmalı ve kalanı bırakmalı. */
+    public function test_index_check_stops_when_its_time_budget_runs_out_and_skips_fresh_rows(): void
+    {
+        Http::fake(['searchconsole.googleapis.com/*' => Http::response([
+            'inspectionResult' => ['indexStatusResult' => ['verdict' => 'PASS']],
+        ], 200)]);
+
+        foreach (range(1, 5) as $i) {
+            $this->analiz('/sayfa-'.$i, null);
+        }
+
+        // Bütçe baştan bitmiş: hiçbir şey sorulmaz, hepsi sırada kalır.
+        $first = app(SearchConsoleService::class)->syncIndexStatus(seconds: -1);
+        $this->assertSame(0, $first['checked']);
+
+        $all = app(SearchConsoleService::class)->syncIndexStatus();
+        $this->assertSame(0, $all['pending']);
+
+        // Az önce bakılanlar 20 saat dolmadan tekrar sorulmaz.
+        $again = app(SearchConsoleService::class)->syncIndexStatus();
+        $this->assertSame(0, $again['checked']);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AiCrawlerVisits;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Filament\Resources\AiCrawlerVisits\Pages\ManageAiCrawlerVisits;
 use App\Models\AiCrawlerVisit;
 use BackedEnum;
@@ -13,7 +14,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class AiCrawlerVisitResource extends Resource
 {
@@ -21,9 +21,11 @@ class AiCrawlerVisitResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCpuChip;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Gözlem';
+    protected static ?string $cluster = SeoMerkezi::class;
 
-    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationLabel = 'GEO';
+
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $modelLabel = 'AI Bot Ziyareti';
 

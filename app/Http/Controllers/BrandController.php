@@ -42,6 +42,7 @@ class BrandController extends Controller
         }
 
         return view('brands.show', [
+            'pageType' => 'brand',
             'brand' => $brand,
             'otherBrands' => Brand::query()->active()->ordered()->with('service:id,slug')->whereKeyNot($brand->getKey())->get(),
             'services' => Service::query()->active()->ordered()->get(),

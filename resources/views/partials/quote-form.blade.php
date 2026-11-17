@@ -5,7 +5,7 @@
     $selService = old('service_id', $selectedService ?? '');
     $formId = $formId ?? 'quoteForm';
 @endphp
-<div class="quote-form-card">
+<div data-track-area="quote_form" class="quote-form-card">
     @if (! empty($formTitle))
         <h3 class="mb-1">{{ $formTitle }}</h3>
     @endif
@@ -28,6 +28,8 @@
         @csrf
         <input type="hidden" name="source" value="{{ $source ?? 'form' }}">
         <input type="hidden" name="page_url" value="{{ url()->current() }}">
+        {{-- Analytics: talebin hangi tür sayfadan geldiği (generate_lead → page_type). Kişisel veri değil. --}}
+        <input type="hidden" name="page_type" value="{{ \App\Support\PageType::resolve($pageType ?? null) }}">
         <div class="d-none" aria-hidden="true"><label>Web sitesi<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
         <script type="application/json" data-districts>{!! json_encode($districtMap, JSON_UNESCAPED_UNICODE) !!}</script>
 

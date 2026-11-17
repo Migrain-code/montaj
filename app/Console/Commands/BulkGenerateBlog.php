@@ -12,6 +12,7 @@ use App\Support\AutomationLog;
 use App\Support\SeoConfig;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Throwable;
 
 /**
@@ -135,7 +136,7 @@ class BulkGenerateBlog extends Command
             $this->line(sprintf(
                 '  <fg=green>%s</> %-52s %s',
                 $slot->format('d.m H:i'),
-                \Illuminate\Support\Str::limit($blog->title, 50),
+                Str::limit($blog->title, 50),
                 $category->name,
             ));
 
@@ -153,7 +154,7 @@ class BulkGenerateBlog extends Command
         $this->info("{$produced} yazı üretildi ve planlandı. Reddedilen aday: {$rejected}.");
 
         if ($exhausted) {
-            $this->warn('Kelime havuzu tükendi. Panel → SEO & AI → Anahtar Kelimeler ekranından yeni kelime ekleyin.');
+            $this->warn('Kelime havuzu tükendi. Panel → SEO Merkezi → Anahtar Kelimeler ekranından yeni kelime ekleyin.');
         }
 
         if (! $dryRun && $produced > 0) {

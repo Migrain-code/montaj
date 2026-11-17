@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Jobs\BoostKeyword;
 use App\Models\SeoKeyword;
 use App\Models\SeoKeywordAction;
@@ -18,6 +19,7 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
@@ -31,10 +33,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
-use UnitEnum;
 
 /**
- * GSC Fırsat Avı: bölge kelimelerini Search Console'dan izler ve ilk 3'e taşır.
+ * Kelime Sırası (eski adı GSC Fırsat Avı): bölge kelimelerini Search Console'dan izler ve ilk 3'e taşır.
  *
  * Kelime → sayfa bağı SeoKeyword.target_id'dir (tek sahip kuralı). İlk 3'e giren
  * kelimeye hiçbir işlem yapılmaz; düşerse kendiliğinden yeniden ele alınır.
@@ -45,15 +46,15 @@ class OpportunityHunt extends Page implements HasTable
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowTrendingUp;
 
-    protected static string|UnitEnum|null $navigationGroup = 'SEO & AI';
+    protected static ?string $cluster = SeoMerkezi::class;
 
-    protected static ?string $navigationLabel = 'GSC Fırsat Avı';
+    protected static ?string $navigationLabel = 'Kelime Sırası';
 
-    protected static ?string $title = 'GSC Fırsat Avı';
+    protected static ?string $title = 'Anahtar Kelime Sırası';
 
-    protected static ?string $slug = 'gsc-firsat-avi';
+    protected static ?string $slug = 'kelime-sirasi';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 4;
 
     protected string $view = 'filament.pages.opportunity-hunt';
 
@@ -114,6 +115,7 @@ class OpportunityHunt extends Page implements HasTable
         }
 
         $measured = $keywords->whereNotNull('last_position');
+        $deltas = $keywords->map(fn (SeoKeyword $k) => $k->positionDelta())->filter(fn ($d) => $d !== null);
 
         return [
             'gscReady' => app(OpportunityHunter::class)->isConfigured(),
@@ -129,7 +131,17 @@ class OpportunityHunt extends Page implements HasTable
                 'near' => $measured->filter(fn ($k) => $k->last_position > 3 && $k->last_position <= 10)->count(),
                 'far' => $measured->filter(fn ($k) => $k->last_position > 10)->count(),
                 'unmeasured' => $keywords->whereNull('last_position')->count(),
+                // tavsiyemiz "Kelime Sırası" kutuları
+                'avg' => $measured->isEmpty() ? null : round((float) $measured->avg('last_position'), 1),
+                'top10' => $measured->filter(fn ($k) => $k->last_position <= 10)->count(),
+                'top3' => $measured->filter(fn ($k) => $k->last_position <= 3)->count(),
+                'up' => $deltas->filter(fn ($d) => $d > 0)->count(),
+                'down' => $deltas->filter(fn ($d) => $d < 0)->count(),
+                'clicks' => (int) $keywords->sum('gsc_clicks'),
+                'impressions' => (int) $keywords->sum('gsc_impressions'),
             ],
+            'lastRanked' => $keywords->max('ranked_at'),
+            'processedToday' => SeoKeywordAction::query()->whereDate('created_at', today())->distinct('keyword_id')->count('keyword_id'),
             'actions' => SeoKeywordAction::query()->with('keyword:id,keyword')->latest('id')->limit(25)->get(),
             'canEdit' => self::canEdit(),
         ];
@@ -140,36 +152,10 @@ class OpportunityHunt extends Page implements HasTable
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('runNow')
-                ->label('Otomatik çalıştır')
-                ->icon('heroicon-o-bolt')
-                ->color('primary')
-                ->visible(fn () => self::canEdit())
-                ->requiresConfirmation()
-                ->modalHeading('Otomatik turu şimdi çalıştır')
-                ->modalDescription(fn () => 'Her sabah 05:15\'te çalışan turun aynısı: sıraları çeker, yeni fırsatları ekler ve ilk 3\'te '
-                    .'olmayan en fazla '.SeoConfig::int('opportunity_daily_limit', 3, 1, 20).' kelimenin sayfasını iyileştirir. '
-                    .'Bekleme süresindeki ve hedefteki kelimelere dokunulmaz.'
-                    .(SeoConfig::bool('opportunity_autopilot', true) ? '' : ' Otomatik iyileştirme KAPALI olduğu için yalnız sıralar çekilir, sayfalara yazılmaz.'))
-                ->modalSubmitActionLabel('Evet, çalıştır')
-                ->action(function (CommandRunner $runner) {
-                    abort_unless(self::canEdit(), 403);
-
-                    try {
-                        $runner->start('opportunities', auth()->user());
-                    } catch (Throwable $e) {
-                        Notification::make()->title('Çalıştırılamadı')->body($e->getMessage())->danger()->persistent()->send();
-
-                        return;
-                    }
-
-                    Notification::make()->title('Otomatik tur sıraya alındı')
-                        ->body('Kuyruk işçisi çalıştırır; birkaç dakika sonra sayfayı yenileyin. Sonuç Ayarlar → Sistem Komutları geçmişinde de görünür.')
-                        ->success()->send();
-                }),
 
             Action::make('sync')
-                ->label('Sıraları çek')
+                ->label('Tüm Sıraları Kontrol Et')
+                ->color('warning')
                 ->icon('heroicon-o-arrow-path')
                 ->visible(fn () => self::canEdit())
                 ->action(function (OpportunityHunter $hunter) {
@@ -188,8 +174,57 @@ class OpportunityHunt extends Page implements HasTable
                     Notification::make()->title('Fırsat avı tamamlandı')->body($body)->success()->send();
                 }),
 
+            Action::make('filters')
+                ->label('Filtreler')
+                ->color('gray')
+                ->icon('heroicon-o-funnel')
+                ->visible(fn () => self::canEdit())
+                ->modalHeading('Fırsat avı filtreleri')
+                ->modalDescription('Search Console sorgularından hangilerinin bu listeye alınacağını belirler. '
+                    .'Değişiklik sonraki "Tüm Sıraları Kontrol Et" turunda uygulanır. Kapatınca listeye girmiş kelimeler '
+                    .'tekrar açınca silinmez. Otomatik iyileştirme açıksa, bölgesiz kelimeler için de sayfa metni yazılır; '
+                    .'yalnız veri görmek istiyorsanız "Otomasyonu Kapat" ile durdurun.')
+                ->fillForm(fn () => [
+                    'min_impressions' => SeoConfig::int('opportunity_min_impressions', 3, 1, 1000),
+                    'max_position' => SeoConfig::int('opportunity_max_position', 60, 4, 100),
+                    'require_region' => SeoConfig::bool('opportunity_require_region', true),
+                    'require_business' => SeoConfig::bool('opportunity_require_business', true),
+                    'near_enabled' => SeoConfig::bool('opportunity_near_enabled', true),
+                    'max_new' => SeoConfig::int('opportunity_max_new_per_run', 30, 1, 500),
+                    'blog_fallback' => SeoConfig::bool('opportunity_blog_fallback', true),
+                ])
+                ->schema([
+                    TextInput::make('min_impressions')->label('En az gösterim')->numeric()->minValue(1)->maxValue(1000)->required()
+                        ->helperText('1 = filtre kapalı: tek bir gösterim alan sorgu da listeye girer.'),
+                    TextInput::make('max_position')->label('En kötü sıra')->numeric()->minValue(4)->maxValue(100)->required()
+                        ->helperText('Bu sıradan daha geride çıkan sorgular alınmaz. 100 = hepsi.'),
+                    Toggle::make('require_region')->label('Sorguda il/ilçe adı geçsin')
+                        ->helperText('Kapalıyken "gardırop montajı" gibi bölgesiz sorgular da alınır; Google\'ın gösterdiği sayfaya bağlanır.'),
+                    Toggle::make('require_business')->label('Sorguda iş terimi geçsin (montaj, kurulum, usta…)')
+                        ->helperText('Kapalıyken marka adı vb. tüm sorgular alınır.'),
+                    Toggle::make('near_enabled')->label('Sıraya yakın aramaları da al')
+                        ->helperText('Bölge adı geçmese de Google\'ın sitemizi zaten 4–25. sırada gösterdiği "nasıl yapılır" türü sorgular; Google\'ın gösterdiği sayfaya (blog dahil) bağlanır.'),
+                    TextInput::make('max_new')->label('Tur başına en fazla yeni kelime')->numeric()->minValue(1)->maxValue(500)->required(),
+                    Toggle::make('blog_fallback')->label('Sayfası olmayan kelimeye blog yazısı yaz')
+                        ->helperText('Kelime yazılabilir bir sayfaya bağlı değilse (marka, statik sayfa ya da hiç): önce uygun hizmet sayfası aranır, '
+                            .'yoksa kelimeye özel yazı yayınlanır ve içine hizmet, bölge ve marka sayfalarının linkleri eklenir.'),
+                ])
+                ->action(function (array $data) {
+                    SeoConfig::set('opportunity_min_impressions', (int) $data['min_impressions']);
+                    SeoConfig::set('opportunity_max_position', (int) $data['max_position']);
+                    SeoConfig::set('opportunity_require_region', (bool) $data['require_region']);
+                    SeoConfig::set('opportunity_require_business', (bool) $data['require_business']);
+                    SeoConfig::set('opportunity_near_enabled', (bool) ($data['near_enabled'] ?? true));
+                    SeoConfig::set('opportunity_max_new_per_run', (int) $data['max_new']);
+                    SeoConfig::set('opportunity_blog_fallback', (bool) ($data['blog_fallback'] ?? true));
+
+                    Notification::make()->title('Filtreler kaydedildi')
+                        ->body('Yeni kelimeler için "Tüm Sıraları Kontrol Et" düğmesine basın.')->success()->send();
+                }),
+
             Action::make('add')
-                ->label('Kelime ekle')
+                ->label('Kelime Ekle')
+                ->color('gray')
                 ->icon('heroicon-o-plus')
                 ->visible(fn () => self::canEdit())
                 ->schema([
@@ -230,21 +265,60 @@ class OpportunityHunt extends Page implements HasTable
                         ->success()->send();
                 }),
 
-            Action::make('autopilot')
-                ->label(fn () => SeoConfig::bool('opportunity_autopilot', true) ? 'Otomatik: Açık' : 'Otomatik: Kapalı')
-                ->icon(fn () => SeoConfig::bool('opportunity_autopilot', true) ? 'heroicon-o-play' : 'heroicon-o-pause')
-                ->color(fn () => SeoConfig::bool('opportunity_autopilot', true) ? 'success' : 'gray')
-                ->visible(fn () => self::canEdit())
-                ->requiresConfirmation()
-                ->modalHeading(fn () => SeoConfig::bool('opportunity_autopilot', true) ? 'Otomatik iyileştirmeyi kapat' : 'Otomatik iyileştirmeyi aç')
-                ->modalDescription('Açıkken her sabah 05:15\'te günlük sınır kadar kelimenin sayfası yapay zeka ile iyileştirilir. Kapalıyken sıralar yine çekilir, yalnız sayfalara yazılmaz.')
-                ->action(function () {
-                    $on = ! SeoConfig::bool('opportunity_autopilot', true);
-                    SeoConfig::set('opportunity_autopilot', $on);
-
-                    Notification::make()->title($on ? 'Otomatik iyileştirme açıldı' : 'Otomatik iyileştirme kapatıldı')->success()->send();
-                }),
         ];
+    }
+
+    // ---------- otomasyon kartı ----------
+
+    /** Otomasyon kartındaki "Tam Otomatik Çalıştır". */
+    public function runNowAction(): Action
+    {
+        return Action::make('runNow')
+            ->label('Tam Otomatik Çalıştır')
+            ->icon('heroicon-o-bolt')
+            ->color('success')
+            ->visible(fn () => self::canEdit())
+            ->requiresConfirmation()
+            ->modalHeading('Otomatik turu şimdi çalıştır')
+            ->modalDescription(fn () => 'Her sabah 05:15\'te çalışan turun aynısı: sıraları çeker, yeni fırsatları ekler ve ilk 3\'te '
+                .'olmayan en fazla '.SeoConfig::int('opportunity_daily_limit', 3, 1, 20).' kelimenin sayfasını iyileştirir. '
+                .'Bekleme süresindeki ve hedefteki kelimelere dokunulmaz.'
+                .(SeoConfig::bool('opportunity_autopilot', true) ? '' : ' Otomatik iyileştirme KAPALI olduğu için yalnız sıralar çekilir, sayfalara yazılmaz.'))
+            ->modalSubmitActionLabel('Evet, çalıştır')
+            ->action(function (CommandRunner $runner) {
+                abort_unless(self::canEdit(), 403);
+
+                try {
+                    $runner->start('opportunities', auth()->user());
+                } catch (Throwable $e) {
+                    Notification::make()->title('Çalıştırılamadı')->body($e->getMessage())->danger()->persistent()->send();
+
+                    return;
+                }
+
+                Notification::make()->title('Otomatik tur sıraya alındı')
+                    ->body('Kuyruk işçisi çalıştırır; birkaç dakika sonra sayfayı yenileyin. Sonuç Ayarlar → Sistem Komutları geçmişinde de görünür.')
+                    ->success()->send();
+            });
+    }
+
+    /** Otomasyon kartındaki "Otomasyonu Kapat / Aç". */
+    public function autopilotAction(): Action
+    {
+        return Action::make('autopilot')
+            ->label(fn () => SeoConfig::bool('opportunity_autopilot', true) ? 'Otomasyonu Kapat' : 'Otomasyonu Aç')
+            ->icon(fn () => SeoConfig::bool('opportunity_autopilot', true) ? 'heroicon-o-pause' : 'heroicon-o-play')
+            ->color('gray')->outlined()
+            ->visible(fn () => self::canEdit())
+            ->requiresConfirmation()
+            ->modalHeading(fn () => SeoConfig::bool('opportunity_autopilot', true) ? 'Otomatik iyileştirmeyi kapat' : 'Otomatik iyileştirmeyi aç')
+            ->modalDescription('Açıkken her sabah 05:15\'te günlük sınır kadar kelimenin sayfası yapay zeka ile iyileştirilir. Kapalıyken sıralar yine çekilir, yalnız sayfalara yazılmaz.')
+            ->action(function () {
+                $on = ! SeoConfig::bool('opportunity_autopilot', true);
+                SeoConfig::set('opportunity_autopilot', $on);
+
+                Notification::make()->title($on ? 'Otomatik iyileştirme açıldı' : 'Otomatik iyileştirme kapatıldı')->success()->send();
+            });
     }
 
     // ---------- tablo ----------

@@ -59,7 +59,7 @@ class SeoKeyword extends Model
     ];
 
     /*
-     * Fırsat avı kampanyası (GSC Fırsat Avı ekranı).
+     * Fırsat avı kampanyası (SEO Merkezi → Kelime Sırası).
      * Kampanyadaki kelime ilk target_position sıraya girince "won" olur ve ona
      * artık hiçbir işlem yapılmaz; sıra düşerse kendiliğinden "active"e döner.
      */

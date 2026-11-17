@@ -6,6 +6,8 @@ use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Models\Service;
 use App\Support\SchemaOrg;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class BlogController extends Controller
@@ -92,5 +94,15 @@ class BlogController extends Controller
             'ogImage' => $post->image_url,
             'jsonLd' => $jsonLd,
         ]);
+    }
+
+    /** RSS: yeni yazıların arama motorları ve okuyucular tarafından hızlı keşfi için. */
+    public function feed(): Response
+    {
+        $xml = Cache::remember('blog.feed', now()->addMinutes(30), fn () => view('blog.feed', [
+            'posts' => Blog::query()->published()->with('category')->orderByDesc('publish_at')->limit(30)->get(),
+        ])->render());
+
+        return response($xml, 200)->header('Content-Type', 'application/rss+xml; charset=UTF-8');
     }
 }

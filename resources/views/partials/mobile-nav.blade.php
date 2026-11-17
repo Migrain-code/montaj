@@ -1,4 +1,4 @@
-<div class="offcanvas offcanvas-end mobile-nav" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+<div data-track-area="mobile_menu" class="offcanvas offcanvas-end mobile-nav" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
     <div class="offcanvas-header">
         <span class="brand" id="mobileNavLabel">
             <img src="{{ setting('logo') ? media_url(setting('logo')) : versioned_asset('images/brand/logo-horizontal-520.webp') }}"

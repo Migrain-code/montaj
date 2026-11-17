@@ -25,6 +25,13 @@ return [
         'title' => env('AI_APP_TITLE', env('APP_NAME')),
     ],
 
+    // IndexNow (Bing, Yandex…): 8–128 karakter hex anahtar. Boşsa bildirim yapılmaz.
+    // Panelden de girilebilir (SEO Merkezi → Ayarlar → IndexNow); panel değeri önceliklidir.
+    // Üretmek için: php -r "echo bin2hex(random_bytes(16));"
+    'indexnow' => [
+        'key' => env('INDEXNOW_KEY'),
+    ],
+
     'google' => [
         // Servis hesabı JSON dosyasının yolu (storage/app/private altında tutun).
         'credentials' => env('GOOGLE_APPLICATION_CREDENTIALS'),

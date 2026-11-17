@@ -36,16 +36,15 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 'İçerik',
-                'Blog',
                 'Bölgeler',
                 'Talepler',
-                'SEO & AI',
-                'Gözlem',
                 'Ayarlar',
             ])
             ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            // SEO Merkezi: SEO, AI ve blog araçları tek menü öğesinde, üst buton şeridiyle.
+            ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\Filament\Clusters')
             ->pages([
                 Dashboard::class,
             ])

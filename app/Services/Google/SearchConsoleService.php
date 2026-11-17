@@ -2,7 +2,7 @@
 
 namespace App\Services\Google;
 
-use App\Models\SeoAnalysis;
+use App\Models\IndexStatus;
 use App\Models\SeoKeyword;
 use App\Models\SeoRankHistory;
 use App\Models\SeoSearchQuery;
@@ -10,7 +10,9 @@ use App\Support\AutomationLog;
 use App\Support\PathNormalizer;
 use App\Support\TurkishText;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use RuntimeException;
 
@@ -214,11 +216,33 @@ class SearchConsoleService
         ];
     }
 
-    /** @return array{checked: int, indexed: int, errors: int} */
-    public function syncIndexStatus(int $limit = 30): array
+    /** URL Inspection API: mülk başına günde 2000, dakikada 600 sorgu. */
+    public const INSPECT_DAILY_QUOTA = 2000;
+
+    /** Bugün kalan sorgu hakkı (elle basılan düğme + gece görevi aynı sayaçtan düşer). */
+    public function inspectionsLeftToday(): int
     {
-        $analyses = SeoAnalysis::query()
-            ->whereNotNull('url')
+        return max(0, self::INSPECT_DAILY_QUOTA - (int) Cache::get($this->inspectCounterKey(), 0));
+    }
+
+    /** Son bu kadar saat içinde kontrol edilen adres yeniden sorulmaz (kota boşa gitmesin). */
+    public const RECHECK_AFTER_HOURS = 20;
+
+    /**
+     * Site haritasındaki adresleri (hiç bakılmamış / en eski kontrol edilen önce) Google'a sorar.
+     *
+     * $seconds: süre bütçesi. Kuyruk işi 900 sn'de öldürülür; çok adresli harita tek turda sığmayabilir.
+     * Bütçe dolunca durur, kalan adresler sonraki turda (saatlik görev) sorulur.
+     *
+     * @return array{checked: int, indexed: int, errors: int, tracked: int, pending: int, quota_left: int}
+     */
+    public function syncIndexStatus(int $limit = self::INSPECT_DAILY_QUOTA, int $seconds = 0): array
+    {
+        $tracked = IndexStatus::syncTracked();
+        $limit = min($limit, $this->inspectionsLeftToday());
+        $deadline = $seconds !== 0 ? microtime(true) + $seconds : null;
+
+        $rows = $limit < 1 ? collect() : $this->dueForCheck()
             ->orderByRaw('index_checked_at IS NULL DESC')
             ->orderBy('index_checked_at')
             ->limit($limit)
@@ -226,25 +250,58 @@ class SearchConsoleService
 
         $checked = $indexed = $errors = 0;
 
-        foreach ($analyses as $analysis) {
-            try {
-                $result = $this->inspect($analysis->url);
+        foreach ($rows as $row) {
+            if ($deadline !== null && microtime(true) >= $deadline) {
+                break;
+            }
 
-                $analysis->forceFill([
+            $started = microtime(true);
+
+            try {
+                $this->countInspection();
+                $result = $this->inspect($row->url);
+
+                $row->mirror([
                     'google_index_status' => $result['verdict'],
                     'google_index_detail' => $result['detail'],
                     'index_checked_at' => now(),
-                ])->saveQuietly();
+                ]);
 
                 $checked++;
                 $result['verdict'] === 'PASS' && $indexed++;
             } catch (\Throwable $e) {
                 $errors++;
-                AutomationLog::error('gsc.inspect', $e->getMessage(), ['url' => $analysis->url]);
-                break; // Yetki hatasıysa kalan çağrılar da düşer; kotayı harcama.
+                AutomationLog::error('gsc.inspect', $e->getMessage(), ['url' => $row->url]);
+                break; // Yetki ya da kota hatasıysa kalan çağrılar da düşer; kotayı harcama.
             }
+
+            // Dakikada 600 sınırının altında kal: çağrı 110 ms'den kısa sürdüyse kalanı bekle.
+            $spent = (int) ((microtime(true) - $started) * 1_000_000);
+            app()->runningUnitTests() || $spent >= 110_000 || usleep(110_000 - $spent);
         }
 
-        return ['checked' => $checked, 'indexed' => $indexed, 'errors' => $errors];
+        return [
+            'checked' => $checked, 'indexed' => $indexed, 'errors' => $errors, 'tracked' => $tracked,
+            'pending' => $this->dueForCheck()->count(), 'quota_left' => $this->inspectionsLeftToday(),
+        ];
+    }
+
+    private function dueForCheck(): Builder
+    {
+        return IndexStatus::query()->where(fn ($q) => $q->whereNull('index_checked_at')
+            ->orWhere('index_checked_at', '<', now()->subHours(self::RECHECK_AFTER_HOURS)));
+    }
+
+    private function countInspection(): void
+    {
+        $key = $this->inspectCounterKey();
+        Cache::add($key, 0, now()->addDays(2));
+        Cache::increment($key);
+    }
+
+    /** Google kotayı Pasifik saatine göre sıfırlar. */
+    private function inspectCounterKey(): string
+    {
+        return 'gsc.inspect.used.'.now('America/Los_Angeles')->toDateString();
     }
 }

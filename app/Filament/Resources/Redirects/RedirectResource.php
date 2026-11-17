@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Redirects;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Filament\Resources\Redirects\Pages\ManageRedirects;
 use App\Models\Redirect;
 use BackedEnum;
@@ -21,7 +22,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class RedirectResource extends Resource
 {
@@ -29,9 +29,11 @@ class RedirectResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowsRightLeft;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Gözlem';
+    protected static ?string $cluster = SeoMerkezi::class;
 
-    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationLabel = 'Yönlendirmeler';
+
+    protected static ?int $navigationSort = 8;
 
     protected static ?string $modelLabel = 'Yönlendirme';
 

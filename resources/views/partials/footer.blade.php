@@ -7,7 +7,7 @@
         'youtube' => setting('youtube_url'),
     ]);
 @endphp
-<footer class="footer">
+<footer data-track-area="footer" class="footer">
     <div class="footer-contact">
         <div class="container">
             <div class="row g-4">

@@ -11,6 +11,7 @@ use App\Models\AiCrawlerVisit;
 use App\Models\AiGeneration;
 use App\Models\Blog;
 use App\Models\BlogCategory;
+use App\Models\IndexStatus;
 use App\Models\InternalLinkRule;
 use App\Models\NotFoundLog;
 use App\Models\Redirect;
@@ -61,20 +62,20 @@ class SeoAdminPanelTest extends TestCase
         $this->actingAs($this->admin());
 
         $urls = [
-            '/admin/seo-dashboard',
-            '/admin/seo-ai-settings',
-            '/admin/duplicate-cleaner',
-            '/admin/internal-link-suggestions',
-            '/admin/blogs', '/admin/blogs/create', '/admin/blogs/'.Blog::first()->id.'/edit',
+            '/admin/seo-merkezi/seo-dashboard',
+            '/admin/seo-merkezi/seo-ai-settings',
+            '/admin/seo-merkezi/duplicate-cleaner',
+            '/admin/seo-merkezi/internal-link-suggestions',
+            '/admin/seo-merkezi/blogs', '/admin/seo-merkezi/blogs/create', '/admin/seo-merkezi/blogs/'.Blog::first()->id.'/edit',
             '/admin/blog-categories',
-            '/admin/seo-keywords',
-            '/admin/seo-targets',
-            '/admin/internal-link-rules',
-            '/admin/ai-generations',
-            '/admin/redirects',
-            '/admin/not-found-logs',
-            '/admin/ai-crawler-visits',
-            '/admin/seo-analyses',
+            '/admin/seo-merkezi/seo-keywords',
+            '/admin/seo-merkezi/seo-targets',
+            '/admin/seo-merkezi/internal-link-rules',
+            '/admin/seo-merkezi/ai-generations',
+            '/admin/seo-merkezi/redirects',
+            '/admin/seo-merkezi/not-found-logs',
+            '/admin/seo-merkezi/ai-crawler-visits',
+            '/admin/seo-merkezi/seo-analyses',
         ];
 
         foreach ($urls as $url) {
@@ -87,15 +88,13 @@ class SeoAdminPanelTest extends TestCase
     /** @return array<string, SeoAnalysis> */
     private function seedIndexStatuses(): array
     {
-        // Her içeriğin tek analiz kaydı vardır (content_type + content_id benzersiz).
-        $id = 0;
-        $make = function (string $url, ?string $status, ?string $checked) use (&$id) {
-            return SeoAnalysis::create([
-                'content_type' => 'page', 'content_id' => ++$id, 'url' => $url, 'score' => 70,
+        // Liste adres başına tutulur (index_statuses): site haritasındaki tüm adresler.
+        $make = function (string $url, ?string $status, ?string $checked) {
+            return IndexStatus::create([
+                'url' => $url,
                 'google_index_status' => $status,
                 'google_index_detail' => $status === 'FAIL' ? 'URL is unknown to Google' : null,
                 'index_checked_at' => $checked,
-                'analyzed_at' => now(),
             ]);
         };
 
@@ -181,7 +180,7 @@ class SeoAdminPanelTest extends TestCase
 
     public function test_seo_pages_require_login(): void
     {
-        foreach (['/admin/seo-dashboard', '/admin/seo-ai-settings', '/admin/duplicate-cleaner', '/admin/seo-keywords'] as $url) {
+        foreach (['/admin/seo-merkezi/seo-dashboard', '/admin/seo-merkezi/seo-ai-settings', '/admin/seo-merkezi/duplicate-cleaner', '/admin/seo-merkezi/seo-keywords'] as $url) {
             $this->get($url)->assertRedirect('/admin/login');
         }
     }
@@ -254,5 +253,40 @@ class SeoAdminPanelTest extends TestCase
 
         Livewire::test(ListBlogs::class)
             ->assertActionVisible('generate');
+    }
+
+    /**
+     * SEO araçları tek "SEO Merkezi" menüsünde; ekranlar arası geçiş üstteki buton
+     * şeridiyle (tavsiyemiz SEO paneli adları ve sırası).
+     */
+    public function test_seo_tools_live_under_one_menu_with_a_top_button_bar(): void
+    {
+        $this->actingAs($this->admin());
+
+        $html = $this->get('/admin/seo-merkezi/seo-dashboard')->assertOk()->getContent();
+
+        $this->assertStringContainsString('fi-page-sub-navigation-tabs', $html);
+
+        $labels = ['Dashboard', 'GEO', 'Sayfalar', 'Kelime Sırası', 'Anahtar Kelimeler', 'İç Linkleme', 'Analytics',
+            'Yönlendirmeler', '404 Yöneticisi', 'Duplicate', 'Index Kontrol', 'Blog Üretici', 'AI Logları', 'Ayarlar'];
+        $tabs = substr($html, strpos($html, 'fi-page-sub-navigation-tabs'));
+        $last = 0;
+
+        foreach ($labels as $label) {
+            $found = preg_match('/>\s*'.preg_quote(e($label), '/').'\s*</u', $tabs, $m, PREG_OFFSET_CAPTURE);
+            $this->assertSame(1, $found, $label.' sekmesi yok');
+            $pos = $m[0][1];
+            $this->assertGreaterThan($last, $pos, $label.' sırası yanlış');
+            $last = $pos;
+        }
+
+        // Sol menüde eski grup başlıkları yok; tek giriş "SEO Merkezi".
+        $sidebar = substr($html, 0, strpos($html, 'fi-page-sub-navigation-tabs'));
+        $this->assertStringContainsString('SEO Merkezi', $sidebar);
+        $this->assertStringNotContainsString('>SEO &amp; AI<', $sidebar);
+        $this->assertStringNotContainsString('>Gözlem<', $sidebar);
+
+        // Kümenin kendi adresi ilk sekmeye yönlenir.
+        $this->get('/admin/seo-merkezi')->assertRedirect();
     }
 }

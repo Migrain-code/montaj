@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\CommandRun;
 use App\Support\Console\InProcess;
 
 /*
@@ -26,7 +27,7 @@ use App\Support\Console\InProcess;
 InProcess::command('system:heartbeat')->everyMinute()->withoutOverlapping();
 
 // Panelden çalıştırılan komutların 30 günden eski kayıtları silinir.
-InProcess::command('model:prune', ['--model' => [\App\Models\CommandRun::class]])->dailyAt('00:30')->withoutOverlapping();
+InProcess::command('model:prune', ['--model' => [CommandRun::class]])->dailyAt('00:30')->withoutOverlapping();
 
 InProcess::command('sitemap:generate')->dailyAt('01:00')->withoutOverlapping();
 InProcess::command('seo:discovery')->dailyAt('01:10')->withoutOverlapping();
@@ -53,9 +54,15 @@ InProcess::command('seo:score')->dailyAt('02:00')->withoutOverlapping();
  * Günlük sınır düşük tutulur: AI çağrısı ücretlidir ve içerik bir gecede değil,
  * zaman içinde iyileşmelidir.
  */
-InProcess::command('seo:enrich', ['--limit' => 3])->dailyAt('02:20')->withoutOverlapping();
+InProcess::command('seo:enrich', ['--limit' => 10])->dailyAt('02:20')->withoutOverlapping();
+// Metinsiz il/ilçe sayfaları (150 kelimeden kısa) her gece 10'ar doldurulur; bitince iş kalmaz.
+InProcess::command('seo:enrich', ['--thin' => true, '--limit' => 10])->dailyAt('02:40')->withoutOverlapping();
+// 600 kelimenin altındaki sayfalar metne dokunulmadan yeni bölümlerle uzatılır (her gece 10).
+InProcess::command('seo:enrich', ['--short' => true, '--limit' => 10])->dailyAt('03:10')->withoutOverlapping();
 
-InProcess::command('seo:check-index')->dailyAt('03:00')->withoutOverlapping();
+// Site haritasındaki tüm adresler sorulur. Her tur ~13 dk ile sınırlı (kuyruk zaman aşımı);
+// son 20 saatte bakılan adres tekrar sorulmaz, yani işi bitmiş turlar kota harcamadan çıkar.
+InProcess::command('seo:check-index')->hourly()->between('01:00', '07:00')->withoutOverlapping(20);
 
 /*
  * Dizine girmemiş sayfalar Google'a bildirilir. Kontrolden SONRA koşar ki hangi

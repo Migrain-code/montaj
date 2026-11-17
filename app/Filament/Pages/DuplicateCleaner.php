@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Models\Blog;
 use App\Services\Seo\DuplicateMerger;
 use App\Services\Seo\DuplicateScanner;
@@ -11,7 +12,6 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Throwable;
-use UnitEnum;
 
 /**
  * Yayınlanmış tekrarları temizleme ekranı (spec §3.5).
@@ -23,13 +23,13 @@ class DuplicateCleaner extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentDuplicate;
 
-    protected static string|UnitEnum|null $navigationGroup = 'SEO & AI';
+    protected static ?string $cluster = SeoMerkezi::class;
 
-    protected static ?string $navigationLabel = 'Çakışan İçerikler';
+    protected static ?string $navigationLabel = 'Duplicate';
 
-    protected static ?string $title = 'Çakışan İçerikler';
+    protected static ?string $title = 'Duplicate İçerikler';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 10;
 
     protected string $view = 'filament.pages.duplicate-cleaner';
 

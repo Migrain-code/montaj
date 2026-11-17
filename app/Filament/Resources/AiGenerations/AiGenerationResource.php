@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AiGenerations;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Filament\Resources\AiGenerations\Pages\ManageAiGenerations;
 use App\Models\AiGeneration;
 use BackedEnum;
@@ -16,7 +17,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class AiGenerationResource extends Resource
 {
@@ -24,9 +24,11 @@ class AiGenerationResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCommandLine;
 
-    protected static string|UnitEnum|null $navigationGroup = 'SEO & AI';
+    protected static ?string $cluster = SeoMerkezi::class;
 
-    protected static ?int $navigationSort = 6;
+    protected static ?string $navigationLabel = 'AI Logları';
+
+    protected static ?int $navigationSort = 13;
 
     protected static ?string $modelLabel = 'AI İşlemi';
 

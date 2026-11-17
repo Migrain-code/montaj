@@ -1,61 +1,93 @@
 <x-filament-panels::page>
-    @if (! $gscReady)
-        <x-filament::section>
-            <div class="text-sm text-gray-600 dark:text-gray-400">
-                <strong>Search Console bağlı değil.</strong>
-                Sıralar çekilemez; yalnız odak bölge kelimeleri takibe alınır.
-                <a class="font-medium text-warning-500" href="{{ \App\Filament\Pages\SeoAiSettings::getUrl() }}">SEO &amp; AI Ayarları → Search Console</a>
-                bölümünden servis hesabı anahtarını yükleyin.
-            </div>
-        </x-filament::section>
-    @endif
+    {{-- tavsiyemiz "Kelime Sırası" düzeni: durum satırı, otomasyon kartı, beş sayaç kutusu. --}}
+    <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+        <x-filament::badge :color="$gscReady ? 'success' : 'gray'" icon="heroicon-m-signal">
+            {{ $gscReady ? 'Google bağlı' : 'Google bağlı değil' }}
+        </x-filament::badge>
+        <span>Son güncelleme: {{ $lastRanked ? \Illuminate\Support\Carbon::parse($lastRanked)->format('d.m.Y H:i') : '—' }}</span>
+        @unless ($gscReady)
+            <span>· Search Console servis hesabı <a class="font-medium text-primary-600 dark:text-primary-400" href="{{ \App\Filament\Pages\SeoAiSettings::getUrl() }}">Ayarlar</a> sekmesinden yüklenir; o zamana kadar yalnız odak bölge kelimeleri takip edilir.</span>
+        @endunless
+    </div>
 
     <x-filament::section>
-        <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-            <p>
-                Search Console'da görünen <strong>bölge + montaj</strong> aramaları burada takip edilir ve her biri
-                o bölgenin sayfasına bağlanır. Amaç her kelimeyi <strong>ilk {{ $target }} sıraya</strong> taşımak.
-                İlk {{ $target }}'e giren kelimeye <strong>hiçbir işlem yapılmaz</strong>; sıra düşerse kendiliğinden yeniden ele alınır.
-            </p>
-            <p>
-                Otomatik iyileştirme
-                <x-filament::badge :color="$autopilot ? 'success' : 'gray'" class="inline-block">{{ $autopilot ? 'açık' : 'kapalı' }}</x-filament::badge>
-                · her sabah 05:15 · günde en fazla <strong>{{ $dailyLimit }}</strong> kelime ·
-                aynı kelimeye en erken <strong>{{ $cooldown }} günde</strong> bir.
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="min-w-0 space-y-1.5 text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex items-center gap-2">
+                    <span class="text-base font-semibold text-gray-950 dark:text-white">Otomasyon</span>
+                    <x-filament::badge :color="$autopilot ? 'success' : 'gray'">{{ $autopilot ? 'Açık' : 'Kapalı' }}</x-filament::badge>
+                </div>
+                <p>
+                    Her sabah 05:15'te sıralar Search Console'dan çekilir; ilk <strong>{{ $target }}</strong> sırada olmayan
+                    en fazla <strong>{{ $dailyLimit }}</strong> kelimenin sayfası iyileştirilir. Aynı kelimeye en erken <strong>{{ $cooldown }} günde</strong> bir dokunulur;
+                    ilk {{ $target }}'e giren kelimeye hiçbir işlem yapılmaz.
+                </p>
+                <div class="flex items-center gap-3">
+                    <span>Bugün işlenen: <strong>{{ $processedToday }} / {{ $dailyLimit }}</strong></span>
+                    <div class="h-1.5 w-40 overflow-hidden rounded-full bg-gray-200 dark:bg-white/10">
+                        <div class="h-full rounded-full bg-primary-500" style="width: {{ min(100, $dailyLimit ? round($processedToday / $dailyLimit * 100) : 0) }}%"></div>
+                    </div>
+                </div>
                 @unless ($aiReady)
-                    <span class="text-warning-500">AI anahtarı tanımlı değil: başlık, bölüm ve soru-cevap adımları çalışmaz.</span>
+                    <p class="text-warning-600 dark:text-warning-400">AI anahtarı tanımlı değil: başlık, bölüm ve soru-cevap adımları çalışmaz.</p>
                 @endunless
-            </p>
+            </div>
+            @if ($canEdit)
+                <div class="flex shrink-0 flex-wrap items-center gap-2">
+                    {{ $this->autopilotAction }}
+                    {{ $this->runNowAction }}
+                    <x-filament::icon-button icon="heroicon-o-cog-6-tooth" color="gray" tag="a"
+                        :href="\App\Filament\Pages\SeoAiSettings::getUrl()" label="Ayarlar" tooltip="Otomasyon ayarları" />
+                </div>
+            @endif
         </div>
     </x-filament::section>
 
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        @foreach ($focus as $region)
+        @php
+            $tiles = [
+                ['label' => 'Toplam kelime', 'value' => number_format($stats['total'], 0, ',', '.'), 'sub' => $stats['unmeasured'] ? $stats['unmeasured'].' kelime henüz ölçülmedi' : null],
+                ['label' => 'Ortalama sıra', 'value' => $stats['avg'] !== null ? number_format($stats['avg'], 1, ',', '.') : '—', 'sub' => null],
+                ['label' => "İlk 10'da", 'value' => number_format($stats['top10'], 0, ',', '.'), 'sub' => "İlk 3'te: ".$stats['top3'], 'class' => 'text-success-600 dark:text-success-400'],
+            ];
+        @endphp
+        @foreach ($tiles as $tile)
             <x-filament::section>
-                <div class="text-xs font-medium text-gray-500">★ {{ $region['name'] }}</div>
-                <div class="mt-1 text-2xl font-bold tabular-nums text-gray-900 dark:text-white">
-                    {{ $region['best'] !== null ? '#'.round($region['best'], 1) : '—' }}
+                <div class="text-center">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-gray-500">{{ $tile['label'] }}</div>
+                    <div class="mt-1 text-3xl font-bold tabular-nums {{ $tile['class'] ?? 'text-gray-950 dark:text-white' }}">{{ $tile['value'] }}</div>
+                    @if ($tile['sub'])<div class="mt-1 text-xs text-gray-500">{{ $tile['sub'] }}</div>@endif
                 </div>
-                <div class="mt-1 text-xs text-gray-500 truncate">
-                    @if ($region['best_keyword'])
-                        en iyi: {{ $region['best_keyword'] }}
-                    @else
-                        henüz sıra verisi yok
-                    @endif
-                </div>
-                <div class="mt-2 text-xs text-gray-500">{{ $region['won'] }}/{{ $region['count'] }} kelime hedefte</div>
             </x-filament::section>
         @endforeach
-
         <x-filament::section>
-            <div class="text-xs font-medium text-gray-500">Tüm takip</div>
-            <div class="mt-1 text-2xl font-bold tabular-nums text-gray-900 dark:text-white">{{ $stats['won'] }}/{{ $stats['total'] }}</div>
-            <div class="mt-1 text-xs text-gray-500">hedefte</div>
-            <div class="mt-2 text-xs text-gray-500">
-                4–10: {{ $stats['near'] }} · 11+: {{ $stats['far'] }} · ölçülmedi: {{ $stats['unmeasured'] }}
+            <div class="text-center">
+                <div class="text-xs font-semibold uppercase tracking-wide text-gray-500">Hareket</div>
+                <div class="mt-1 text-3xl font-bold tabular-nums">
+                    <span class="text-success-600 dark:text-success-400">↑{{ $stats['up'] }}</span>
+                    <span class="text-gray-400">/</span>
+                    <span class="text-danger-600 dark:text-danger-400">↓{{ $stats['down'] }}</span>
+                </div>
+            </div>
+        </x-filament::section>
+        <x-filament::section>
+            <div class="text-center">
+                <div class="text-xs font-semibold uppercase tracking-wide text-gray-500">Google tıklama</div>
+                <div class="mt-1 text-3xl font-bold tabular-nums text-gray-950 dark:text-white">{{ number_format($stats['clicks'], 0, ',', '.') }}</div>
+                <div class="mt-1 text-xs text-gray-500">{{ number_format($stats['impressions'], 0, ',', '.') }} gösterim</div>
             </div>
         </x-filament::section>
     </div>
+
+    @if (count($focus))
+        <div class="flex flex-wrap gap-2">
+            @foreach ($focus as $region)
+                <x-filament::badge color="gray">
+                    ★ {{ $region['name'] }}: {{ $region['best'] !== null ? '#'.round($region['best'], 1) : '—' }} · {{ $region['won'] }}/{{ $region['count'] }} hedefte
+                </x-filament::badge>
+            @endforeach
+        </div>
+    @endif
 
     {{ $this->table }}
 

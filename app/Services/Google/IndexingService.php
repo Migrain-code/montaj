@@ -2,6 +2,7 @@
 
 namespace App\Services\Google;
 
+use App\Models\IndexStatus;
 use App\Models\SeoAnalysis;
 use App\Support\AutomationLog;
 use Illuminate\Database\Eloquent\Collection;
@@ -47,7 +48,7 @@ class IndexingService
     /** Bugün kaç adres gönderilebilir? */
     public function remainingToday(): int
     {
-        $bugun = SeoAnalysis::query()
+        $bugun = IndexStatus::query()
             ->where('index_submitted_at', '>=', now()->subDay())
             ->count();
 
@@ -58,12 +59,11 @@ class IndexingService
      * Gönderim sırası: önce Google'ın "dizinde değil" dediği sayfalar, sonra
      * durumu belirsiz olanlar, en sonda hiç kontrol edilmemişler.
      *
-     * @return Collection<int, SeoAnalysis>
+     * @return Collection<int, IndexStatus>
      */
     public function candidates(int $limit): Collection
     {
-        return SeoAnalysis::query()
-            ->whereNotNull('url')
+        return IndexStatus::query()
             ->where(function ($query) {
                 $query->whereNull('google_index_status')
                     ->orWhere('google_index_status', '!=', 'PASS');
@@ -106,6 +106,7 @@ class IndexingService
      */
     public function submitPending(?int $limit = null): array
     {
+        IndexStatus::syncTracked();
         $kalan = $this->remainingToday();
         $limit = min($limit ?? self::GUNLUK_KOTA, $kalan);
 
@@ -119,16 +120,16 @@ class IndexingService
             try {
                 $this->submit((string) $analysis->url);
 
-                $analysis->forceFill([
+                $analysis->mirror([
                     'index_submitted_at' => now(),
                     'index_submit_count' => $analysis->index_submit_count + 1,
                     'index_submit_error' => null,
-                ])->saveQuietly();
+                ]);
 
                 $sent++;
             } catch (Throwable $e) {
                 $failed++;
-                $analysis->forceFill(['index_submit_error' => mb_substr($e->getMessage(), 0, 300)])->saveQuietly();
+                $analysis->mirror(['index_submit_error' => mb_substr($e->getMessage(), 0, 300)]);
                 AutomationLog::error('gsc.indexing', $e->getMessage(), ['url' => $analysis->url]);
 
                 // Yetki ya da kota hatasıysa kalan adresler de düşer; kotayı harcama.
@@ -157,7 +158,9 @@ class IndexingService
 
         // 404 = bu adres hiç bildirilmemiş; API açık ve erişim var demektir.
         if ($probe->successful() || $probe->status() === 404) {
-            $cleared = SeoAnalysis::query()->whereNotNull('index_submit_error')->update(['index_submit_error' => null]);
+            IndexStatus::syncTracked();
+            $cleared = IndexStatus::query()->whereNotNull('index_submit_error')->update(['index_submit_error' => null]);
+            SeoAnalysis::query()->whereNotNull('index_submit_error')->update(['index_submit_error' => null]);
 
             return ['status' => 'ok', 'message' => 'Indexing API erişimi çalışıyor.', 'cleared' => $cleared];
         }

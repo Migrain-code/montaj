@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Filament\Widgets\QuoteTrendChart;
 use App\Filament\Widgets\SearchTrafficChart;
 use App\Models\AiCrawlerVisit;
@@ -20,19 +21,18 @@ use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use UnitEnum;
 
 class Analytics extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPresentationChartLine;
 
-    protected static string|UnitEnum|null $navigationGroup = 'SEO & AI';
+    protected static ?string $cluster = SeoMerkezi::class;
 
-    protected static ?string $navigationLabel = 'Analitik';
+    protected static ?string $navigationLabel = 'Analytics';
 
     protected static ?string $title = 'Analitik';
 
-    protected static ?int $navigationSort = 0;
+    protected static ?int $navigationSort = 7;
 
     protected string $view = 'filament.pages.analytics';
 

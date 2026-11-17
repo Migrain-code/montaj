@@ -19,11 +19,14 @@ class ManageSeoAnalyses extends ManageRecords
     public function getSubheading(): ?string
     {
         if (! app(SearchConsoleService::class)->isConfigured()) {
-            return 'Search Console bağlantısı kurulmadığı için dizin durumu boş kalır. Bağlantıyı SEO & AI Ayarları sayfasından kurabilirsiniz.';
+            return 'Search Console bağlantısı kurulmadığı için dizin durumu boş kalır. Bağlantıyı SEO Merkezi → Ayarlar sekmesinden kurabilirsiniz.';
         }
 
-        return 'Sayfaların Google dizininde olup olmadığını gösterir. Gece çalışan görev her turda en eski '
-            .'kontrol edilen 30 sayfayı sorar; "Son kontrol" sütunu satırın ne kadar taze olduğunu söyler.';
+        $gsc = app(SearchConsoleService::class);
+
+        return 'Site haritasındaki tüm adreslerin (ilçe, il, hizmet, marka ve blog sayfaları dahil) Google dizininde olup olmadığını gösterir. '
+            .'Gece 01:00–07:00 arası saatlik görev hepsini, hiç bakılmamış olandan başlayarak sorar (günlük kota 2000; bugün kalan: '
+            .$gsc->inspectionsLeftToday().'). Dizinde olmayanlara her gece 200 adrese kadar bildirim gider.';
     }
 
     protected function getHeaderActions(): array
@@ -35,7 +38,8 @@ class ManageSeoAnalyses extends ManageRecords
                 ->visible(fn () => auth()->user()?->isSuperAdmin() && app(SearchConsoleService::class)->isConfigured())
                 ->requiresConfirmation()
                 ->modalHeading('Dizin durumunu kontrol et')
-                ->modalDescription('Search Console\'a sorar. Her çalıştırmada en eski kontrol edilen 30 sayfaya bakılır; '
+                ->modalDescription(fn () => 'Search Console\'a site haritasındaki tüm adresleri sorar (en eski kontrol edilen önce). '
+                    .'Bugün kalan sorgu hakkı: '.app(SearchConsoleService::class)->inspectionsLeftToday().'. Bir tur en fazla ~13 dakika sürer; sığmayan adresler gece 01:00–07:00 arası saatlik turlarda sorulur. '
                     .'iş kuyruğa alınır ve kuyruk işçisi çalıştırır.')
                 ->modalSubmitActionLabel('Evet, çalıştır')
                 ->action(function (CommandRunner $runner) {

@@ -13,3 +13,18 @@
         </div>
     </section>
 @endsection
+
+@if (($lead = session('lead')) && setting('google_analytics_id'))
+    {{--
+        Dönüşüm: talep başına BİR KEZ (flash oturum; sayfa yenilenince gönderilmez).
+        Yalnız kişisel olmayan alanlar: form, hizmet, formun doldurulduğu sayfa.
+        gtag tanımlı değilse (Analytics kapalı / engellenmiş) sessizce atlanır.
+    --}}
+    @push('scripts')
+        <script>
+            if (typeof window.gtag === 'function') {
+                window.gtag('event', 'generate_lead', @json((array) $lead));
+            }
+        </script>
+    @endpush
+@endif

@@ -41,6 +41,7 @@ class ServiceController extends Controller
         }
 
         return view('services.show', [
+            'pageType' => 'service',
             'service' => $service,
             'otherServices' => Service::query()->active()->ordered()->whereKeyNot($service->getKey())->get(),
             'provinces' => Province::query()->active()->ordered()->with('activeDistricts')->get(),

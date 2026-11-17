@@ -19,6 +19,7 @@ class SeoKeywordAction extends Model
     public const REVERTED = 'reverted';
 
     public const LABELS = [
+        'blog' => 'Sayfa ya da blog yazısı',
         'meta' => 'Başlık ve açıklama',
         'content' => 'Kelimeye özel bölüm',
         'faq' => 'Soru-cevap',

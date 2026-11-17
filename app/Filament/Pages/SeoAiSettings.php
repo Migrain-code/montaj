@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Models\Setting;
 use App\Services\Ai\AiClient;
 use App\Services\Google\CredentialFile;
@@ -26,7 +27,6 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\HtmlString;
 use Throwable;
-use UnitEnum;
 
 class SeoAiSettings extends Page implements HasSchemas
 {
@@ -34,13 +34,13 @@ class SeoAiSettings extends Page implements HasSchemas
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAdjustmentsHorizontal;
 
-    protected static string|UnitEnum|null $navigationGroup = 'SEO & AI';
+    protected static ?string $cluster = SeoMerkezi::class;
 
-    protected static ?string $navigationLabel = 'SEO & AI Ayarları';
+    protected static ?string $navigationLabel = 'Ayarlar';
 
     protected static ?string $title = 'SEO & AI Ayarları';
 
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 14;
 
     protected string $view = 'filament.pages.seo-ai-settings';
 

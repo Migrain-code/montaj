@@ -37,5 +37,8 @@
              anahtarları kendi içinde tanımlıyor. -->
         <env name="RECAPTCHA_SITE_KEY" value="" force="true"/>
         <env name="RECAPTCHA_SECRET_KEY" value="" force="true"/>
+        <!-- https zorunluluğu ve IndexNow canlı .env'den bağımsız: testler kendi açar. -->
+        <env name="FORCE_HTTPS" value="false" force="true"/>
+        <env name="INDEXNOW_KEY" value="" force="true"/>
     </php>
 </phpunit>

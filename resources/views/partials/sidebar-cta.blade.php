@@ -1,4 +1,4 @@
-<div class="cta-card">
+<div data-track-area="sidebar" class="cta-card">
     <h3>{{ $ctaTitle ?? 'Hemen Teklif Alın' }}</h3>
     <p>{{ $ctaText ?? 'Mobilyanızın fotoğrafını gönderin, kısa sürede net fiyat verelim.' }}</p>
     <a class="btn btn-whatsapp" href="{{ $whatsappUrl ?? whatsapp_url() }}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i>WhatsApp'tan Teklif Al</a>

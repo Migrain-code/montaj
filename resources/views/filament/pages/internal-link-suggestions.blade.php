@@ -7,7 +7,7 @@
                     <strong>İç link motoru kapalı.</strong>
                     Kural oluşturabilirsiniz ama sitede link basılmaz.
                     <a href="{{ \App\Filament\Pages\SeoAiSettings::getUrl() }}" class="text-primary-600 hover:underline">
-                        SEO &amp; AI Ayarları → İç link motoru
+                        SEO Merkezi → Ayarlar → İç link motoru
                     </a>
                     bölümünden açabilirsiniz.
                 </div>

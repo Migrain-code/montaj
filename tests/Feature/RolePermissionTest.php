@@ -69,12 +69,12 @@ class RolePermissionTest extends TestCase
     {
         $pages = [
             '/admin/site-settings' => ['super_admin'],
-            '/admin/seo-ai-settings' => ['super_admin'],
+            '/admin/seo-merkezi/seo-ai-settings' => ['super_admin'],
             '/admin/users' => ['super_admin'],
-            '/admin/duplicate-cleaner' => ['super_admin'],
-            '/admin/seo-dashboard' => ['super_admin', 'personel'],
-            '/admin/seo-keywords' => ['super_admin', 'personel'],
-            '/admin/analytics' => ['super_admin', 'personel', 'musteri_temsilcisi'],
+            '/admin/seo-merkezi/duplicate-cleaner' => ['super_admin'],
+            '/admin/seo-merkezi/seo-dashboard' => ['super_admin', 'personel'],
+            '/admin/seo-merkezi/seo-keywords' => ['super_admin', 'personel'],
+            '/admin/seo-merkezi/analytics' => ['super_admin', 'personel', 'musteri_temsilcisi'],
             '/admin/services' => ['super_admin', 'personel', 'musteri_temsilcisi'],
             '/admin/quote-requests' => ['super_admin', 'personel', 'musteri_temsilcisi', 'montajci'],
         ];

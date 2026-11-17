@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SeoKeywords;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Filament\Resources\SeoKeywords\Pages\ManageSeoKeywords;
 use App\Models\SeoKeyword;
 use BackedEnum;
@@ -26,7 +27,6 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
-use UnitEnum;
 
 class SeoKeywordResource extends Resource
 {
@@ -34,9 +34,11 @@ class SeoKeywordResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedKey;
 
-    protected static string|UnitEnum|null $navigationGroup = 'SEO & AI';
+    protected static ?string $cluster = SeoMerkezi::class;
 
-    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationLabel = 'Anahtar Kelimeler';
+
+    protected static ?int $navigationSort = 5;
 
     protected static ?string $modelLabel = 'Anahtar Kelime';
 

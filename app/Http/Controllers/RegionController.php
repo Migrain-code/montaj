@@ -41,6 +41,7 @@ class RegionController extends Controller
         }
 
         return view('regions.province', [
+            'pageType' => 'province',
             'province' => $province,
             'services' => Service::query()->active()->ordered()->get(),
             'otherProvinces' => Province::query()->active()->ordered()->whereKeyNot($province->getKey())->with('activeDistricts')->get(),
@@ -75,6 +76,7 @@ class RegionController extends Controller
         }
 
         return view('regions.district', [
+            'pageType' => 'district',
             'province' => $province,
             'district' => $district,
             'services' => Service::query()->active()->ordered()->get(),

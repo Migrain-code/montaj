@@ -2,17 +2,18 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Models\Blog;
 use App\Models\InternalLinkRule;
 use App\Models\InternalLinkSuggestionReject;
 use App\Services\InternalLink\LinkApplier;
 use App\Services\InternalLink\SuggestionEngine;
+use App\Support\PathNormalizer;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-use UnitEnum;
 
 /**
  * İç link öneri ekranı (spec §3.6).
@@ -24,13 +25,19 @@ class InternalLinkSuggestions extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedLightBulb;
 
-    protected static string|UnitEnum|null $navigationGroup = 'SEO & AI';
+    protected static ?string $cluster = SeoMerkezi::class;
 
     protected static ?string $navigationLabel = 'İç Link Önerileri';
 
     protected static ?string $title = 'İç Link Önerileri';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 6;
+
+    /** Sekme şeridinde ayrı buton yok: "İç Linkleme" ekranındaki "Öneriler" düğmesinden açılır. */
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 
     protected string $view = 'filament.pages.internal-link-suggestions';
 
@@ -61,7 +68,7 @@ class InternalLinkSuggestions extends Page
                 InternalLinkRule::updateOrCreate(
                     [
                         'anchor_text' => $arguments['anchor'],
-                        'target_hash' => \App\Support\PathNormalizer::hash($arguments['target']),
+                        'target_hash' => PathNormalizer::hash($arguments['target']),
                     ],
                     [
                         'target_url' => $arguments['target'],

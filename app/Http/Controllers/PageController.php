@@ -27,6 +27,7 @@ class PageController extends Controller
         $page = Page::query()->active()->where('slug', $slug)->firstOrFail();
 
         return view('pages.show', [
+            'pageType' => 'page',
             'page' => $page,
             'metaTitle' => $page->meta_title ?: $page->title,
             'metaDescription' => $page->meta_description,

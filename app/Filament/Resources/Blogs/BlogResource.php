@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Blogs;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Filament\Resources\Blogs\Pages\CreateBlog;
 use App\Filament\Resources\Blogs\Pages\EditBlog;
 use App\Filament\Resources\Blogs\Pages\ListBlogs;
@@ -13,7 +14,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class BlogResource extends Resource
 {
@@ -21,9 +21,11 @@ class BlogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedNewspaper;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Blog';
+    protected static ?string $cluster = SeoMerkezi::class;
 
-    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationLabel = 'Blog Üretici';
+
+    protected static ?int $navigationSort = 12;
 
     protected static ?string $modelLabel = 'Blog Yazısı';
 

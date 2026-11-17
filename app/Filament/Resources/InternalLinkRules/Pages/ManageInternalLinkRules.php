@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\InternalLinkRules\Pages;
 
+use App\Filament\Pages\InternalLinkSuggestions;
 use App\Filament\Resources\InternalLinkRules\InternalLinkRuleResource;
 use App\Services\InternalLink\LinkApplier;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
 
@@ -17,7 +19,7 @@ class ManageInternalLinkRules extends ManageRecords
 
         if (! $applier->enabled()) {
             return '⚠️ İç link motoru KAPALI. Kurallar kayıtlı ama hiçbir link basılmıyor. '
-                .'SEO & AI Ayarları → İç link motoru bölümünden açabilirsiniz.';
+                .'SEO Merkezi → Ayarlar → İç link motoru bölümünden açabilirsiniz.';
         }
 
         return sprintf(
@@ -28,6 +30,13 @@ class ManageInternalLinkRules extends ManageRecords
 
     protected function getHeaderActions(): array
     {
-        return [CreateAction::make()];
+        return [
+            Action::make('suggestions')
+                ->label('Öneriler')
+                ->icon('heroicon-o-light-bulb')
+                ->color('gray')
+                ->url(InternalLinkSuggestions::getUrl()),
+            CreateAction::make(),
+        ];
     }
 }

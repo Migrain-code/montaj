@@ -12,14 +12,19 @@ use App\Services\Admin\CommandRunner;
 use App\Support\Console\CommandCatalog;
 use App\Support\Console\InProcess;
 use App\Support\Heartbeat;
+use App\Support\StorageLink;
 use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Console\Kernel as ConsoleKernel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 use Livewire\Livewire;
@@ -320,7 +325,7 @@ class SystemCommandsTest extends TestCase
         Heartbeat::beat(Heartbeat::SCHEDULER);
 
         // Panelden "Tüm önbellekleri temizle" çalıştırılınca yanlış alarm çıkmamalı.
-        \Illuminate\Support\Facades\Cache::flush();
+        Cache::flush();
 
         $this->assertTrue(Heartbeat::healthy(Heartbeat::SCHEDULER));
     }
@@ -404,8 +409,8 @@ class SystemCommandsTest extends TestCase
     /** Kod hostinge yeni yüklendi, migrate henüz çalışmadı: command_runs tablosu yok. */
     private function simulateFreshDeploy(): void
     {
-        \Illuminate\Support\Facades\Schema::drop('command_runs');
-        \Illuminate\Support\Facades\DB::table('migrations')
+        Schema::drop('command_runs');
+        DB::table('migrations')
             ->where('migration', '2026_09_22_000001_create_command_runs_table')
             ->delete();
     }
@@ -428,7 +433,7 @@ class SystemCommandsTest extends TestCase
             ->callAction('run', arguments: ['key' => 'migrate'])
             ->assertNotified();
 
-        $this->assertTrue(\Illuminate\Support\Facades\Schema::hasTable('command_runs'), 'migrate tabloyu oluşturmalıydı.');
+        $this->assertTrue(Schema::hasTable('command_runs'), 'migrate tabloyu oluşturmalıydı.');
         // Tabloyu oluşturan çalıştırma, geçmişin ilk kaydı olarak yazılır.
         $this->assertDatabaseHas('command_runs', ['command_key' => 'migrate', 'status' => CommandRun::SUCCEEDED]);
     }
@@ -448,7 +453,7 @@ class SystemCommandsTest extends TestCase
     /** Hosting kısıtlarını taklit eden sahte bağlantı durumu. */
     private function fakeStorageLink(bool $exists, bool $php): void
     {
-        $this->app->instance(\App\Support\StorageLink::class, new class($exists, $php) extends \App\Support\StorageLink
+        $this->app->instance(StorageLink::class, new class($exists, $php) extends StorageLink
         {
             public function __construct(private bool $fakeExists, private bool $fakePhp) {}
 
@@ -502,7 +507,7 @@ class SystemCommandsTest extends TestCase
 
     public function test_storage_link_cron_command_is_idempotent_and_uses_real_paths(): void
     {
-        $command = app(\App\Support\StorageLink::class)->cronCommand();
+        $command = app(StorageLink::class)->cronCommand();
 
         $this->assertSame(
             "[ -e '".public_path('storage')."' ] || ln -s '".storage_path('app/public')."' '".public_path('storage')."'",
@@ -534,7 +539,46 @@ class SystemCommandsTest extends TestCase
     {
         // Özel diskte Google kimlik dosyası ve teklif fotoğrafları duruyor.
         $this->assertFalse(config('filesystems.disks.local.serve'));
-        $this->assertFalse(\Illuminate\Support\Facades\Route::has('storage.local'));
-        $this->assertFalse(\Illuminate\Support\Facades\Route::has('storage.local.upload'));
+        $this->assertFalse(Route::has('storage.local'));
+        $this->assertFalse(Route::has('storage.local.upload'));
+    }
+
+    public function test_thin_region_short_text_and_indexnow_buttons_are_in_the_catalog(): void
+    {
+        $all = CommandCatalog::all();
+
+        $this->assertSame('seo:enrich', $all['enrich-thin']['command']);
+        $this->assertSame(['--thin' => true, '--limit' => 10], $all['enrich-thin']['arguments']);
+        $this->assertSame('background', $all['enrich-thin']['mode'], 'AI işi web isteğini bekletmemeli');
+        $this->assertSame(['--short' => true, '--limit' => 10], $all['enrich-short']['arguments']);
+
+        $this->assertSame('seo:indexnow', $all['indexnow']['command']);
+        $this->assertSame(['--all' => true], $all['indexnow']['arguments']);
+
+        // Dizi değerli seçenek terminal satırında tekrarlı yazılır.
+        $this->assertSame('seo:enrich --type=brand --limit=10', CommandCatalog::commandLine($all['enrich-brands']));
+    }
+
+    public function test_thin_and_short_pages_are_enriched_nightly_and_index_check_runs_hourly(): void
+    {
+        $events = collect(app(Schedule::class)->events())
+            ->map(fn ($e) => (string) $e->description.' '.(string) $e->command);
+
+        $this->assertTrue($events->contains(fn ($e) => str_contains($e, 'seo:enrich') && str_contains($e, '--thin')), 'metinsiz bölgeler için gece görevi olmalı');
+        $this->assertTrue($events->contains(fn ($e) => str_contains($e, 'seo:enrich') && str_contains($e, '--short')), 'kısa metinler için gece görevi olmalı');
+
+        $check = collect(app(Schedule::class)->events())->first(fn ($e) => str_contains((string) $e->description.' '.(string) $e->command, 'seo:check-index'));
+        $this->assertNotNull($check);
+        $this->assertSame('0 * * * *', $check->expression, 'dizin kontrolü saatlik turlarla tamamlanır');
+    }
+
+    /** Dizin kontrolü ~10 dk sürüyor: retry_after 90 sn iken ikinci işçi işi yeniden alıyordu. */
+    public function test_queue_does_not_retake_a_long_panel_command_while_it_runs(): void
+    {
+        $timeout = (new RunConsoleCommand(1))->timeout;
+
+        foreach (['database', 'redis'] as $connection) {
+            $this->assertGreaterThan($timeout, config("queue.connections.{$connection}.retry_after"), $connection);
+        }
     }
 }

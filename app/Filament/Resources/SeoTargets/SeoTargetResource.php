@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\SeoTargets;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Filament\Resources\SeoTargets\Pages\ManageSeoTargets;
 use App\Models\SeoTarget;
 use App\Services\Seo\TargetSynchroniser;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -25,7 +25,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class SeoTargetResource extends Resource
 {
@@ -33,7 +32,9 @@ class SeoTargetResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFlag;
 
-    protected static string|UnitEnum|null $navigationGroup = 'SEO & AI';
+    protected static ?string $cluster = SeoMerkezi::class;
+
+    protected static ?string $navigationLabel = 'Sayfalar';
 
     protected static ?int $navigationSort = 3;
 

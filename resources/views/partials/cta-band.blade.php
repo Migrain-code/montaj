@@ -1,4 +1,4 @@
-<section class="cta-band">
+<section data-track-area="cta_band" class="cta-band">
     <x-bg-picture :path="setting('cta_image')" :mobile="[720, 900]" :widths="[1280, 1920]" />
     <div class="container">
         <div class="row align-items-center">

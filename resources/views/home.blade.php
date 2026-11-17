@@ -2,7 +2,7 @@
 
 @section('content')
     {{-- Hero --}}
-    <section class="hero">
+    <section data-track-area="hero" class="hero">
         <x-bg-picture :path="setting('hero_image')" :fallback="asset('images/placeholder.svg')" :priority="true" />
         <div class="container">
             <div class="row">

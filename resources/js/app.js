@@ -1,6 +1,7 @@
 import Collapse from 'bootstrap/js/dist/collapse';
 import Offcanvas from 'bootstrap/js/dist/offcanvas';
 import Carousel from 'bootstrap/js/dist/carousel';
+import { initTracking } from './tracking';
 
 // Bootstrap bileşenlerini data-* API'siyle etkinleştir (import edilmeleri yeterli)
 window.bootstrap = { Collapse, Offcanvas, Carousel };
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     quoteForm();
     recaptcha();
     backToTop();
+    initTracking();
 });
 
 /*

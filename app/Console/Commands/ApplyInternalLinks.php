@@ -9,6 +9,7 @@ use App\Models\InternalLinkRule;
 use App\Models\Province;
 use App\Models\Service;
 use App\Services\InternalLink\LinkApplier;
+use App\Services\InternalLink\RelatedLinks;
 use App\Support\AutomationLog;
 use App\Support\SeoConfig;
 use Illuminate\Console\Command;
@@ -30,11 +31,11 @@ class ApplyInternalLinks extends Command
 
     protected $description = 'İç link kurallarını yayındaki içeriklerin gövdesine işler';
 
-    public function handle(LinkApplier $applier): int
+    public function handle(LinkApplier $applier, RelatedLinks $related): int
     {
         if (! $applier->enabled()) {
             AutomationLog::summary('links.apply', ['enabled' => false], reasons: ['disabled']);
-            $this->warn('İç link motoru kapalı (SEO & AI Ayarları → İç link motoru).');
+            $this->warn('İç link motoru kapalı (SEO Merkezi → Ayarlar → İç link motoru).');
 
             return self::SUCCESS;
         }
@@ -50,7 +51,7 @@ class ApplyInternalLinks extends Command
 
         if (InternalLinkRule::query()->active()->doesntExist()) {
             AutomationLog::summary('links.apply', ['rules' => 0], reasons: ['no_candidates']);
-            $this->warn('Aktif iç link kuralı yok. Panel → SEO & AI → İç Link Önerileri ekranından onaylayın.');
+            $this->warn('Aktif iç link kuralı yok. Panel → SEO Merkezi → İç Linkleme → Öneriler ekranından onaylayın.');
 
             return self::SUCCESS;
         }
@@ -72,6 +73,10 @@ class ApplyInternalLinks extends Command
                 }
 
                 $after = $applier->apply($before, $scope, $selfUrl);
+
+                // Kural metinde birebir geçmediyse (doğal dilde yazılmış metinlerin çoğu)
+                // sayfaya özgü bir "ilgili sayfalar" paragrafı eklenir.
+                $after = $related->appendIfNeeded($model, $after);
 
                 if ($after !== $before) {
                     $model->forceFill([$field => $after])->saveQuietly();
@@ -109,13 +114,16 @@ class ApplyInternalLinks extends Command
         }
 
         if (in_array('service', $types, true)) {
-            $out['service'] = Service::query()->where('is_active', true)->limit($batch)->get()
+            // Hizmet, marka ve il sayısı küçük ve sabit: hepsi her turda taranır. Tür başına
+            // ilk N kayıt alınsaydı sırasız listede hep aynı kayıtlar işlenir, kalanlar hiç
+            // link almazdı.
+            $out['service'] = Service::query()->where('is_active', true)->get()
                 ->map(fn (Service $s) => [$s, 'description', '/'.$s->slug])->all();
         }
 
         if (in_array('brand', $types, true)) {
             // Kendi hizmet sayfasına bağlı markanın gövdesi yayınlanmaz; atlanır.
-            $out['brand'] = Brand::query()->where('is_active', true)->whereNull('service_id')->limit($batch)->get()
+            $out['brand'] = Brand::query()->where('is_active', true)->whereNull('service_id')->get()
                 ->map(fn (Brand $b) => [$b, 'content', $b->path()])->all();
         }
 
@@ -126,7 +134,7 @@ class ApplyInternalLinks extends Command
         }
 
         if (in_array('province', $types, true)) {
-            $out['province'] = Province::query()->where('is_active', true)->limit($batch)->get()
+            $out['province'] = Province::query()->where('is_active', true)->orderBy('sort_order')->get()
                 ->map(fn (Province $p) => [$p, 'content', '/'.$p->slug])->all();
         }
 

@@ -11,6 +11,7 @@ use App\Support\AutomationLog;
 use App\Support\PathNormalizer;
 use App\Support\SeoConfig;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use Throwable;
 
 /**
@@ -35,7 +36,7 @@ class RefreshLowCtrMeta extends Command
 
         if (! SeoConfig::bool('ai_refresh_meta', false)) {
             AutomationLog::summary('seo.meta', ['enabled' => false], reasons: ['disabled']);
-            $this->warn('Düşük CTR meta tazeleme kapalı (SEO & AI Ayarları → AI otomasyonu).');
+            $this->warn('Düşük CTR meta tazeleme kapalı (SEO Merkezi → Ayarlar → AI otomasyonu).');
 
             return self::SUCCESS;
         }
@@ -88,7 +89,7 @@ class RefreshLowCtrMeta extends Command
                         'Mevcut meta açıklama: '.($content->metaDescription ?: '(yok)'),
                         'Gösterim: '.$row->impressions.' · Tıklama: '.$row->clicks.' · Ortalama sıra: '.round((float) $row->position, 1),
                         '',
-                        'İçerik özeti: '.\Illuminate\Support\Str::limit(strip_tags((string) $content->bodyHtml), 900),
+                        'İçerik özeti: '.Str::limit(strip_tags((string) $content->bodyHtml), 900),
                         '',
                         'KURALLAR:',
                         '- meta_title en fazla 60 karakter, meta_description en fazla 155 karakter.',

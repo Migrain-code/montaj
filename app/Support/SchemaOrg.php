@@ -117,6 +117,9 @@ class SchemaOrg
             $data['image'] = $post->image_url;
         }
 
+        // Article zengin sonucu yazar ister; içerik firmanın kendi yayınıdır.
+        $data['author'] = ['@type' => 'Organization', 'name' => site_name(), 'url' => url('/')];
+
         if ($post->category) {
             $data['articleSection'] = $post->category->name;
         }

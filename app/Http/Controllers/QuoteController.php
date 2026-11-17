@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreQuoteRequest;
 use App\Mail\QuoteRequestReceived;
 use App\Models\QuoteRequest;
+use App\Services\Media\WebpConverter;
 use App\Support\SchemaOrg;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class QuoteController extends Controller
@@ -34,7 +34,7 @@ class QuoteController extends Controller
         // Müşteri fotoğrafları da WebP'ye çevrilir: telefon fotoğrafları büyüktür ve
         // panelde hızlı açılması gerekir. Çevrilemezse orijinal korunur.
         $photos = [];
-        $converter = app(\App\Services\Media\WebpConverter::class);
+        $converter = app(WebpConverter::class);
 
         foreach ($request->file('photos', []) as $file) {
             $photos[] = $converter->store($file, 'local', 'quote-photos/'.now()->format('Y/m'));
@@ -52,7 +52,30 @@ class QuoteController extends Controller
 
         $this->notify($quote);
 
-        return redirect()->route('quote.thanks')->with('quote_sent', true);
+        return redirect()->route('quote.thanks')
+            ->with('quote_sent', true)
+            ->with('lead', $this->leadEvent($quote, $request->input('page_type')));
+    }
+
+    /**
+     * Teşekkür sayfasında Google Analytics'e gidecek "generate_lead" olayının parametreleri.
+     * Flash oturumda taşınır: olay talep başına YALNIZ BİR KEZ gönderilir, sayfa yenilenirse
+     * tekrar gönderilmez. Kişisel veri (ad, telefon, e-posta, serbest metin) KESİNLİKLE
+     * eklenmez; yalnız hizmet ve formun doldurulduğu sayfa.
+     *
+     * @return array<string, string>
+     */
+    protected function leadEvent(QuoteRequest $quote, mixed $pageType): array
+    {
+        $path = $quote->page_url ? parse_url($quote->page_url, PHP_URL_PATH) : null;
+        $pageType = is_string($pageType) && preg_match('/^[a-z_]{1,30}$/', $pageType) ? $pageType : null;
+
+        return array_filter([
+            'form' => $quote->source === 'contact' ? 'contact' : 'quote',
+            'service' => $quote->service?->slug,
+            'page_path' => is_string($path) && preg_match('#^/[A-Za-z0-9/_.%-]{0,200}$#', $path) ? $path : null,
+            'page_type' => $pageType,
+        ], fn ($value) => filled($value));
     }
 
     public function thanks(): View

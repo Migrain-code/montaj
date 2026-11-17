@@ -114,6 +114,18 @@ final class CommandCatalog
             'enrich' => self::entry('seo:enrich', ['--limit' => 3], 'Zayıf sayfaları zenginleştir (yapay zeka)',
                 'Hedef skorun altındaki en fazla 3 sayfanın içeriğini yapay zekayla genişletir. Ücretlidir.',
                 'seo', mode: 'background', danger: true),
+            'enrich-thin' => self::entry('seo:enrich', ['--thin' => true, '--limit' => 10], 'Metinsiz bölgeleri doldur (yapay zeka)',
+                'Henüz kendine özgü metni olmayan (150 kelimeden kısa) en fazla 10 il/ilçe sayfasına yapay zekayla metin yazar. Metin alan sayfa IndexNow ile bildirilir. Hepsi dolana kadar tekrar basın. Ücretlidir.',
+                'seo', mode: 'background', danger: true),
+            'enrich-short' => self::entry('seo:enrich', ['--short' => true, '--limit' => 10], 'Kısa metinleri 600 kelimeye tamamla (yapay zeka)',
+                '600 kelimenin altındaki en fazla 10 ilçe/il/marka/hizmet sayfasına, mevcut metne dokunmadan yeni bölümler ekler; en kısalar önce. Hepsi bitene kadar tekrar basın, sonra SEO skorlarını hesaplayın. Ücretlidir.',
+                'seo', mode: 'background', danger: true),
+            'enrich-brands' => self::entry('seo:enrich', ['--type' => ['brand'], '--limit' => 10], 'Marka metinlerini genişlet (yapay zeka)',
+                'Hedef skorun altındaki en fazla 10 marka sayfasının metnini yapay zekayla genişletir (marka hakkında iddia yazmaz, hukuki not korunur). Ücretlidir.',
+                'seo', mode: 'background', danger: true),
+            'indexnow' => self::entry('seo:indexnow', ['--all' => true], 'IndexNow ile tüm sayfaları bildir',
+                'Site haritasındaki tüm adresleri Bing, Yandex ve diğer IndexNow arama motorlarına tek seferde bildirir. Kurulumdan sonra bir kez yeterli; yeni yazı ve metni değişen bölgeler sonrasında otomatik bildirilir. IndexNow anahtarı gerekir (SEO Merkezi → Ayarlar ya da .env INDEXNOW_KEY).',
+                'seo', mode: 'background'),
             'refresh-meta' => self::entry('seo:refresh-meta', [], 'Düşük tıklamalı başlıkları yenile (yapay zeka)',
                 'Search Console verisine göre az tıklanan sayfaların meta başlık ve açıklamalarını yeniden yazar. Ücretlidir.',
                 'seo', mode: 'background', danger: true),
@@ -124,7 +136,7 @@ final class CommandCatalog
                 'Hedef kelimelerin Google sıralamalarını Search Console verisinden günceller.',
                 'seo', mode: 'background'),
             'check-index' => self::entry('seo:check-index', [], 'Dizin durumunu kontrol et',
-                'Sayfaların Google dizininde olup olmadığını Search Console\'a sorar.',
+                'Site haritasındaki tüm adreslerin Google dizininde olup olmadığını Search Console\'a sorar (günlük kota 2000).',
                 'seo', mode: 'background'),
             'submit-index' => self::entry('seo:submit-index', [], 'Dizine ekleme bildirimi gönder',
                 'Google dizininde olmayan sayfaları Indexing API ile Google\'a bildirir. Günlük kota 200 adres.',
@@ -192,7 +204,10 @@ final class CommandCatalog
             } elseif ($value === true) {
                 $parts[] = $name;
             } else {
-                $parts[] = $name.'='.$value;
+                // Dizi değerli seçenek (--type=* gibi) tekrarlı yazılır: --type=brand --type=province
+                foreach ((array) $value as $item) {
+                    $parts[] = $name.'='.$item;
+                }
             }
         }
 

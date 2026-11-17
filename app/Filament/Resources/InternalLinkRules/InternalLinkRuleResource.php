@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\InternalLinkRules;
 
+use App\Filament\Clusters\SeoMerkezi;
 use App\Filament\Resources\InternalLinkRules\Pages\ManageInternalLinkRules;
 use App\Models\InternalLinkRule;
 use App\Models\SeoTarget;
-use App\Services\InternalLink\LinkApplier;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -22,7 +22,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class InternalLinkRuleResource extends Resource
 {
@@ -30,9 +29,11 @@ class InternalLinkRuleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedLink;
 
-    protected static string|UnitEnum|null $navigationGroup = 'SEO & AI';
+    protected static ?string $cluster = SeoMerkezi::class;
 
-    protected static ?int $navigationSort = 4;
+    protected static ?string $navigationLabel = 'İç Linkleme';
+
+    protected static ?int $navigationSort = 6;
 
     protected static ?string $modelLabel = 'İç Link Kuralı';
 

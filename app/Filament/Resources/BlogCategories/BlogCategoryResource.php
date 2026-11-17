@@ -28,9 +28,11 @@ class BlogCategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolder;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Blog';
+    protected static string|UnitEnum|null $navigationGroup = 'İçerik';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationLabel = 'Blog Kategorileri';
+
+    protected static ?int $navigationSort = 20;
 
     protected static ?string $modelLabel = 'Blog Kategorisi';
 

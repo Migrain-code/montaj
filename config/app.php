@@ -55,6 +55,13 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
 
     /*
+    | https zorunluluğu: açıkken http istekleri 301 ile https'e yönlenir (CanonicalHost) ve
+    | üretilen tüm adresler https olur. Boş bırakılırsa APP_URL https ise açık sayılır; yerelde
+    | (APP_URL=http://…) kapalı kalır. Vekil sunucu arkasında TrustProxies ayarlı olmalı.
+    */
+    'force_https' => (bool) env('FORCE_HTTPS', str_starts_with((string) env('APP_URL', ''), 'https://')),
+
+    /*
     |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
