@@ -5,7 +5,6 @@ namespace App\Services\InternalLink;
 use App\Models\InternalLinkRule;
 use App\Support\PathNormalizer;
 use App\Support\SeoConfig;
-use App\Support\TurkishText;
 use Illuminate\Support\Collection;
 
 /**
@@ -203,8 +202,22 @@ class LinkApplier
 
         $placed = 0;
 
+        // İlçe (/il/ilçe) ve marka (/markalar/…) sayfasına giden bağlantı metni özel isimdir
+        // (Kapaklı, İstikbal): ilk harfi büyük harf olarak eşleşmeli. Yoksa "kapaklı dolap"
+        // sıfatı Kapaklı ilçesine bağlanıyordu. Hizmet kuralları ("Gardırop montajı") başlık
+        // biçiminde yazıldığı için eskisi gibi büyük/küçük harf duyarsız kalır.
+        $first = mb_substr($anchor, 0, 1);
+        $rest = mb_substr($anchor, 1);
+        $path = trim((string) parse_url((string) $rule->target_url, PHP_URL_PATH), '/');
+        $namedPage = str_starts_with($path, 'markalar/') || substr_count($path, '/') === 1;
+        $properNoun = $namedPage && $first !== mb_strtolower($first);
+
+        $head = $properNoun
+            ? '(?-i:'.preg_quote($first, '/').')'.preg_quote($rest, '/')
+            : preg_quote($anchor, '/');
+
         $pattern = '/(?<![\p{L}\p{N}])('
-            .preg_quote($anchor, '/')
+            .$head
             .'(?:'.implode('|', self::SUFFIXES).')?'
             .')(?![\p{L}\p{N}])/iu';
 

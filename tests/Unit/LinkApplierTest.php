@@ -66,6 +66,23 @@ class LinkApplierTest extends TestCase
         $this->assertStringContainsString('<a href="/baska">gardırop montajı</a>', $result);
     }
 
+    public function test_proper_noun_anchor_does_not_match_lowercase_adjective(): void
+    {
+        $this->rule('Kapaklı', '/tekirdag/kapakli', max: 5);
+        $applier = $this->enable();
+
+        $result = $applier->apply('<p>Sürgülü kapaklı gardırop kurduk.</p><p>Kapaklı ilçesinde de çalışıyoruz.</p>');
+
+        // "kapaklı" sıfatı linklenmez; ilçe adı (Kapaklı, ekli hâliyle de) linklenir.
+        $this->assertStringContainsString('Sürgülü kapaklı gardırop', $result);
+        $this->assertSame(1, substr_count($result, 'href="/tekirdag/kapakli"'));
+        $this->assertMatchesRegularExpression('#<a [^>]*href="/tekirdag/kapakli"[^>]*>Kapaklı</a> ilçesinde#u', $result);
+
+        // Küçük harfle başlayan kural eskisi gibi büyük/küçük duyarsız.
+        $this->rule('gardırop montajı', '/gardirop-montaji');
+        $this->assertStringContainsString('href="/gardirop-montaji"', $applier->apply('<p>Gardırop montajı yapıyoruz.</p>'));
+    }
+
     public function test_respects_per_article_cap(): void
     {
         $this->rule('montaj', '/mobilya-montaji', max: 10);
