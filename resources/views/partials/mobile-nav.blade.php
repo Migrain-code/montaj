@@ -41,8 +41,6 @@
             </li>
             <li><a class="mnav-link" href="{{ route('projects.index') }}">İşlerimiz</a></li>
             <li><a class="mnav-link" href="{{ route('gallery.index') }}">Galeri</a></li>
-            <li><a class="mnav-link" href="{{ route('blog.index') }}">Blog</a></li>
-            <li><a class="mnav-link" href="{{ route('about') }}">Hakkımızda</a></li>
             <li><a class="mnav-link" href="{{ route('faq') }}">Sık Sorulan Sorular</a></li>
             <li><a class="mnav-link" href="{{ route('contact') }}">İletişim</a></li>
         </ul>
