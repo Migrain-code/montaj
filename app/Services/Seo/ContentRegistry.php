@@ -6,6 +6,7 @@ use App\Models\Blog;
 use App\Models\Brand;
 use App\Models\District;
 use App\Models\Page;
+use App\Models\Project;
 use App\Models\Province;
 use App\Models\Service;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +26,7 @@ class ContentRegistry
         'district' => 'İlçe',
         'blog' => 'Blog yazısı',
         'page' => 'Sayfa',
+        'project' => 'Tamamlanan iş',
     ];
 
     /**
@@ -50,7 +52,8 @@ class ContentRegistry
             ->merge($this->provinces())
             ->merge($this->districts())
             ->merge($this->blogs())
-            ->merge($this->pages());
+            ->merge($this->pages())
+            ->merge($this->projects());
     }
 
     public function forModel(Model $model): ?ScorableContent
@@ -62,6 +65,7 @@ class ContentRegistry
             $model instanceof District => $this->fromDistrict($model->loadMissing('province')),
             $model instanceof Blog => $this->fromBlog($model),
             $model instanceof Page => $this->fromPage($model),
+            $model instanceof Project => $this->fromProject($model),
             default => null,
         };
     }
@@ -76,6 +80,7 @@ class ContentRegistry
             'district' => District::with('province')->find($id),
             'blog' => Blog::find($id),
             'page' => Page::find($id),
+            'project' => Project::find($id),
             default => null,
         };
     }
@@ -104,6 +109,11 @@ class ContentRegistry
     private function blogs(): Collection
     {
         return Blog::query()->get()->map(fn (Blog $b) => $this->fromBlog($b));
+    }
+
+    private function projects(): Collection
+    {
+        return Project::query()->get()->map(fn (Project $p) => $this->fromProject($p));
     }
 
     private function pages(): Collection
@@ -229,6 +239,24 @@ class ContentRegistry
             published: (bool) $page->is_active,
             hasImage: true,
             faqCount: 0,
+        );
+    }
+
+    private function fromProject(Project $project): ScorableContent
+    {
+        return new ScorableContent(
+            contentType: 'project',
+            contentId: $project->getKey(),
+            title: (string) $project->title,
+            url: $project->url,
+            metaTitle: $project->meta_title,
+            metaDescription: $project->meta_description,
+            bodyHtml: $project->body,
+            slug: $project->slug,
+            published: (bool) $project->is_active,
+            hasImage: $project->cover() !== null,
+            faqCount: 0,
+            extraText: array_merge((array) $project->items, array_filter([$project->summary])),
         );
     }
 }

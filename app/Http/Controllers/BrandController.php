@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
+use App\Models\Project;
 use App\Models\Province;
 use App\Models\Service;
 use App\Support\SchemaOrg;
@@ -44,6 +45,7 @@ class BrandController extends Controller
         return view('brands.show', [
             'pageType' => 'brand',
             'brand' => $brand,
+            'projects' => Project::query()->active()->where('brand_id', $brand->getKey())->with(['district.province', 'brand'])->ordered()->take(4)->get(),
             'otherBrands' => Brand::query()->active()->ordered()->with('service:id,slug')->whereKeyNot($brand->getKey())->get(),
             'services' => Service::query()->active()->ordered()->get(),
             'provinces' => Province::query()->active()->ordered()->with('activeDistricts')->get(),

@@ -16,6 +16,7 @@ use App\Models\IndexStatus;
 use App\Models\InternalLinkRule;
 use App\Models\NotFoundLog;
 use App\Models\Page;
+use App\Models\Project;
 use App\Models\Province;
 use App\Models\QuoteRequest;
 use App\Models\Redirect;
@@ -82,7 +83,7 @@ class AppServiceProvider extends ServiceProvider
             Service::class, Province::class, District::class,
             Brand::class,
             Page::class, Blog::class, BlogCategory::class,
-            GalleryItem::class, GalleryCategory::class,
+            GalleryItem::class, GalleryCategory::class, Project::class,
             Testimonial::class, Faq::class, Feature::class,
         ];
 
@@ -123,7 +124,7 @@ class AppServiceProvider extends ServiceProvider
         // Yayına giren / metni değişen sayfalar IndexNow'a bildirilir; her içerik
         // kaydında site haritası ve RSS önbelleği düşer.
         foreach ([Blog::class, Province::class, District::class,
-            Service::class, Brand::class, Page::class] as $model) {
+            Service::class, Brand::class, Page::class, Project::class] as $model) {
             $model::observe(IndexNowObserver::class);
         }
 

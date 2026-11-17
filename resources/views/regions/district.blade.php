@@ -32,6 +32,8 @@
                         @endforeach
                     </div>
 
+                    @include('partials.project-list', ['projectsTitle' => $district->name.' ilçesinde yaptığımız işler'])
+
                     @if (! empty($district->faqs))
                         <h2 class="h3 mb-3">{{ $district->name }} için sık sorulan sorular</h2>
                         <div class="mb-5">

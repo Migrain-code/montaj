@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Blog;
+use App\Models\Project;
 use App\Models\Province;
 use App\Models\Service;
 
@@ -140,5 +141,46 @@ class SchemaOrg
             'provider' => ['@id' => url('/').'#business'],
             'areaServed' => $areaName ?: (string) setting('service_area_text'),
         ];
+    }
+
+    /**
+     * Tamamlanan iş: fotoğraf galerisi olan bir sayfa (ImageGallery).
+     *
+     * Puan, yorum ya da fiyat BASILMAZ: işin sayfası bunları içermez (spec §10.1).
+     * Konum yalnız iş bir ilçeye bağlıysa yazılır; bağlı değilse uydurulmaz.
+     */
+    public static function project(Project $project): array
+    {
+        $data = [
+            '@context' => 'https://schema.org',
+            '@type' => 'ImageGallery',
+            'name' => $project->seo_title,
+            'description' => $project->seo_description,
+            'url' => $project->url,
+            'inLanguage' => 'tr-TR',
+            'author' => ['@id' => url('/').'#business'],
+            'associatedMedia' => array_map(fn (array $image) => array_filter([
+                '@type' => 'ImageObject',
+                'contentUrl' => $image['url'],
+                'caption' => $image['caption'] ?: $image['alt'],
+            ]), $project->gallery()),
+        ];
+
+        if ($project->completed_at) {
+            $data['dateCreated'] = $project->completed_at->toDateString();
+        }
+
+        if ($project->district) {
+            $data['contentLocation'] = [
+                '@type' => 'Place',
+                'name' => trim($project->district->name.', '.$project->district->province?->name, ', '),
+            ];
+        }
+
+        if ($project->service) {
+            $data['about'] = ['@type' => 'Service', 'name' => $project->service->title, 'url' => $project->service->url];
+        }
+
+        return $data;
     }
 }

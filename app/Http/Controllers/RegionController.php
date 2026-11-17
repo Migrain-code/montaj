@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\District;
+use App\Models\Project;
 use App\Models\Province;
 use App\Models\Service;
 use App\Support\SchemaOrg;
@@ -81,6 +82,7 @@ class RegionController extends Controller
             'district' => $district,
             'services' => Service::query()->active()->ordered()->get(),
             'otherDistricts' => $province->activeDistricts()->whereKeyNot($district->getKey())->get(),
+            'projects' => Project::query()->active()->where('district_id', $district->getKey())->with(['district.province', 'brand'])->ordered()->take(6)->get(),
             'breadcrumbs' => $breadcrumbs,
             'metaTitle' => $district->meta_title ?: $district->name.' Mobilya Montaj Hizmeti | '.$province->name,
             'metaDescription' => $district->meta_description ?: $district->description,

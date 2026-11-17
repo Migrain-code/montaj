@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Jobs\SubmitIndexNow;
 use App\Models\Blog;
 use App\Models\District;
+use App\Models\Project;
 use App\Models\Province;
 use App\Services\Seo\IndexNow;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Cache;
  *
  *  - Blog: yayında ve başlık/gövde/yayın durumu değiştiyse.
  *  - İl/ilçe: aktif, metni dolu VE metni değiştiyse (ilçenin ili de aktif olmalı).
+ *  - İş: yayında ve başlık/metin/görsel/yayın durumu değiştiyse; bağlı ilçe sayfası da
+ *    bildirilir (iş orada listelenir, sayfa değişmiş olur).
  *
  * Kapalı bir sayfa asla bildirilmez. Her kayıtta site haritası/RSS önbelleği de düşer.
  */
@@ -41,6 +44,7 @@ class IndexNowObserver
             $model instanceof Blog => $this->blogUrls($model),
             $model instanceof Province => $this->provinceUrls($model),
             $model instanceof District => $this->districtUrls($model),
+            $model instanceof Project => $this->projectUrls($model),
             default => [],
         };
 
@@ -78,5 +82,22 @@ class IndexNowObserver
         $district->loadMissing('province');
 
         return $district->province?->is_active ? [$district->url] : [];
+    }
+
+    private function projectUrls(Project $project): array
+    {
+        if (! $project->is_active
+            || ! ($project->wasRecentlyCreated || $project->wasChanged(['is_active', 'title', 'slug', 'body', 'summary', 'images', 'district_id']))) {
+            return [];
+        }
+
+        $urls = [$project->url, route('projects.index')];
+        $district = $project->district()->with('province')->first();
+
+        if ($district?->is_active && $district->province?->is_active) {
+            $urls[] = $district->url;
+        }
+
+        return $urls;
     }
 }

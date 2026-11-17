@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Models\Province;
 use App\Models\Service;
 use App\Support\SchemaOrg;
@@ -44,6 +45,7 @@ class ServiceController extends Controller
             'pageType' => 'service',
             'service' => $service,
             'otherServices' => Service::query()->active()->ordered()->whereKeyNot($service->getKey())->get(),
+            'projects' => Project::query()->active()->where('service_id', $service->getKey())->with(['district.province', 'brand'])->ordered()->take(4)->get(),
             'provinces' => Province::query()->active()->ordered()->with('activeDistricts')->get(),
             'breadcrumbs' => $breadcrumbs,
             'metaTitle' => $service->meta_title ?: $service->title.' | Trakya Bölgesi',

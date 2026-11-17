@@ -78,6 +78,9 @@ final class CommandCatalog
                 'cache'),
 
             // ---------- SEO ve içerik ----------
+            'projects-seed' => self::entry('projects:seed', [], 'İşlerimiz kayıtlarını ekle',
+                'Tamamlanan işlerin ilk kayıtlarını ekler. Var olan işlere dokunmaz; tekrar çalıştırmak güvenlidir. Görseller FTP ile storage/app/public/projects altına yüklenmiş olmalı.',
+                'seo'),
             'sitemap' => self::entry('sitemap:generate', [], 'Site haritasını yenile',
                 'sitemap.xml önbelleğini temizler; bir sonraki istekte güncel hâliyle üretilir.',
                 'seo'),

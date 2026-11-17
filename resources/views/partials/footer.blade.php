@@ -81,6 +81,7 @@
                     <h3>Kurumsal</h3>
                     <ul>
                         <li><a href="{{ route('about') }}">Hakkımızda</a></li>
+                        <li><a href="{{ route('projects.index') }}">İşlerimiz</a></li>
                         <li><a href="{{ route('gallery.index') }}">Galeri</a></li>
                         <li><a href="{{ route('blog.index') }}">Blog</a></li>
                         <li><a href="{{ route('faq') }}">S.S.S.</a></li>

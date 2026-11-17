@@ -7,6 +7,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\ServiceController;
@@ -23,6 +24,11 @@ Route::get('/markalar/{brand:slug}', [BrandController::class, 'show'])
     ->name('brands.show');
 Route::get('/bolgeler', [RegionController::class, 'index'])->name('regions.index');
 Route::get('/galeri', [GalleryController::class, 'index'])->name('gallery.index');
+// İşlerimiz: /{slug} ve /{il}/{ilçe} desenlerinden ÖNCE gelmeli.
+Route::get('/islerimiz', [ProjectController::class, 'index'])->name('projects.index');
+Route::get('/islerimiz/{slug}', [ProjectController::class, 'show'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('projects.show');
 Route::get('/hakkimizda', [PageController::class, 'about'])->name('about');
 Route::get('/sss', [PageController::class, 'faq'])->name('faq');
 Route::get('/iletisim', [ContactController::class, 'index'])->name('contact');

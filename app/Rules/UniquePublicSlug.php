@@ -15,7 +15,7 @@ class UniquePublicSlug implements ValidationRule
     public const RESERVED = [
         'admin', 'hizmetler', 'bolgeler', 'galeri', 'iletisim', 'teklif-al', 'hakkimizda', 'sss',
         'sitemap.xml', 'robots.txt', 'storage', 'build', 'images', 'livewire', 'up', 'login', 'logout',
-        'markalar', 'blog', 'admin-files', 'llms.txt',
+        'markalar', 'blog', 'admin-files', 'llms.txt', 'islerimiz',
     ];
 
     public const TABLES = ['services', 'provinces', 'pages'];

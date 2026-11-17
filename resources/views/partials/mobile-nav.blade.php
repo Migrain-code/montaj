@@ -39,6 +39,7 @@
                     <li><a href="{{ route('regions.index') }}" class="fw-semibold">Tüm Bölgeler</a></li>
                 </ul>
             </li>
+            <li><a class="mnav-link" href="{{ route('projects.index') }}">İşlerimiz</a></li>
             <li><a class="mnav-link" href="{{ route('gallery.index') }}">Galeri</a></li>
             <li><a class="mnav-link" href="{{ route('blog.index') }}">Blog</a></li>
             <li><a class="mnav-link" href="{{ route('about') }}">Hakkımızda</a></li>

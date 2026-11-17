@@ -50,6 +50,7 @@ WhatsApp hazır mesajı da panelden düzenlenir; `{bolge}` ve `{hizmet}` yer tut
 | Teklif Talepleri | Formdan gelen talepler, fotoğraflar, durum takibi, notlar, WhatsApp/arama kısayolları |
 | Hizmetler | Hizmet sayfaları: açıklama, görsel, "Neler yapıyoruz", "Kimler için uygun", süreç, SSS, SEO |
 | İller / İlçeler | Lokasyon SEO sayfaları: bölgeye özel içerik, mahalleler, bölgeye özel SSS, SEO |
+| İşlerimiz | Tamamlanan işler: her işin kendi sayfası (`/islerimiz/{slug}`), öncesi/sonrası fotoğrafları, ilçe, marka ve hizmet bağlantısı |
 | Galeri / Kategoriler | Montaj fotoğrafları (WebP önerilir), ALT metni, kategori filtresi |
 | Müşteri Yorumları | Yalnızca gerçek yorumlar eklenmelidir; yorum yoksa bölüm sitede görünmez |
 | Sık Sorulan Sorular | Genel SSS (ana sayfa ve `/sss`) |
@@ -322,6 +323,24 @@ planlanmış taslak varsa üretim yapmaz ve bunu günlüğe yazar. Stok azalınc
 Üretilen her yazının uzunluğu **kod tarafında** denetlenir. Model istenen uzunluğun belirgin
 altında bir metin döndürürse bir genişletme turu yapılır; mevcut bölümler korunur, üzerine yeni
 bölüm eklenir.
+
+## İşlerimiz (tamamlanan işler)
+
+**İçerik → İşlerimiz** bölümünden eklenir. Galeriden farkı: her işin **kendi adresi** vardır
+(`/islerimiz/almila-genc-odasi-montaji`), Google onu ayrı sayfa olarak dizine alır.
+
+- İş bir **ilçeye**, **markaya** ve **hizmete** bağlanır; o sayfalarda "yaptığımız işler" olarak listelenir.
+  İş olmayan sayfada başlık hiç görünmez.
+- Fotoğrafların türü seçilir: **Öncesi / Sonrası / Detay**. Kapak ilk "Sonrası" fotoğrafıdır; öncesi ve
+  sonrası birlikte varsa sayfada yan yana gösterilir.
+- İlçe seçilince Google başlığına kendiliğinden eklenir ("Çerkezköy Almila genç odası montajı").
+- Site haritasına girer, yayına alınınca IndexNow'a bildirilir (bağlı ilçe sayfasıyla birlikte), SEO
+  analizi ve dizin kontrolü işleri de kapsar. Yapılandırılmış veri: `ImageGallery`.
+- Sayfada birkaç cümle gerçek bilgi olmalı; yalnız fotoğraftan oluşan sayfayı Google zayıf içerik sayar.
+
+**İlk kayıtlar:** `php artisan projects:seed` (panelde **Sistem Komutları → İşlerimiz kayıtlarını ekle**).
+Var olan işe dokunmaz. Görseller seeder'la kopyalanmaz; FTP ile `storage/app/public/projects/{slug}/`
+altına yüklenir. Eksik görsel varsa komut uyarır.
 
 ## GSC Fırsat Avı
 

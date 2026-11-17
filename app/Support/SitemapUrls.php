@@ -6,6 +6,7 @@ use App\Models\Blog;
 use App\Models\Brand;
 use App\Models\District;
 use App\Models\Page;
+use App\Models\Project;
 use App\Models\Province;
 use App\Models\Service;
 
@@ -26,6 +27,7 @@ class SitemapUrls
             ['loc' => route('blog.index'), 'priority' => '0.8', 'changefreq' => 'daily'],
             ['loc' => route('regions.index'), 'priority' => '0.8', 'changefreq' => 'weekly'],
             ['loc' => route('gallery.index'), 'priority' => '0.6', 'changefreq' => 'weekly'],
+            ['loc' => route('projects.index'), 'priority' => '0.7', 'changefreq' => 'weekly'],
             ['loc' => route('about'), 'priority' => '0.5', 'changefreq' => 'monthly'],
             ['loc' => route('faq'), 'priority' => '0.5', 'changefreq' => 'monthly'],
             ['loc' => route('contact'), 'priority' => '0.7', 'changefreq' => 'monthly'],
@@ -54,6 +56,11 @@ class SitemapUrls
         // Blog yazıları: yayın tarihi gelmiş olanlar.
         foreach (Blog::query()->published()->orderByDesc('publish_at')->get() as $post) {
             $urls[] = ['loc' => $post->url, 'lastmod' => $post->updated_at, 'priority' => '0.6', 'changefreq' => 'monthly'];
+        }
+
+        // Tamamlanan işler: her biri gerçek fotoğraflı, kendine ait bir sayfa.
+        foreach (Project::query()->active()->ordered()->get() as $project) {
+            $urls[] = ['loc' => $project->url, 'lastmod' => $project->updated_at, 'priority' => '0.6', 'changefreq' => 'monthly'];
         }
 
         foreach (Page::query()->active()->get() as $page) {

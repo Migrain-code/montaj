@@ -19,6 +19,7 @@ class PageType
         'brands.index' => 'brand_list',
         'regions.index' => 'region_list',
         'gallery.index' => 'gallery',
+        'projects.*' => 'project',
         'blog.*' => 'blog',
         'quote.thanks' => 'thanks',
         'quote.*' => 'quote',

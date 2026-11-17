@@ -45,6 +45,8 @@
                         </div>
                     @endif
 
+                    @include('partials.project-list', ['projectsTitle' => 'Bu hizmetle tamamladığımız işler'])
+
                     @if (! empty($service->faqs))
                         <h2 class="h3 mb-3">Sık sorulan sorular</h2>
                         <div class="mb-5">

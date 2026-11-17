@@ -22,6 +22,8 @@
 
                     <div class="content-prose mb-5">{!! $brand->content !!}</div>
 
+                    @include('partials.project-list', ['projectsTitle' => 'Kurduğumuz '.$brand->name.' mobilyaları'])
+
                     @if (! empty($brand->faqs))
                         <h2 class="h3 mb-3">Sık sorulan sorular</h2>
                         <div class="mb-5">
