@@ -164,8 +164,11 @@ class ContentScorer
         $imageCount = preg_match_all('/<img\b[^>]*>/i', $structural, $images);
         $withoutAlt = 0;
 
+        // Yalnız alt ÖZNİTELİĞİ hiç olmayan görsel eksik sayılır. alt="" bilerek boş bırakılmış
+        // süs görselidir (banner/CTA arka planı; erişilebilirlik kuralı), eksik değil. Değerin
+        // içeriğine bakılmaz: "Çorlu'da" gibi kesme işaretli alt metinler de geçerli.
         foreach ($images[0] ?? [] as $tag) {
-            if (! preg_match('/\balt\s*=\s*["\'][^"\']+["\']/i', $tag)) {
+            if (! preg_match('/\salt\s*=/i', $tag)) {
                 $withoutAlt++;
             }
         }
